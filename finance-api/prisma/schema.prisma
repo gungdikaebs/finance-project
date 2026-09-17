@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  financeProfile   FinanceProfile?
+  incomeSources    IncomeSource[]
+  budgetPolicies   BudgetPolicy[]
+  savingsGoals     SavingsGoal[]
+  goalShares       GoalShare[]
+  allocationEvents AllocationEvent[]
+  transactions     Transaction[]
+  paymentMethods   PaymentMethod[]
+  categories       Category[]
+}
+
+model FinanceProfile {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id])
+  initialBalance BigInt   @default(0)
+  startDate      DateTime @default(now())
+  timezone       String   @default("Asia/Makassar")
+  monthlyNeeds   BigInt   @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model IncomeSource {
+  id         Int      @id @default(autoincrement())
+  name       String
+  isArchived Boolean  @default(false)
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+
+  transactions    Transaction[]
+  budgetOverrides BudgetSourceOverride[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PaymentMethod {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String
+  type       String   // 'income' | 'expense'
+  group      String   @default("NEED") // 'NEED' | 'WANT' | 'UNASSIGNED'
+  isArchived Boolean  @default(false)
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+}
+
+model BudgetPolicy {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  effectiveYear  Int
+  effectiveMonth Int
+  needsRatio     Int      @default(5000) // basis points (5000 = 50.00%)
+  savingsRatio   Int      @default(3000) // basis points (3000 = 30.00%)
+  wantsRatio     Int      @default(2000) // basis points (2000 = 20.00%)
+
+  overrides      BudgetSourceOverride[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, effectiveYear, effectiveMonth])
+}
+
+model BudgetSourceOverride {
+  id             Int          @id @default(autoincrement())
+  policyId       Int
+  policy         BudgetPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  incomeSourceId Int
+  incomeSource   IncomeSource @relation(fields: [incomeSourceId], references: [id])
+  needsRatio     Int
+  savingsRatio   Int
+  wantsRatio     Int
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([policyId, incomeSourceId])
+}
+
+model SavingsGoal {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  name           String
+  type           String   // 'EMERGENCY' | 'UNASSIGNED' | 'PURCHASE'
+  targetAmount   BigInt?  // Target nominal
+  targetMonths   Int?     // Khusus emergency (bulan kebutuhan pokok)
+  priceReference BigInt?  // Harga acuan
+  referenceDate  DateTime?
+  mode           String?  // 'FULL' | 'DOWN_PAYMENT'
+  annualPriceIncreaseRatio Int? // basis points (misal 500 = 5.00%)
+  isArchived     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  transactions         Transaction[]
+  shares               GoalShare[]
+  sourceAllocations    AllocationEvent[] @relation("SourceGoal")
+  targetAllocations    AllocationEvent[] @relation("TargetGoal")
+}
+
+model GoalShare {
+  id         Int         @id @default(autoincrement())
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+  goalId     Int
+  goal       SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  shareRatio Int         // basis points (misal 5000 = 50.00% dari porsi impian)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([userId, goalId])
+}
+
+model AllocationEvent {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  sourceGoalId   Int?
+  sourceGoal     SavingsGoal? @relation("SourceGoal", fields: [sourceGoalId], references: [id])
+  targetGoalId   Int?
+  targetGoal     SavingsGoal? @relation("TargetGoal", fields: [targetGoalId], references: [id])
+  amount         BigInt
+  date           DateTime     @default(now())
+  type           String       // 'OPENING' | 'ALLOCATE' | 'RELEASE' | 'TRANSFER' | 'SPEND' | 'REVERSAL'
+  transactionId  Int?
+  transaction    Transaction? @relation(fields: [transactionId], references: [id])
+  note           String?
+  createdAt      DateTime     @default(now())
+}
+
+model Transaction {
+  id               Int      @id @default(autoincrement())
+  amount           BigInt
+  note             String?
+  date             DateTime
+  typeSnapshot     String   @default("EXPENSE") // 'INCOME' | 'EXPENSE'
+  groupSnapshot    String?  // 'NEED' | 'WANT'
+  status           String   @default("ACTIVE")  // 'ACTIVE' | 'CANCELLED'
+
+  // Alokasi Anggaran pada Transaksi Pemasukan
+  allocatedNeeds   BigInt?
+  allocatedSavings BigInt?
+  allocatedWants   BigInt?
+
+  // Belanja dari Dana Tujuan (SPEND)
+  sourceGoalId     Int?
+  sourceGoal       SavingsGoal? @relation(fields: [sourceGoalId], references: [id])
+
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+
+  categoryId       Int
+  category         Category @relation(fields: [categoryId], references: [id])
+
+  incomeSourceId   Int?
+  incomeSource     IncomeSource? @relation(fields: [incomeSourceId], references: [id])
+
+  paymentMethodId  Int?
+  paymentMethod    PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+
+  revisions        TransactionRevision[]
+  allocationEvents AllocationEvent[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TransactionRevision {
+  id             Int      @id @default(autoincrement())
+  transactionId  Int
+  transaction    Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  previousAmount BigInt
+  newAmount      BigInt
+  previousDate   DateTime
+  newDate        DateTime
+  reason         String?
+  createdAt      DateTime @default(now())
+}

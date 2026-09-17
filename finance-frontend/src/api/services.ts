@@ -1,0 +1,385 @@
+import api from './axios';
+
+export interface FinanceProfile {
+  id: number;
+  userId: number;
+  initialBalance: string;
+  startDate: string;
+  timezone: string;
+  monthlyNeeds: string;
+}
+
+export interface IncomeSource {
+  id: number;
+  name: string;
+  isArchived: boolean;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  type: 'income' | 'expense';
+  group: 'NEED' | 'WANT' | 'UNASSIGNED';
+  isArchived: boolean;
+}
+
+export interface TransactionRevision {
+  id: number;
+  previousAmount: string;
+  newAmount: string;
+  previousDate: string;
+  newDate: string;
+  reason?: string;
+  createdAt: string;
+}
+
+export interface SavingsGoal {
+  id: number;
+  userId: number;
+  name: string;
+  type: 'EMERGENCY' | 'UNASSIGNED' | 'PURCHASE';
+  targetAmount?: string;
+  targetMonths?: number;
+  priceReference?: string;
+  referenceDate?: string;
+  mode?: 'FULL' | 'DOWN_PAYMENT';
+  annualPriceIncreaseRatio?: number;
+  isArchived: boolean;
+  currentBalance?: string;
+  shareRatio?: number;
+}
+
+export interface AllocationEvent {
+  id: number;
+  userId: number;
+  sourceGoalId?: number;
+  sourceGoal?: SavingsGoal;
+  targetGoalId?: number;
+  targetGoal?: SavingsGoal;
+  amount: string;
+  date: string;
+  type: 'ALLOCATE' | 'RELEASE' | 'TRANSFER' | 'SPEND' | 'REVERSAL';
+  note?: string;
+  createdAt: string;
+}
+
+export interface AllocationStatus {
+  mainBalance: string;
+  totalAllocated: string;
+  unallocatedMoney: string;
+}
+
+export interface SavePreviewItem {
+  targetGoalId: number;
+  name: string;
+  amount: string;
+  type: string;
+}
+
+export interface SavePreview {
+  totalAmount: string;
+  unallocatedMoney: string;
+  previewItems: SavePreviewItem[];
+}
+
+export interface GoalSimulationParams {
+  priceReference: string;
+  referenceDate?: string;
+  annualPriceIncreaseRatio?: number;
+  currentSavings?: string;
+  mode: 'FULL' | 'DOWN_PAYMENT';
+  dpPercent?: number;
+  dpAmount?: string;
+  initialFees?: string;
+  calculationMode: 'MONTHLY_SAVINGS' | 'TARGET_DATE';
+  targetMonths?: number;
+  monthlySavings?: string;
+}
+
+export interface GoalSimulationResult {
+  isAchievable: boolean;
+  calculationMode: 'MONTHLY_SAVINGS' | 'TARGET_DATE';
+  targetMonths?: number | null;
+  monthlySavings?: string;
+  projectedPrice?: string;
+  requiredFunds?: string;
+  downPayment?: string;
+  loanPrincipal?: string;
+  initialFees?: string;
+  currentSavings?: string;
+  totalSavedAtEnd?: string;
+  referenceDate?: string;
+  calculatedAt?: string;
+  reason?: 'ZERO_MONTHLY_SAVINGS' | 'HORIZON_EXCEEDED';
+  message?: string;
+}
+
+export interface MortgageSimulationParams {
+  principal: string;
+  tenorMonths: number;
+  fixedRate?: number;
+  fixedMonths: number;
+  floatingRate?: number;
+  monthlyIncome?: string;
+}
+
+export interface MortgageSimulationResult {
+  principal: string;
+  tenorMonths: number;
+  fixedRate: number;
+  fixedMonths: number;
+  floatingRate: number;
+  floatingMonths: number;
+  fixedInstallment: string;
+  floatingInstallment: string;
+  highestInstallment: string;
+  installmentJump: string;
+  balanceBeforeFloating: string;
+  totalInterest: string;
+  totalLoanPayment: string;
+  fixedDsr?: number | null;
+  floatingDsr?: number | null;
+  hasFixedPhase: boolean;
+  hasFloatingPhase: boolean;
+  floatingStartsAtPayment: number | null;
+}
+
+export interface Transaction {
+  id: number;
+  amount: string;
+  date: string;
+  note?: string;
+  typeSnapshot: 'INCOME' | 'EXPENSE';
+  groupSnapshot?: 'NEED' | 'WANT';
+  status: 'ACTIVE' | 'CANCELLED';
+  allocatedNeeds?: string;
+  allocatedSavings?: string;
+  allocatedWants?: string;
+  categoryId: number;
+  category: Category;
+  incomeSourceId?: number;
+  incomeSource?: IncomeSource;
+  paymentMethodId?: number;
+  sourceGoalId?: number;
+  sourceGoal?: SavingsGoal;
+  revisions?: TransactionRevision[];
+}
+
+export interface ReportSummary {
+  initialBalance: string;
+  income: string;
+  expense: string;
+  needsExpense: string;
+  wantsExpense: string;
+  balance: string;
+  mainBalance: string;
+  totalAllocatedSavings?: string;
+  unallocatedMoney: string;
+  emergencyBalance?: string;
+  emergencyMonths?: number;
+  monthlyNeedsReference: string;
+  timezone: string;
+  startDate: string;
+}
+
+export interface MonthlyReport {
+  month: number;
+  year: number;
+  income: string;
+  expense: string;
+  balance: string;
+  mainBalance: string;
+  budgetNeeds: string;
+  budgetSavings: string;
+  budgetWants: string;
+  needsExpense: string;
+  wantsExpense: string;
+  remainingNeeds: string;
+  remainingWants: string;
+  overBudgetNeeds: string;
+  overBudgetWants: string;
+  consumedPreviousBalance: string;
+  transactions: Transaction[];
+}
+
+export interface MonthEndReview {
+  reviewedMonth: number;
+  reviewedYear: number;
+  income: string;
+  expense: string;
+  budgetNeeds: string;
+  needsExpense: string;
+  remainingNeeds: string;
+  overBudgetNeeds: string;
+  budgetWants: string;
+  wantsExpense: string;
+  remainingWants: string;
+  overBudgetWants: string;
+  budgetSavings: string;
+  totalUnspentBudget: string;
+  consumedPreviousBalance: string;
+  unallocatedMoney: string;
+  suggestedSavings: string;
+}
+
+export interface BudgetSourceOverride {
+  id?: number;
+  incomeSourceId: number;
+  incomeSource?: IncomeSource;
+  needsRatio: number;
+  savingsRatio: number;
+  wantsRatio: number;
+}
+
+export interface BudgetPolicy {
+  id: number;
+  userId: number;
+  effectiveYear: number;
+  effectiveMonth: number;
+  needsRatio: number;
+  savingsRatio: number;
+  wantsRatio: number;
+  overrides?: BudgetSourceOverride[];
+  isDefault?: boolean;
+}
+
+export const financeApi = {
+  // Profile
+  getProfile: () => api.get<{ data: FinanceProfile }>('/finance-profile'),
+  updateProfile: (data: {
+    initialBalance?: string;
+    startDate?: string;
+    timezone?: string;
+    monthlyNeeds?: string;
+  }) => api.put<{ data: FinanceProfile }>('/finance-profile', data),
+
+  // Income Sources
+  getIncomeSources: (includeArchived = false) =>
+    api.get<{ data: IncomeSource[] }>(`/income-sources?includeArchived=${includeArchived}`),
+  createIncomeSource: (name: string) =>
+    api.post<{ data: IncomeSource }>('/income-sources', { name }),
+  archiveIncomeSource: (id: number) =>
+    api.patch<{ data: IncomeSource }>(`/income-sources/${id}/archive`),
+
+  // Categories
+  getCategories: (includeArchived = false, type?: string) => {
+    let url = `/categories?includeArchived=${includeArchived}`;
+    if (type) url += `&type=${type}`;
+    return api.get<{ data: Category[] }>(url);
+  },
+  createCategory: (data: { name: string; type: 'income' | 'expense'; group?: string }) =>
+    api.post<{ data: Category }>('/categories', data),
+  archiveCategory: (id: number) =>
+    api.patch<{ data: Category }>(`/categories/${id}/archive`),
+
+  // Budget Policies
+  getActiveBudgetPolicy: (year?: number, month?: number) => {
+    let url = '/budget-policies/active';
+    if (year && month) url += `?year=${year}&month=${month}`;
+    return api.get<{ data: BudgetPolicy }>(url);
+  },
+  upsertBudgetPolicy: (data: {
+    effectiveYear: number;
+    effectiveMonth: number;
+    needsRatio: number;
+    savingsRatio: number;
+    wantsRatio: number;
+    overrides?: {
+      incomeSourceId: number;
+      needsRatio: number;
+      savingsRatio: number;
+      wantsRatio: number;
+    }[];
+    applyToCurrentMonth?: boolean;
+  }) => api.post<{ data: BudgetPolicy }>('/budget-policies', data),
+
+  // Transactions
+  getTransactions: (params?: { month?: number; year?: number; status?: string; type?: string; page?: number; limit?: number }) =>
+    api.get<{ data: { items: Transaction[]; total: number; page: number; totalPages: number } }>(
+      '/transactions',
+      { params }
+    ),
+  createTransaction: (data: {
+    amount: string;
+    categoryId: number;
+    date: string;
+    note?: string;
+    incomeSourceId?: number;
+    paymentMethodId?: number;
+    sourceGoalId?: number;
+  }) => api.post<{ data: Transaction }>('/transactions', data),
+  updateTransaction: (
+    id: number,
+    data: {
+      amount?: string;
+      categoryId?: number;
+      date?: string;
+      note?: string;
+      incomeSourceId?: number;
+      reason?: string;
+    }
+  ) => api.patch<{ data: Transaction }>(`/transactions/${id}`, data),
+  cancelTransaction: (id: number, reason?: string) =>
+    api.delete<{ data: Transaction }>(`/transactions/${id}`, { params: { reason } }),
+
+  // Savings Goals
+  getSavingsGoals: (includeArchived = false) =>
+    api.get<{ data: SavingsGoal[] }>(`/savings-goals?includeArchived=${includeArchived}`),
+  createSavingsGoal: (data: {
+    name: string;
+    type: 'EMERGENCY' | 'UNASSIGNED' | 'PURCHASE';
+    targetAmount?: string;
+    targetMonths?: number;
+    priceReference?: string;
+    referenceDate?: string;
+    mode?: 'FULL' | 'DOWN_PAYMENT';
+    annualPriceIncreaseRatio?: number;
+  }) => api.post<{ data: SavingsGoal }>('/savings-goals', data),
+  updateSavingsGoal: (id: number, data: Partial<SavingsGoal>) =>
+    api.patch<{ data: SavingsGoal }>(`/savings-goals/${id}`, data),
+  archiveSavingsGoal: (id: number) =>
+    api.patch<{ data: SavingsGoal }>(`/savings-goals/${id}/archive`),
+  updateGoalShares: (shares: { goalId: number; shareRatio: number }[]) =>
+    api.patch<{ data: any }>('/savings-goals/shares', { shares }),
+
+  // Allocations
+  getAllocationStatus: () =>
+    api.get<{ data: AllocationStatus }>('/allocations/status'),
+  getSavePreview: (amount?: string) => {
+    const url = amount ? `/allocations/preview-save?amount=${amount}` : '/allocations/preview-save';
+    return api.get<{ data: SavePreview }>(url);
+  },
+  allocateSavings: (data: {
+    allocations: { targetGoalId: number; amount: string }[];
+    date?: string;
+    note?: string;
+  }) => api.post<{ data: AllocationEvent[] }>('/allocations/allocate', data),
+  releaseAllocation: (data: {
+    sourceGoalId: number;
+    amount: string;
+    date?: string;
+    note?: string;
+  }) => api.post<{ data: AllocationEvent }>('/allocations/release', data),
+  transferAllocation: (data: {
+    sourceGoalId: number;
+    targetGoalId: number;
+    amount: string;
+    date?: string;
+    note?: string;
+  }) => api.post<{ data: AllocationEvent }>('/allocations/transfer', data),
+  getAllocationHistory: (limit = 50) =>
+    api.get<{ data: AllocationEvent[] }>(`/allocations/history?limit=${limit}`),
+
+  // Reports
+  getSummary: () => api.get<{ data: ReportSummary }>('/reports/summary'),
+  getMonthly: (month: number, year: number) =>
+    api.get<{ data: MonthlyReport }>(`/reports/monthly?month=${month}&year=${year}`),
+  getMonthEndReview: (month: number, year: number) =>
+    api.get<{ data: MonthEndReview }>(`/reports/month-end-review?month=${month}&year=${year}`),
+
+  // Simulations (Tahap 4)
+  simulateGoal: (data: GoalSimulationParams) =>
+    api.post<{ data: GoalSimulationResult }>('/simulations/goal', data),
+  simulateMortgage: (data: MortgageSimulationParams) =>
+    api.post<{ data: MortgageSimulationResult }>('/simulations/mortgage', data),
+};

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+/dist
+
+# Keep environment variables out of version control
+.env
+.env.*
+!.env.example
+
+# Prisma and Database
+/generated/prisma
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
