@@ -28,7 +28,7 @@ const submitting = ref(false);
 const todayDateString = computed(() => new Date().toISOString().slice(0, 10));
 
 const filteredCategories = computed(() => {
-  return props.categories.filter((c) => c.type === props.type && !c.isArchived);
+  return props.categories.filter((c) => c.type === 'expense' && !c.isArchived);
 });
 
 watch(
@@ -44,31 +44,44 @@ watch(
       categoryId.value = defaultCat ? defaultCat.id : null;
 
       const defaultSrc = props.incomeSources.find((s) => !s.isArchived);
-      incomeSourceId.value = props.type === 'income' && defaultSrc ? defaultSrc.id : null;
+      incomeSourceId.value = defaultSrc ? defaultSrc.id : null;
     }
   }
 );
 
 const handleSave = async () => {
-  if (!amount.value || !categoryId.value || !date.value) {
-    alert('Harap lengkapi nominal, kategori, dan tanggal');
-    return;
-  }
-
   const cleanAmount = amount.value.replace(/[^0-9]/g, '');
   if (!cleanAmount || cleanAmount === '0') {
     alert('Nominal harus lebih besar dari 0');
     return;
   }
 
+  if (!date.value) {
+    alert('Harap tentukan tanggal transaksi');
+    return;
+  }
+
+  if (props.type === 'expense' && !categoryId.value) {
+    alert('Harap pilih kategori pengeluaran');
+    return;
+  }
+
+  if (props.type === 'income' && !incomeSourceId.value) {
+    alert('Harap pilih sumber pemasukan');
+    return;
+  }
+
   submitting.value = true;
   try {
+    const incomeCat = props.categories.find((c) => c.type === 'income' && !c.isArchived);
+    const catIdToSend = props.type === 'expense' ? (categoryId.value || undefined) : (incomeCat ? incomeCat.id : undefined);
+
     await financeApi.createTransaction({
       amount: cleanAmount,
-      categoryId: categoryId.value,
+      categoryId: catIdToSend,
       date: date.value,
       note: note.value || undefined,
-      incomeSourceId: props.type === 'income' ? incomeSourceId.value || undefined : undefined,
+      incomeSourceId: props.type === 'income' ? (incomeSourceId.value || undefined) : undefined,
       sourceGoalId: props.type === 'expense' && sourceGoalId.value ? sourceGoalId.value : undefined,
     });
     emit('saved');
@@ -139,32 +152,36 @@ const handleSave = async () => {
           </span>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-[#18221B] mb-1">Kategori Transaksi</label>
+        <!-- Kategori Pengeluaran (Hanya untuk Pengeluaran) -->
+        <div v-if="type === 'expense'">
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Kategori Pengeluaran</label>
           <select
             v-model="categoryId"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
             <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
-              {{ cat.name }} {{ cat.type === 'expense' ? `(${cat.group === 'NEED' ? 'Kebutuhan' : 'Keinginan'})` : '' }}
+              {{ cat.name }} ({{ cat.group === 'NEED' ? 'Kebutuhan' : 'Keinginan' }})
             </option>
           </select>
           <div v-if="filteredCategories.length === 0" class="text-xs text-amber-600 mt-1">
-            Belum ada kategori aktif. Silakan buat via menu "Kategori".
+            Belum ada kategori pengeluaran aktif. Silakan buat via menu "Kategori & Pos Dana".
           </div>
         </div>
 
+        <!-- Sumber Pemasukan (Hanya untuk Pemasukan) -->
         <div v-if="type === 'income'">
-          <label class="block text-xs font-bold text-[#18221B] mb-1">Sumber Pemasukan (Opsional)</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Sumber Pemasukan</label>
           <select
             v-model="incomeSourceId"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
-            <option :value="null">-- Pilih Sumber Pemasukan --</option>
             <option v-for="src in incomeSources.filter(s => !s.isArchived)" :key="src.id" :value="src.id">
               {{ src.name }}
             </option>
           </select>
+          <div v-if="incomeSources.filter(s => !s.isArchived).length === 0" class="text-xs text-amber-600 mt-1">
+            Belum ada sumber pemasukan aktif. Silakan buat via menu "Kategori & Pos Dana".
+          </div>
         </div>
 
         <div v-if="type === 'expense'">
