@@ -127,6 +127,20 @@ const resetForm = () => {
   touched.value = { amount: false, category: false, incomeSource: false };
 };
 
+watch(formFrequency, (newFreq) => {
+  if (newFreq === 'DAILY') {
+    formDayOfExecution.value = 1;
+  } else if (newFreq === 'WEEKLY') {
+    if (formDayOfExecution.value > 7 || formDayOfExecution.value < 1) {
+      formDayOfExecution.value = 1; // Default to Senin
+    }
+  } else if (newFreq === 'MONTHLY') {
+    if (formDayOfExecution.value < 1 || formDayOfExecution.value > 31) {
+      formDayOfExecution.value = new Date().getDate();
+    }
+  }
+});
+
 const handleAmountInput = (e: Event) => {
   const val = (e.target as HTMLInputElement).value;
   const num = val.replace(/[^0-9]/g, '');
@@ -540,7 +554,7 @@ const getRelativeDays = (dateStr: string): string => {
               </p>
             </div>
 
-            <!-- Frekuensi & Tanggal Eksekusi -->
+            <!-- Frekuensi & Tanggal Jatuh Tempo / Jadwal Rutin -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label for="rec-freq" class="block text-xs font-bold text-stone-700 mb-1">Frekuensi Berulang</label>
@@ -556,41 +570,95 @@ const getRelativeDays = (dateStr: string): string => {
                 </select>
               </div>
 
-              <div>
+              <!-- 1. Kondisional Bulanan: Tanggal Jatuh Tempo / Terima -->
+              <div v-if="formFrequency === 'MONTHLY'">
                 <label for="rec-day" class="block text-xs font-bold text-stone-700 mb-1">
-                  {{ formFrequency === 'MONTHLY' ? 'Tanggal Eksekusi (1 - 31)' : 'Hari Eksekusi' }}
+                  {{ formType === 'expense' ? 'Jatuh Tempo Tiap Tanggal (1 - 31)' : 'Tanggal Terima Tiap Bulan (1 - 31)' }}
                 </label>
                 <input
                   id="rec-day"
                   v-model.number="formDayOfExecution"
                   type="number"
                   min="1"
-                  :max="formFrequency === 'MONTHLY' ? 31 : 7"
+                  max="31"
+                  placeholder="Contoh: 15"
                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
                 />
+                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                  {{ formType === 'expense'
+                    ? `Tagihan akan jatuh tempo setiap tanggal ${formDayOfExecution || 1} bulanan.`
+                    : `Pemasukan rutin masuk setiap tanggal ${formDayOfExecution || 1} bulanan.` }}
+                </p>
+              </div>
+
+              <!-- 2. Kondisional Mingguan: Pilihan Hari (Senin - Minggu) -->
+              <div v-else-if="formFrequency === 'WEEKLY'">
+                <label for="rec-day-weekly" class="block text-xs font-bold text-stone-700 mb-1">
+                  {{ formType === 'expense' ? 'Hari Pembayaran Tiap Minggu' : 'Hari Terima Tiap Minggu' }}
+                </label>
+                <select
+                  id="rec-day-weekly"
+                  v-model.number="formDayOfExecution"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                >
+                  <option :value="1">Setiap hari Senin</option>
+                  <option :value="2">Setiap hari Selasa</option>
+                  <option :value="3">Setiap hari Rabu</option>
+                  <option :value="4">Setiap hari Kamis</option>
+                  <option :value="5">Setiap hari Jumat</option>
+                  <option :value="6">Setiap hari Sabtu</option>
+                  <option :value="7">Setiap hari Minggu</option>
+                </select>
+                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                  Transaksi otomatis dicatat setiap minggu pada hari yang dipilih.
+                </p>
+              </div>
+
+              <!-- 3. Kondisional Harian -->
+              <div v-else-if="formFrequency === 'DAILY'" class="flex flex-col justify-end">
+                <div class="px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center gap-2">
+                  <Clock class="w-4 h-4 text-[#183D2B] shrink-0" />
+                  <span>Transaksi akan dicatat otomatis <strong>setiap hari</strong>.</span>
+                </div>
+              </div>
+
+              <!-- 4. Kondisional Tahunan -->
+              <div v-else-if="formFrequency === 'YEARLY'" class="flex flex-col justify-end">
+                <div class="px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center gap-2">
+                  <Calendar class="w-4 h-4 text-[#183D2B] shrink-0" />
+                  <span>Jatuh tempo <strong>setahun sekali</strong> mengikuti tanggal mulai.</span>
+                </div>
               </div>
             </div>
 
             <!-- Tanggal Mulai & Akhir -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="rec-start" class="block text-xs font-bold text-stone-700 mb-1">Tanggal Mulai</label>
+                <label for="rec-start" class="block text-xs font-bold text-stone-700 mb-1">Mulai Berlaku Sejak</label>
                 <input
                   id="rec-start"
                   v-model="formStartDate"
                   type="date"
                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
                 />
+                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                  Kapan jadwal ini pertama kali aktif (default: hari ini).
+                </p>
               </div>
 
               <div>
-                <label for="rec-end" class="block text-xs font-bold text-stone-700 mb-1">Tanggal Berakhir (Opsional)</label>
+                <label for="rec-end" class="block text-xs font-bold text-stone-700 mb-1">
+                  Berakhir Pada (Opsional)
+                </label>
                 <input
                   id="rec-end"
                   v-model="formEndDate"
                   type="date"
                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
                 />
+                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                  Khusus cicilan / kontrak tertentu. Kosongkan jika rutin selamanya.
+                </p>
               </div>
             </div>
 

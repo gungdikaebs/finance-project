@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { financeApi, type SavePreview } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { PiggyBank, X, ShieldCheck, Target } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const savePreviewData = ref<SavePreview | null>(null);
 const submitting = ref(false);
 
 const updateSavePreview = async () => {
-  const clean = saveAmountInput.value.replace(/[^0-9]/g, '');
+  const clean = parseCleanNumber(saveAmountInput.value);
   if (!clean || clean === '0') {
     savePreviewData.value = null;
     return;
@@ -32,11 +32,17 @@ const updateSavePreview = async () => {
   }
 };
 
+const handleSaveInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  saveAmountInput.value = formatNumberInput(target.value);
+  updateSavePreview();
+};
+
 watch(
   () => props.show,
   (show) => {
     if (show) {
-      saveAmountInput.value = props.unallocatedMoney || '0';
+      saveAmountInput.value = formatNumberInput(props.unallocatedMoney || '0');
       updateSavePreview();
     }
   }
@@ -120,16 +126,17 @@ const handleExecuteSave = async () => {
             <label class="block text-xs font-bold text-[#18221B]">Nominal yang Disisihkan (Rp)</label>
             <button
               type="button"
-              @click="saveAmountInput = unallocatedMoney || '0'; updateSavePreview();"
+              @click="saveAmountInput = formatNumberInput(unallocatedMoney || '0'); updateSavePreview();"
               class="text-xs text-emerald-800 font-bold hover:underline cursor-pointer"
             >
               Gunakan Semua Uang Bebas
             </button>
           </div>
           <input
-            v-model="saveAmountInput"
-            @input="updateSavePreview"
+            :value="saveAmountInput"
+            @input="handleSaveInput"
             type="text"
+            inputmode="numeric"
             placeholder="0"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-lg font-black text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
           />

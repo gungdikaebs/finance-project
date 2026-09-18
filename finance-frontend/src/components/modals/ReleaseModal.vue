@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { financeApi, type SavingsGoal } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { Unlock, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -25,6 +25,12 @@ import { useToast } from '../../composables/useToast';
 const toast = useToast();
 const releaseError = ref('');
 
+const handleReleaseAmountInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  releaseAmountInput.value = formatNumberInput(target.value);
+  if (releaseError.value) releaseError.value = '';
+};
+
 watch(
   () => [props.show, props.initialGoalId],
   ([show]) => {
@@ -43,7 +49,7 @@ const handleExecuteRelease = async () => {
     toast.error('Pilih target sumber dana yang ingin dilepas');
     return;
   }
-  const clean = releaseAmountInput.value.replace(/[^0-9]/g, '');
+  const clean = parseCleanNumber(releaseAmountInput.value);
   if (!clean || clean === '0') {
     releaseError.value = 'Nominal harus lebih besar dari Rp 0';
     toast.error('Nominal harus lebih besar dari Rp 0');
@@ -125,8 +131,10 @@ const handleExecuteRelease = async () => {
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Nominal Dilepas (Rp)</label>
           <input
-            v-model="releaseAmountInput"
+            :value="releaseAmountInput"
+            @input="handleReleaseAmountInput"
             type="text"
+            inputmode="numeric"
             placeholder="0"
             class="w-full px-3.5 py-2.5 border rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 tabular-nums"
             :class="releaseError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { financeApi, type Category, type IncomeSource, type SavingsGoal } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { X, ArrowDownLeft, ArrowUpRight } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -41,6 +41,14 @@ const fieldErrors = ref<{
   incomeSource?: string;
 }>({});
 
+const handleAmountInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  amount.value = formatNumberInput(target.value);
+  if (fieldErrors.value.amount) {
+    delete fieldErrors.value.amount;
+  }
+};
+
 watch(
   () => props.show,
   (val) => {
@@ -62,7 +70,7 @@ watch(
 
 const handleSave = async () => {
   fieldErrors.value = {};
-  const cleanAmount = amount.value.replace(/[^0-9]/g, '');
+  const cleanAmount = parseCleanNumber(amount.value);
   let hasError = false;
 
   if (!cleanAmount || cleanAmount === '0') {
@@ -167,7 +175,8 @@ const handleSave = async () => {
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Nominal (Rp)</label>
           <input
-            v-model="amount"
+            :value="amount"
+            @input="handleAmountInput"
             type="text"
             inputmode="numeric"
             placeholder="0"

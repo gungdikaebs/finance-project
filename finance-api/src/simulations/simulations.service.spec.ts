@@ -96,4 +96,34 @@ describe('SimulationsService', () => {
       }),
     ).toThrow(BadRequestException);
   });
+
+  it('mendukung skema cicilan bunga flat per tahun', () => {
+    // Pinjaman Rp 12.000.000, 12 bulan (1 tahun), bunga flat 10%/thn
+    // Total bunga = 12jt * 10% * 1 = 1.200.000. Total bayar = 13.200.000.
+    // Cicilan per bulan = 13.200.000 / 12 = 1.100.000
+    const result = service.simulateMortgage({
+      principal: '12000000',
+      tenorMonths: 12,
+      loanType: 'FLAT',
+      fixedRate: 10,
+    });
+
+    expect(result.fixedInstallment).toBe('1100000');
+    expect(result.totalInterest).toBe('1200000');
+    expect(result.totalLoanPayment).toBe('13200000');
+    expect(result.hasFloatingPhase).toBe(false);
+  });
+
+  it('mendukung skema cicilan bunga anuitas tetap sepanjang tenor', () => {
+    const result = service.simulateMortgage({
+      principal: '120000000',
+      tenorMonths: 120,
+      loanType: 'ANNUITY',
+      fixedRate: 10,
+    });
+
+    expect(Number(result.fixedInstallment)).toBeGreaterThan(1000000);
+    expect(result.hasFloatingPhase).toBe(false);
+    expect(result.floatingInstallment).toBe('0');
+  });
 });

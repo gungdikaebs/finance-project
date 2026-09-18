@@ -6,6 +6,7 @@ import {
   Matches,
   Min,
   Max,
+  IsIn,
 } from 'class-validator';
 
 export class SimulateMortgageDto {
@@ -22,22 +23,26 @@ export class SimulateMortgageDto {
   tenorMonths: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(100)
-  fixedRate?: number; // wajib jika fixedMonths > 0
-
-  @IsNotEmpty()
-  @IsInt()
-  @Min(0)
-  @Max(360)
-  fixedMonths: number; // e.g. 36 months
+  @IsIn(['STEPPED_MORTGAGE', 'FLAT', 'ANNUITY'])
+  loanType?: 'STEPPED_MORTGAGE' | 'FLAT' | 'ANNUITY';
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(100)
-  floatingRate?: number; // wajib jika fixedMonths < tenorMonths
+  fixedRate?: number; // Suku bunga tahunan (atau rate fixed)
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(360)
+  fixedMonths?: number; // Durasi fixed (misal 36 bulan). Opsional jika flat/annuity
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  floatingRate?: number; // Suku bunga floating bertahap
 
   @IsOptional()
   @Matches(/^[0-9]+$/, {

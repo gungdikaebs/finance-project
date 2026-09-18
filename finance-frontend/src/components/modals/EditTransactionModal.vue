@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { financeApi, type Transaction, type Category } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { Edit3, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -28,13 +28,19 @@ import { useToast } from '../../composables/useToast';
 const toast = useToast();
 const amountError = ref('');
 
+const handleAmountInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  editAmount.value = formatNumberInput(target.value);
+  if (amountError.value) amountError.value = '';
+};
+
 watch(
   () => [props.show, props.transaction],
   ([newShow, newTx]) => {
     amountError.value = '';
     const tx = newTx as Transaction | null;
     if (newShow && tx) {
-      editAmount.value = tx.amount;
+      editAmount.value = formatNumberInput(tx.amount);
       editCategoryId.value = tx.categoryId;
       editDate.value = tx.date.slice(0, 10);
       editReason.value = '';
@@ -46,7 +52,7 @@ watch(
 const handleUpdate = async () => {
   amountError.value = '';
   if (!props.transaction) return;
-  const cleanAmount = editAmount.value.replace(/[^0-9]/g, '');
+  const cleanAmount = parseCleanNumber(editAmount.value);
   if (!cleanAmount || cleanAmount === '0') {
     amountError.value = 'Nominal harus lebih besar dari Rp 0';
     toast.error('Nominal harus lebih besar dari Rp 0');
@@ -113,7 +119,8 @@ const handleUpdate = async () => {
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Nominal Baru (Rp)</label>
           <input
-            v-model="editAmount"
+            :value="editAmount"
+            @input="handleAmountInput"
             type="text"
             inputmode="numeric"
             class="w-full px-3.5 py-3 border rounded-xl text-base font-bold tabular-nums text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2"

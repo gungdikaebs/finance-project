@@ -253,30 +253,125 @@ export class SimulationsService {
   }
 
   /**
-   * Simulasi Angsuran KPR Anuitas dengan Bunga Bertahap (Fixed -> Floating)
-   * Mengikuti kontrak perhitungan rencana-implementasi-v1.md
+   * Simulasi Angsuran Cicilan & KPR (Flat, Anuitas Tetap, atau KPR Bertahap)
+   * Mengikuti kontrak perhitungan rencana-implementasi-v1.md dan D-007 / D-008
    */
   simulateMortgage(dto: SimulateMortgageDto) {
     const principal = this.parseAmount(dto.principal, 'principal');
     const principalNum = Number(principal);
     const totalTenor = dto.tenorMonths;
-    if (dto.fixedMonths > totalTenor) {
+    const loanType = dto.loanType || 'STEPPED_MORTGAGE';
+
+    // 1. Skema Bunga FLAT (Khas cicilan barang, kendaraan, KTA)
+    if (loanType === 'FLAT') {
+      const annualRate = dto.fixedRate ?? 0;
+      const totalInterest = Math.round(
+        principalNum * (annualRate / 100) * (totalTenor / 12),
+      );
+      const totalLoanPayment = principalNum + totalInterest;
+      const monthlyInstallment = Math.round(totalLoanPayment / totalTenor);
+
+      let dsr: number | null = null;
+      if (dto.monthlyIncome && Number(dto.monthlyIncome) > 0) {
+        dsr =
+          Math.round((monthlyInstallment / Number(dto.monthlyIncome)) * 1000) /
+          10;
+      }
+
+      return {
+        principal: dto.principal,
+        tenorMonths: totalTenor,
+        fixedRate: annualRate,
+        fixedMonths: totalTenor,
+        floatingRate: 0,
+        floatingMonths: 0,
+        fixedInstallment: monthlyInstallment.toString(),
+        floatingInstallment: '0',
+        highestInstallment: monthlyInstallment.toString(),
+        installmentJump: '0',
+        balanceBeforeFloating: '0',
+        totalInterest: totalInterest.toString(),
+        totalLoanPayment: totalLoanPayment.toString(),
+        fixedDsr: dsr,
+        floatingDsr: null,
+        hasFixedPhase: true,
+        hasFloatingPhase: false,
+        floatingStartsAtPayment: null,
+        loanType: 'FLAT',
+      };
+    }
+
+    // 2. Skema Bunga ANUITAS TETAP (Bunga efektif konstan sepanjang tenor)
+    if (loanType === 'ANNUITY') {
+      const annualRate = dto.fixedRate ?? 0;
+      const r = annualRate / 100 / 12;
+      const calcAnnuity = (L: number, n: number, rate: number): number => {
+        if (n <= 0 || L <= 0) return 0;
+        if (rate === 0) return L / n;
+        return (L * rate) / (1 - Math.pow(1 + rate, -n));
+      };
+      const monthlyInstallmentRaw = calcAnnuity(principalNum, totalTenor, r);
+      const monthlyInstallment = Math.round(monthlyInstallmentRaw);
+
+      let balance = principalNum;
+      let totalInterest = 0;
+      for (let m = 1; m <= totalTenor; m++) {
+        const interestMonth = balance * r;
+        let principalPaid = monthlyInstallmentRaw - interestMonth;
+        if (m === totalTenor) principalPaid = balance;
+        balance = Math.max(0, balance - principalPaid);
+        totalInterest += interestMonth;
+      }
+      const totalLoanPayment = Math.round(principalNum + totalInterest);
+
+      let dsr: number | null = null;
+      if (dto.monthlyIncome && Number(dto.monthlyIncome) > 0) {
+        dsr =
+          Math.round((monthlyInstallment / Number(dto.monthlyIncome)) * 1000) /
+          10;
+      }
+
+      return {
+        principal: dto.principal,
+        tenorMonths: totalTenor,
+        fixedRate: annualRate,
+        fixedMonths: totalTenor,
+        floatingRate: 0,
+        floatingMonths: 0,
+        fixedInstallment: monthlyInstallment.toString(),
+        floatingInstallment: '0',
+        highestInstallment: monthlyInstallment.toString(),
+        installmentJump: '0',
+        balanceBeforeFloating: '0',
+        totalInterest: Math.round(totalInterest).toString(),
+        totalLoanPayment: totalLoanPayment.toString(),
+        fixedDsr: dsr,
+        floatingDsr: null,
+        hasFixedPhase: true,
+        hasFloatingPhase: false,
+        floatingStartsAtPayment: null,
+        loanType: 'ANNUITY',
+      };
+    }
+
+    // 3. Skema KPR BERTAHAP (STEPPED_MORTGAGE: Fixed -> Floating)
+    const fixedMonths = dto.fixedMonths ?? 0;
+    if (fixedMonths > totalTenor) {
       throw new BadRequestException(
         'fixedMonths tidak boleh melebihi tenorMonths',
       );
     }
-    if (dto.fixedMonths > 0 && dto.fixedRate === undefined) {
+    if (fixedMonths > 0 && dto.fixedRate === undefined) {
       throw new BadRequestException(
         'fixedRate wajib diisi ketika ada periode fixed',
       );
     }
-    if (dto.fixedMonths < totalTenor && dto.floatingRate === undefined) {
+    if (fixedMonths < totalTenor && dto.floatingRate === undefined) {
       throw new BadRequestException(
         'floatingRate wajib diisi ketika ada periode floating',
       );
     }
 
-    const fixedMonths = dto.fixedMonths;
     const floatingMonths = totalTenor - fixedMonths;
 
     const fixedRate = dto.fixedRate ?? 0;
@@ -310,7 +405,7 @@ export class SimulationsService {
 
     balanceBeforeFloating = balance;
 
-    // 2. Angsuran Fase Floating (dihitung dari sisa pokok SEBELUM pembayaran bulan transisi)
+    // 2. Angsuran Fase Floating
     if (floatingMonths > 0 && balance > 0) {
       floatingInstallmentRaw = calcAnnuity(balance, floatingMonths, rFloating);
 
@@ -319,7 +414,6 @@ export class SimulationsService {
         let principalPaid = floatingInstallmentRaw - interestMonth;
 
         if (m === floatingMonths) {
-          // Penyesuaian bulan terakhir agar sisa pokok tepat Rp 0
           principalPaid = balance;
         }
 
@@ -338,11 +432,12 @@ export class SimulationsService {
     let floatingDsr: number | null = null;
     if (dto.monthlyIncome && Number(dto.monthlyIncome) > 0) {
       const inc = Number(dto.monthlyIncome);
-      fixedDsr = Math.round((fixedInstallment / inc) * 1000) / 10;
-      floatingDsr =
-        floatingInstallment > 0
-          ? Math.round((floatingInstallment / inc) * 1000) / 10
-          : null;
+      if (fixedMonths > 0) {
+        fixedDsr = Math.round((fixedInstallment / inc) * 1000) / 10;
+      }
+      if (floatingMonths > 0 && floatingInstallment > 0) {
+        floatingDsr = Math.round((floatingInstallment / inc) * 1000) / 10;
+      }
     }
 
     return {
@@ -356,6 +451,8 @@ export class SimulationsService {
       floatingInstallment: floatingInstallment.toString(),
       highestInstallment: highestInstallment.toString(),
       installmentJump:
+        fixedMonths > 0 &&
+        floatingMonths > 0 &&
         floatingInstallment > fixedInstallment
           ? (floatingInstallment - fixedInstallment).toString()
           : '0',
@@ -367,6 +464,7 @@ export class SimulationsService {
       hasFixedPhase: fixedMonths > 0,
       hasFloatingPhase: floatingMonths > 0,
       floatingStartsAtPayment: floatingMonths > 0 ? fixedMonths + 1 : null,
+      loanType: 'STEPPED_MORTGAGE',
     };
   }
 }

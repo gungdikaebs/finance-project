@@ -227,7 +227,23 @@ Preferensi workflow berada di [RULES.md](RULES.md). Persetujuan arah produk di b
   2. Penghapusan Navbar Mobile: Menghapus `<Navbar class="lg:hidden" ... />` dari `Dashboard.vue`.
   3. Integrasi Mobile Menu Modal: Menyediakan `MobileMenuModal.vue` (bottom sheet dialog) yang dapat diakses melalui tombol `Menu` ke-5 pada `MobileBottomNav.vue` (`@open-menu`) untuk menampung seluruh fitur utilitas dan akun pengguna (Profil Keuangan, Kategori & Sumber Dana, Transaksi Berulang, Simulator KPR, Evaluasi Akhir Bulan, dan Logout).
 - Alasan dan trade-off: Memaksimalkan area pandang mobile screen, navigasi intuitif satu jempol, dan konsistensi urutan seksi secara hierarkis.
-- Dasar persetujuan: Permintaan pengguna untuk memperbaiki urutan sidebar dan menghapus navbar pada tampilan mobile.
+### D-021 — Generalisasi Simulator Finansial Majemuk: Pemisahan Jelas DP vs Biaya Legalitas & Skema Cicilan Konsumtif (Flat & Anuitas)
+
+- Tanggal: 2026-09-19
+- Status: disetujui
+- Konteks: Pada `SimulationModal.vue`, pengguna bingung membedakan antara "Uang Muka (DP)" dan "Biaya Awal". Selain itu, kalkulator kredit sebelumnya hanya mendukung skema KPR berjangka panjang fixed-floating per tahun tanpa dukungan cicilan barang konsumtif jangka pendek (Flat, Anuitas murni, tenor dalam satuan bulan), serta adanya ketidaksesuaian satuan persentase DP (basis points vs persen mentah).
+- Keputusan:
+  1. Klarifikasi Dana Awal pada Mode DP (`SimulationModal.vue` Tab 1):
+     - Memperjelas bahwa **DP (Uang Muka)** adalah dana yang memotong pokok harga barang dan mengurangi hutang kredit.
+     - Mengubah label "Biaya Awal (Rp)" menjadi **"Biaya Legalitas & Notaris / Pajak (Opsional)"**, dengan helper text penjelas (khusus pembelian properti seperti BPHTB/notaris/provisi bank, dan diisi Rp 0 / dikosongkan untuk pembelian kendaraan atau gadget).
+     - Menampilkan info callout edukatif tentang struktur dana tunai awal yang wajib disiapkan (`Total Dana Tunai Awal = DP + Biaya Legalitas`).
+     - Memperbaiki konversi basis points: `dpPercent` dikalikan 100 sebelum dikirim ke backend agar lolos validasi `@Min(100)` dan proporsional.
+  2. Generalisasi Simulator Cicilan (`SimulationModal.vue` Tab 2 & `simulations.service.ts`):
+     - Menambahkan pilihan 3 skema perhitungan: **Anuitas Tetap** (bunga efektif konstan), **Bunga Flat** (dihitung dari pokok awal, standar leasing kendaraan, HP, elektronik, dan KTA), serta **KPR Bertahap** (Fixed Promo ➡️ Floating).
+     - Menambahkan switch unit tenor: **Tahun** (1 - 30 tahun) atau **Bulan** (1 - 360 bulan) agar dapat digunakan untuk cicilan jangka pendek.
+     - Mengintegrasikan pemisah ribuan otomatis (*thousand separator*) dan pemicu tombol Enter (`@keyup.enter`) pada seluruh kolom input nominal.
+- Alasan dan trade-off: Memberikan kejelasan kognitif tanpa ambigu mengenai kebutuhan uang muka riil dan memperluas kegunaan simulator untuk segala jenis cicilan konsumtif.
+- Dasar persetujuan: Feedback langsung pengguna terkait kebingungan pada label "Biaya Awal" serta kebutuhan simulasi cicilan yang fleksibel.
 
 Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknologi, konvensi, atau desain lintas fitur. Keputusan lokal cukup berada di file tugas. Gunakan ID berurutan; keputusan pengganti merujuk ID lama dan menandainya sebagai digantikan.
 

@@ -156,8 +156,9 @@ export interface GoalSimulationResult {
 export interface MortgageSimulationParams {
   principal: string;
   tenorMonths: number;
+  loanType?: 'STEPPED_MORTGAGE' | 'FLAT' | 'ANNUITY';
   fixedRate?: number;
-  fixedMonths: number;
+  fixedMonths?: number;
   floatingRate?: number;
   monthlyIncome?: string;
 }
@@ -181,6 +182,7 @@ export interface MortgageSimulationResult {
   hasFixedPhase: boolean;
   hasFloatingPhase: boolean;
   floatingStartsAtPayment: number | null;
+  loanType?: 'STEPPED_MORTGAGE' | 'FLAT' | 'ANNUITY';
 }
 
 export interface Transaction {
