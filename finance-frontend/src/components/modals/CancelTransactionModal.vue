@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { financeApi, type Transaction } from '../../api/services';
 import { formatRupiah, formatDate } from '../../utils/format';
+import { AlertTriangle, X } from 'lucide-vue-next';
 
 const props = defineProps<{
   show: boolean;
@@ -34,50 +35,62 @@ const handleCancel = async () => {
 <template>
   <div
     v-if="show && transaction"
-    class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50"
+    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
     role="dialog"
     aria-modal="true"
     aria-labelledby="cancel-trx-title"
+    @click.self="emit('close')"
   >
-    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 id="cancel-trx-title" class="text-lg font-bold text-red-600">Batalkan Transaksi?</h3>
+    <div class="fintech-card rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 animate-modal-enter border border-rose-200/90 shadow-2xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-rose-100 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+            <AlertTriangle class="w-5 h-5" :stroke-width="2" />
+          </div>
+          <div>
+            <h3 id="cancel-trx-title" class="text-base font-extrabold text-rose-950">Batalkan Transaksi?</h3>
+            <span class="text-[11px] text-rose-700 font-medium">Pembatalan lunak berjejak audit (D-004)</span>
+          </div>
+        </div>
+
         <button
+          type="button"
           @click="emit('close')"
-          class="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
+          class="tactile-btn p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
-          ✕
+          <X class="w-5 h-5" />
         </button>
       </div>
 
-      <p class="text-xs text-gray-600">
-        Transaksi senilai <strong>{{ formatRupiah(transaction.amount) }}</strong> pada tanggal {{ formatDate(transaction.date) }} akan ditandai berstatus dibatalkan dan tidak lagi memengaruhi Saldo utama.
+      <p class="text-xs text-stone-600 leading-relaxed font-normal">
+        Transaksi senilai <strong class="font-black text-[#18221B] tabular-nums">{{ formatRupiah(transaction.amount) }}</strong> pada tanggal {{ formatDate(transaction.date) }} akan ditandai sebagai transaksi dibatalkan dan tidak lagi memengaruhi Saldo utama.
       </p>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Alasan Pembatalan (Opsional)</label>
+        <label class="block text-xs font-bold text-[#18221B] mb-1">Alasan Pembatalan (Opsional)</label>
         <input
           v-model="cancelReason"
           type="text"
-          placeholder="Contoh: Transaksi salah/dibatalkan toko"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+          placeholder="Contoh: Transaksi salah / dibatalkan toko"
+          class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-rose-500/20"
         />
       </div>
 
-      <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+      <div class="flex justify-end gap-2 pt-3 border-t border-stone-100">
         <button
-          @click="emit('close')"
           type="button"
-          class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+          @click="emit('close')"
+          class="tactile-btn px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer border border-stone-200"
         >
           Kembali
         </button>
         <button
+          type="button"
           @click="handleCancel"
           :disabled="submitting"
-          type="button"
-          class="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-xs disabled:opacity-50 cursor-pointer transition"
+          class="tactile-btn px-4 py-2 text-xs font-bold text-white bg-rose-700 hover:bg-rose-800 rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
         >
           {{ submitting ? 'Membatalkan...' : 'Ya, Batalkan Transaksi' }}
         </button>

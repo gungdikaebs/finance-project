@@ -15,8 +15,18 @@ import {
   type SavingsGoal,
   type AllocationStatus,
 } from '../api/services';
+import {
+  AlertCircle,
+  RefreshCw,
+  LayoutDashboard,
+  PieChart,
+  Target,
+  ReceiptText,
+  Layers,
+} from 'lucide-vue-next';
 
 // Modular Components
+import Sidebar from '../components/Sidebar.vue';
 import Navbar from '../components/Navbar.vue';
 import MobileBottomNav from '../components/MobileBottomNav.vue';
 import HeroBalanceCard from '../components/HeroBalanceCard.vue';
@@ -149,7 +159,7 @@ const loadAllData = async () => {
 };
 
 // Modal Openers
-const openCreateTransaction = (type: 'income' | 'expense') => {
+const openCreateTransaction = (type: 'income' | 'expense' = 'expense') => {
   txModalType.value = type;
   showTransactionModal.value = true;
 };
@@ -217,6 +227,21 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
   }
 };
 
+const activeSection = ref<'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi'>('ringkasan');
+
+const scrollToSection = (section: 'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi') => {
+  activeSection.value = section;
+  if (mobileTab.value !== 'semua' && mobileTab.value !== section) {
+    mobileTab.value = section;
+  }
+  const el = document.getElementById(`section-${section}`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
+let sectionObserver: IntersectionObserver | null = null;
+
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalKeydown);
   if (!auth.token) {
@@ -224,18 +249,44 @@ onMounted(() => {
     return;
   }
   loadAllData();
+
+  // Scroll spy setup
+  sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id.replace('section-', '') as any;
+          if (id) activeSection.value = id;
+        }
+      });
+    },
+    { threshold: 0.25 }
+  );
+
+  setTimeout(() => {
+    ['ringkasan', 'tabungan', 'anggaran', 'transaksi'].forEach((s) => {
+      const el = document.getElementById(`section-${s}`);
+      if (el) sectionObserver?.observe(el);
+    });
+  }, 600);
 });
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleGlobalKeydown);
+  sectionObserver?.disconnect();
 });
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F3F5EF] text-[#202820] pb-16">
-    <!-- Navbar Header -->
-    <Navbar
+  <div class="min-h-screen bg-[#F3F5EF] text-[#18221B]">
+    <!-- Desktop Sidebar (Visible on lg+) -->
+    <Sidebar
+      :active-section="activeSection"
       :timezone="profile?.timezone"
+      :user-name="auth.user?.name"
+      :user-email="auth.user?.email"
+      @navigate="scrollToSection"
+      @open-create-transaction="openCreateTransaction()"
       @open-simulator="openSimulator()"
       @open-month-end-review="openMonthEndReview"
       @open-manage="showManageModal = true"
@@ -243,36 +294,53 @@ onUnmounted(() => {
       @logout="handleLogout"
     />
 
-    <!-- Main Content Container -->
-    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6 pb-28 md:pb-12">
+    <!-- Main Content Area: Offset on lg+ by lg:pl-64 -->
+    <div class="flex-1 min-w-0 flex flex-col min-h-screen lg:pl-64">
+      <!-- Navbar Header (Mobile & Tablet only < lg) -->
+      <Navbar
+        class="lg:hidden"
+        :timezone="profile?.timezone"
+        @open-simulator="openSimulator()"
+        @open-month-end-review="openMonthEndReview"
+        @open-manage="showManageModal = true"
+        @open-profile="showProfileModal = true"
+        @logout="handleLogout"
+      />
+
+      <!-- Main Content Container -->
+      <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-28 lg:pb-12">
       <!-- Error Alert Banner with Retry -->
       <div
         v-if="loadError"
-        class="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs"
+        class="bg-rose-50/90 border border-rose-200 text-rose-900 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm"
         role="alert"
       >
-        <div class="flex items-center space-x-3">
-          <span class="text-xl">⚠️</span>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+            <AlertCircle class="w-5 h-5" :stroke-width="2" />
+          </div>
           <div>
-            <h4 class="text-sm font-bold text-red-900">Gagal Memuat Data</h4>
-            <p class="text-xs text-red-700 mt-0.5">{{ loadError }}</p>
+            <h4 class="text-sm font-bold text-rose-950">Gagal Memuat Data</h4>
+            <p class="text-xs text-rose-800 mt-0.5 font-normal">{{ loadError }}</p>
           </div>
         </div>
         <button
+          type="button"
           @click="loadAllData"
-          class="px-4 py-2 bg-red-800 hover:bg-red-900 text-white rounded-xl text-xs font-bold transition self-start sm:self-auto cursor-pointer"
+          class="tactile-btn inline-flex items-center gap-1.5 px-4 py-2 bg-rose-800 hover:bg-rose-900 text-white rounded-xl text-xs font-bold transition self-start sm:self-auto cursor-pointer"
         >
-          🔄 Coba Lagi
+          <RefreshCw class="w-3.5 h-3.5" />
+          <span>Coba Lagi</span>
         </button>
       </div>
 
       <!-- LOADING SKELETON -->
       <div v-if="loading" class="space-y-6 animate-pulse" aria-busy="true" aria-label="Memuat data...">
         <!-- Hero Card Skeleton -->
-        <div class="bg-[#183D2B] rounded-3xl p-6 sm:p-8 shadow-sm">
+        <div class="bg-[#183D2B] rounded-2xl p-6 sm:p-8 shadow-sm">
           <div class="h-4 w-36 bg-white/20 rounded mb-4"></div>
           <div class="h-10 w-64 bg-white/30 rounded mb-6"></div>
-          <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
             <div class="space-y-2">
               <div class="h-3 w-20 bg-white/20 rounded"></div>
               <div class="h-5 w-28 bg-[#B8DF38]/40 rounded"></div>
@@ -289,71 +357,81 @@ onUnmounted(() => {
         </div>
 
         <!-- Tabungan Skeleton -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-4">
-          <div class="h-5 w-48 bg-gray-200 rounded"></div>
+        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-4">
+          <div class="h-5 w-48 bg-stone-200 rounded"></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="h-32 bg-gray-100 rounded-xl"></div>
-            <div class="h-32 bg-gray-100 rounded-xl"></div>
+            <div class="h-32 bg-stone-100 rounded-xl"></div>
+            <div class="h-32 bg-stone-100 rounded-xl"></div>
           </div>
         </div>
 
         <!-- Anggaran Skeleton -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-4">
-          <div class="h-5 w-40 bg-gray-200 rounded"></div>
+        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-4">
+          <div class="h-5 w-40 bg-stone-200 rounded"></div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="h-24 bg-gray-100 rounded-xl"></div>
-            <div class="h-24 bg-gray-100 rounded-xl"></div>
-            <div class="h-24 bg-gray-100 rounded-xl"></div>
+            <div class="h-24 bg-stone-100 rounded-xl"></div>
+            <div class="h-24 bg-stone-100 rounded-xl"></div>
+            <div class="h-24 bg-stone-100 rounded-xl"></div>
           </div>
         </div>
 
         <!-- Transaksi Skeleton -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-3">
-          <div class="h-5 w-36 bg-gray-200 rounded mb-4"></div>
-          <div class="h-10 bg-gray-100 rounded-lg"></div>
-          <div class="h-10 bg-gray-100 rounded-lg"></div>
-          <div class="h-10 bg-gray-100 rounded-lg"></div>
+        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-3">
+          <div class="h-5 w-36 bg-stone-200 rounded mb-4"></div>
+          <div class="h-10 bg-stone-100 rounded-lg"></div>
+          <div class="h-10 bg-stone-100 rounded-lg"></div>
+          <div class="h-10 bg-stone-100 rounded-lg"></div>
         </div>
       </div>
 
       <!-- MAIN CONTENT -->
       <template v-else>
-        <!-- Mobile Section Filter Bar (md:hidden) -->
-        <div class="flex md:hidden items-center justify-between bg-white p-1 rounded-xl border border-gray-200 shadow-xs mb-2 text-xs overflow-x-auto gap-1">
+        <!-- Mobile Section Pill Bar (md:hidden) -->
+        <div class="flex md:hidden items-center justify-between bg-white p-1.5 rounded-2xl border border-stone-200/80 shadow-xs mb-2 text-xs overflow-x-auto gap-1">
           <button
+            type="button"
             @click="mobileTab = 'ringkasan'"
-            :class="mobileTab === 'ringkasan' ? 'bg-[#183D2B] text-white font-bold' : 'text-gray-600 hover:bg-gray-100'"
-            class="px-2.5 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer"
+            :class="mobileTab === 'ringkasan' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
+            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
           >
-            🏠 Ringkasan
+            <LayoutDashboard class="w-3.5 h-3.5" />
+            <span>Ringkasan</span>
           </button>
           <button
+            type="button"
             @click="mobileTab = 'anggaran'"
-            :class="mobileTab === 'anggaran' ? 'bg-[#183D2B] text-white font-bold' : 'text-gray-600 hover:bg-gray-100'"
-            class="px-2.5 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer"
+            :class="mobileTab === 'anggaran' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
+            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
           >
-            📊 Anggaran
+            <PieChart class="w-3.5 h-3.5" />
+            <span>Anggaran</span>
           </button>
           <button
+            type="button"
             @click="mobileTab = 'tabungan'"
-            :class="mobileTab === 'tabungan' ? 'bg-[#183D2B] text-white font-bold' : 'text-gray-600 hover:bg-gray-100'"
-            class="px-2.5 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer"
+            :class="mobileTab === 'tabungan' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
+            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
           >
-            🎯 Tabungan
+            <Target class="w-3.5 h-3.5" />
+            <span>Tabungan</span>
           </button>
           <button
+            type="button"
             @click="mobileTab = 'transaksi'"
-            :class="mobileTab === 'transaksi' ? 'bg-[#183D2B] text-white font-bold' : 'text-gray-600 hover:bg-gray-100'"
-            class="px-2.5 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer"
+            :class="mobileTab === 'transaksi' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
+            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
           >
-            💸 Transaksi
+            <ReceiptText class="w-3.5 h-3.5" />
+            <span>Transaksi</span>
           </button>
           <button
+            type="button"
             @click="mobileTab = 'semua'"
-            :class="mobileTab === 'semua' ? 'bg-gray-200 text-gray-800 font-bold' : 'text-gray-500 hover:bg-gray-100'"
-            class="px-2 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer text-[11px]"
+            :class="mobileTab === 'semua' ? 'bg-stone-800 text-white font-bold' : 'text-stone-500 hover:bg-stone-100'"
+            class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer text-[11px]"
           >
-            Semua
+            <Layers class="w-3 h-3" />
+            <span>Semua</span>
           </button>
         </div>
 
@@ -425,6 +503,7 @@ onUnmounted(() => {
         </section>
       </template>
     </main>
+  </div>
 
     <!-- Mobile Bottom Navigation Bar (md:hidden) -->
     <MobileBottomNav

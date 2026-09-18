@@ -301,7 +301,7 @@ export const financeApi = {
     ),
   createTransaction: (data: {
     amount: string;
-    categoryId: number;
+    categoryId?: number;
     date: string;
     note?: string;
     incomeSourceId?: number;

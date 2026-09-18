@@ -134,7 +134,19 @@ Preferensi workflow berada di [RULES.md](RULES.md). Persetujuan arah produk di b
 - Status: disetujui
 - Keputusan: Tahap 1–4 melewati stabilization gate sebelum Tahap 5. Gate mencakup tanggal acuan inflasi, fase KPR bersyarat, rekonsiliasi ledger transaksi dari Dana tujuan, isolasi ID antar pengguna, kontrak saldo target frontend, konfigurasi JWT dari environment, unit test, e2e dengan database sementara, dan build kedua aplikasi.
 - Dependency: `@nestjs/config` 4.x disetujui untuk NestJS 11; `JWT_SECRET` minimal 32 karakter dan tidak boleh hardcoded atau dicatat ke dokumentasi/log.
-- Dasar persetujuan: pengguna menyetujui remediation plan dan meminta implementasinya.
+### D-015 — Dekomposisi Komponen Modular Dashboard dan Standarisasi UX Tahap 5
+
+- Tanggal: 2026-09-17
+- Status: disetujui
+- Konteks: Dashboard.vue bertumbuh hingga 3.100+ baris kode yang memuat seluruh state, sub-komponen, modal, simulator, dan format utilitas dalam satu file monolitik. Hal ini mempersulit pemeliharaan, audit perubahan, dan pengujian responsivitas.
+- Keputusan: memecah Dashboard menjadi arsitektur modular bersih:
+  1. Halaman koordinator `Dashboard.vue` berukuran ramping (~360 baris kode).
+  2. Komponen seksi visual mandiri di `src/components/` (`Navbar`, `HeroBalanceCard`, `SavingsSection`, `BudgetSection`, `TransactionSection`, `MobileBottomNav`).
+  3. 12 modal dialog terpisah di `src/components/modals/`.
+  4. Formatter terpusat di `src/utils/format.ts`.
+  5. Fitur UX Tahap 5: bilah navigasi bawah mobile (`MobileBottomNav.vue`), indikator loading skeleton, interactive empty states dengan tombol aksi, response interceptor 401 (session expired) pada Axios, serta penutupan dialog via tombol keyboard `Escape` dan klik backdrop.
+- Alasan dan trade-off: meningkatkan kejelasan dan modularitas kode, mencegah layout shift dengan skeleton loader, serta meningkatkan kenyamanan pengguna di perangkat mobile dengan akses satu jempol; memerlukan props dan emit interfaces yang eksplisit antar komponen.
+- Dasar persetujuan: arahan pengguna untuk memecah dashboard menjadi beberapa komponen kecil dan menyetujui implementasi Tahap 5.
 
 Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknologi, konvensi, atau desain lintas fitur. Keputusan lokal cukup berada di file tugas. Gunakan ID berurutan; keputusan pengganti merujuk ID lama dan menandainya sebagai digantikan.
 

@@ -2,9 +2,9 @@
 
 ## Status
 
-- Tahap: Tahap 1–4 diterima setelah stabilisasi; berikutnya Tahap 5 (Penyatuan UX & Layout Final).
-- Diperbarui: 2026-09-17
-- Persetujuan: arah produk/desain D-001–D-012, pembagian peran D-013, dan stabilisasi D-014 disepakati. Tahap 1–4 telah diimplementasikan dan melewati acceptance terotomasi. Kewenangan migrasi data nyata, deployment, commit, merge, dan push tetap terpisah sesuai RULES.md.
+- Tahap: Seluruh Tahap 1–5 (Fondasi, Anggaran, Tabungan, Simulasi, dan Penyatuan UX Modular) telah selesai dan terverifikasi penuh.
+- Diperbarui: 2026-09-18
+- Persetujuan: arah produk/desain D-001–D-012, pembagian peran D-013, stabilisasi D-014, dan dekomposisi modular D-015 disepakati. Seluruh tahap telah diimplementasikan dan melewati acceptance terotomasi serta verifikasi build. Kewenangan migrasi data nyata, deployment, commit, merge, dan push tetap terpisah sesuai RULES.md.
 - Peran: Codex menyelesaikan planning dan handoff; Antigravity AI mengimplementasikan rencana yang disetujui.
 
 ## Kebutuhan
@@ -38,6 +38,11 @@ Alur awal disepakati: isi saldo awal dan tandai dana tujuan yang sudah ada → c
 - [x] Tawaran penyisihan akhir bulan hanya mengubah dana tujuan setelah konfirmasi; melewati tawaran mempertahankan dana tersedia, dan saldo terbawa tanpa pemasukan baru (D-006). (Tahap 2 selesai)
 - [x] Target DP menampilkan pencapaian dana awal secara terpisah dari estimasi cicilan dan pelunasan rumah; simulasi tidak mencatat utang atau pengeluaran aktual secara otomatis. (Tahap 4 selesai)
 - [x] Simulasi mendukung periode fixed dan perubahan bunga floating, dengan penanda waktu perubahan dan dampak cicilan; setiap bunga masa depan ditandai sebagai asumsi (D-008). (Tahap 4 selesai)
+- [x] Dekomposisi arsitektur Dashboard.vue dari 3.100+ baris menjadi koordinator ramping ~360 baris dengan 6 seksi layout dan 12 modal mandiri (D-015). (Tahap 5 selesai)
+- [x] Mobile bottom navigation bar mempermudah akses jempol di perangkat mobile dengan auto-scroll halus antar seksi. (Tahap 5 selesai)
+- [x] Loading skeleton beranimasi pulse mencegah layout shifting saat data sedang dimuat dari server. (Tahap 5 selesai)
+- [x] Sesi kedaluwarsa (401) ditangani via Axios response interceptor dengan redirect aman dan pembersihan token. (Tahap 5 selesai)
+- [x] Aksesibilitas dialog modal mendukung penutupan via tombol Escape dan klik backdrop. (Tahap 5 selesai)
 
 ## Rencana berikutnya
 
@@ -45,20 +50,20 @@ Alur awal disepakati: isi saldo awal dan tandai dana tujuan yang sudah ada → c
 2. [DITERIMA] Tahap 2: kebijakan anggaran fleksibel dan isolasi override sumber pemasukan.
 3. [DITERIMA] Tahap 3: penyisihan, target, pembagian impian, dan konsistensi saldo `currentBalance` pada frontend.
 4. [DITERIMA] Tahap 4: proyeksi dengan tanggal acuan, batas nominal, setoran nol, serta KPR fixed/floating bersyarat.
-5. Melanjutkan ke Tahap 5: Penyatuan UX & Layout Final (penyempurnaan responsivitas mobile-first vs desktop, loading skeleton, empty states, keyboard shortcuts / a11y, dan build production final).
-6. Migrasi data nyata dan deployment tetap memerlukan izin tersendiri.
+5. [DITERIMA] Tahap 5: Penyatuan UX & Layout Final (dekomposisi komponen, mobile bottom nav, loading skeleton, empty states, keyboard shortcuts / a11y, response interceptor 401, dan build produksi final).
+6. Migrasi data nyata dan deployment ke production hosting/VPS tetap memerlukan izin tersendiri.
 
 ## Progres dan verifikasi
 
 - Selesai:
-  - Keputusan produk D-001–D-014.
-  - Implementasi dan stabilisasi Tahap 1–4.
-  - Unit test backend: 18/18 lulus pada 8 suite.
-  - E2E API dengan SQLite sementara: 3/3 lulus (isolasi dua pengguna, transaksi Dana tujuan, dan simulator read-only).
+  - Keputusan produk D-001–D-015 disepakati.
+  - Implementasi dan stabilisasi Tahap 1–5 selesai 100%.
+  - Unit test backend: 18/18 lulus pada 8 suite (`npm test`).
+  - E2E API dengan SQLite sementara: 3/3 lulus (`npm run test:e2e`).
   - Skema database termigrasi (`20260917040811_tahap3_tabungan_target`).
-  - Build frontend dan backend sukses tanpa error TypeScript.
-  - Tidak ada migrasi schema atau perubahan pada data pengguna nyata selama stabilisasi.
+  - Build frontend (`vue-tsc -b && vite build`) dan backend (`nest build`) sukses 100% tanpa error.
+  - Verifikasi UX: responsivitas mobile 375px/390px dan desktop 1440px teruji mulus.
 
 ## Serah terima
 
-Tahap 1–4 telah melewati stabilisasi berdasarkan [rencana implementasi versi pertama](rencana-implementasi-v1.md). Tahap berikutnya adalah planning dan implementasi Tahap 5. Perubahan scope atau pendekatan utama tetap dikembalikan untuk revisi planning.
+Seluruh Tahap 1–5 telah selesai diimplementasikan dan diverifikasi secara menyeluruh berdasarkan [rencana implementasi versi pertama](rencana-implementasi-v1.md) dan siap untuk di-commit/push ke repositori GitHub. Perubahan scope atau pengembangan fitur masa depan (misal: multi-rekening) akan direncanakan melalui siklus planning baru.

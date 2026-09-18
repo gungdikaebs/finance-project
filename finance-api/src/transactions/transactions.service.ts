@@ -46,15 +46,34 @@ export class TransactionsService {
     const txDate = this.validateDateNotFuture(dto.date);
 
     // VALIDASI CATEGORY MILIK USER
-    const category = await this.prisma.category.findFirst({
-      where: {
-        id: dto.categoryId,
-        userId,
-      },
-    });
-
-    if (!category) {
-      throw new NotFoundException('Kategori tidak ditemukan');
+    let category: any = null;
+    if (dto.categoryId) {
+      category = await this.prisma.category.findFirst({
+        where: {
+          id: dto.categoryId,
+          userId,
+        },
+      });
+      if (!category) {
+        throw new NotFoundException('Kategori tidak ditemukan');
+      }
+    } else if (dto.incomeSourceId) {
+      // Auto-resolve atau buat kategori income default jika tidak disertakan
+      category = await this.prisma.category.findFirst({
+        where: { userId, type: 'income', isArchived: false },
+      });
+      if (!category) {
+        category = await this.prisma.category.create({
+          data: {
+            name: 'Pemasukan',
+            type: 'income',
+            group: 'UNASSIGNED',
+            userId,
+          },
+        });
+      }
+    } else {
+      throw new BadRequestException('Kategori transaksi atau Sumber Pemasukan harus ditentukan');
     }
 
     // VALIDASI INCOME SOURCE (JIKA ADA)
@@ -162,7 +181,7 @@ export class TransactionsService {
           allocatedSavings,
           allocatedWants,
           userId,
-          categoryId: dto.categoryId,
+          categoryId: category.id,
           incomeSourceId: dto.incomeSourceId,
           paymentMethodId: dto.paymentMethodId,
           sourceGoalId: dto.sourceGoalId,

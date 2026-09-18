@@ -25,11 +25,11 @@ Saat konteks masih tersedia dan file belum berubah, gunakan pemahaman yang sudah
 
 ## Tugas aktif
 
-[Planning keuangan pribadi](tasks/planning-keuangan-pribadi.md) — kebutuhan dan keputusan produk.
+[Planning keuangan pribadi](tasks/planning-keuangan-pribadi.md) — kebutuhan, keputusan produk, dan kriteria penerimaan (Tahap 1–5 selesai).
 
-[Rencana implementasi versi pertama](tasks/rencana-implementasi-v1.md) — usulan teknis lengkap, menunggu persetujuan sebelum implementasi.
+[Rencana implementasi versi pertama](tasks/rencana-implementasi-v1.md) — spesifikasi teknis lengkap dan bukti acceptance Tahap 1 s.d. 5 (selesai).
 
-Pembagian peran: Codex adalah planner; Antigravity AI adalah implementer setelah pengguna menyetujui rencana. Lihat D-013 dan bagian handoff pada rencana implementasi.
+Pembagian peran: Codex adalah planner; Antigravity AI adalah implementer. Lihat D-013 dan bagian handoff pada rencana implementasi.
 
 Untuk pekerjaan signifikan, buat `tasks/nama-pekerjaan.md` dari [tasks/TEMPLATE.md](tasks/TEMPLATE.md). Untuk perubahan kecil yang selesai dalam satu sesi, file tugas tidak wajib; buat catatan ringkas jika pekerjaan tertunda atau akan dipindahkan ke agent lain.
 

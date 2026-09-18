@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import {
+  Calculator,
+  CalendarCheck,
+  Tag,
+  Wallet,
+  LogOut,
+  Menu,
+  X,
+  ChevronRight,
+} from 'lucide-vue-next';
 
 defineProps<{
   timezone?: string;
@@ -17,66 +27,99 @@ const showMobileMenu = ref(false);
 </script>
 
 <template>
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="bg-white/90 backdrop-blur-md border-b border-[#183D2B]/10 sticky top-0 z-30 transition-all">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- Brand & Status -->
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg bg-[#183D2B] text-[#B8DF38] font-bold flex items-center justify-center text-sm shadow-inner">
+        <div class="w-9 h-9 rounded-xl bg-[#183D2B] text-[#B8DF38] font-black flex items-center justify-center text-sm shadow-sm border border-emerald-900/30 select-none">
           PK
         </div>
         <div>
-          <h1 class="text-base font-bold text-[#202820] leading-tight">Project-Keuangan</h1>
-          <span class="text-xs text-gray-500">{{ timezone || 'Asia/Makassar' }}</span>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-sm sm:text-base font-extrabold text-[#18221B] tracking-tight leading-none">
+              Project Keuangan
+            </h1>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+              Aktif
+            </span>
+          </div>
+          <p class="text-[11px] text-[#5E6961] flex items-center gap-1 mt-0.5 font-medium">
+            <span>{{ timezone || 'Asia/Makassar' }}</span>
+          </p>
         </div>
       </div>
 
       <!-- Desktop Action Buttons (md:flex) -->
-      <div class="hidden md:flex items-center space-x-2">
+      <nav class="hidden md:flex items-center space-x-2" aria-label="Navigasi Utama">
         <button
+          type="button"
           @click="emit('openSimulator')"
-          class="px-3 py-1.5 text-xs font-semibold text-emerald-900 bg-emerald-100/80 hover:bg-emerald-200 rounded-lg transition border border-emerald-300 cursor-pointer"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#183D2B] bg-[#B8DF38]/25 hover:bg-[#B8DF38]/40 border border-[#B8DF38]/60 rounded-xl cursor-pointer"
         >
-          📊 Simulator KPR & Target
+          <Calculator class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2" />
+          <span>Simulator KPR</span>
         </button>
-        <button
-          @click="emit('openMonthEndReview')"
-          class="px-3 py-1.5 text-xs font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg transition border border-amber-200 cursor-pointer"
-        >
-          Tinjauan Bulan Lalu
-        </button>
-        <button
-          @click="emit('openManage')"
-          class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
-        >
-          Kelola Kategori
-        </button>
-        <button
-          @click="emit('openProfile')"
-          class="px-3 py-1.5 text-xs font-medium text-[#183D2B] bg-[#183D2B]/10 hover:bg-[#183D2B]/20 rounded-lg transition font-semibold cursor-pointer"
-        >
-          Saldo Awal
-        </button>
-        <button
-          @click="emit('logout')"
-          class="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
-        >
-          Keluar
-        </button>
-      </div>
 
-      <!-- Mobile Header Quick Actions (md:hidden) -->
-      <div class="flex md:hidden items-center space-x-1.5">
         <button
-          @click="emit('openProfile')"
-          class="px-2.5 py-1.5 text-[11px] font-semibold text-[#183D2B] bg-[#183D2B]/10 rounded-lg transition cursor-pointer"
+          type="button"
+          @click="emit('openMonthEndReview')"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#18221B] bg-stone-100/90 hover:bg-stone-200/90 border border-stone-200 rounded-xl cursor-pointer"
         >
-          Saldo Awal
+          <CalendarCheck class="w-3.5 h-3.5 text-stone-600" :stroke-width="1.75" />
+          <span>Tinjauan Bulan</span>
         </button>
+
         <button
-          @click="showMobileMenu = !showMobileMenu"
-          class="p-1.5 text-gray-700 bg-gray-100 rounded-lg transition cursor-pointer text-sm font-bold"
-          aria-label="Menu Opsi"
+          type="button"
+          @click="emit('openManage')"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#18221B] bg-stone-100/90 hover:bg-stone-200/90 border border-stone-200 rounded-xl cursor-pointer"
         >
-          ⚙️
+          <Tag class="w-3.5 h-3.5 text-stone-600" :stroke-width="1.75" />
+          <span>Kategori</span>
+        </button>
+
+        <button
+          type="button"
+          @click="emit('openProfile')"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#183D2B] bg-[#183D2B]/10 hover:bg-[#183D2B]/15 border border-[#183D2B]/15 rounded-xl cursor-pointer"
+        >
+          <Wallet class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2" />
+          <span>Saldo Awal</span>
+        </button>
+
+        <div class="h-4 w-px bg-stone-200 mx-1"></div>
+
+        <button
+          type="button"
+          @click="emit('logout')"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 border border-rose-200/60 rounded-xl cursor-pointer"
+          title="Keluar dari akun"
+        >
+          <LogOut class="w-3.5 h-3.5 text-rose-600" :stroke-width="1.75" />
+          <span>Keluar</span>
+        </button>
+      </nav>
+
+      <!-- Mobile Action Controls (md:hidden) -->
+      <div class="flex md:hidden items-center space-x-2">
+        <button
+          type="button"
+          @click="emit('openProfile')"
+          class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-[#183D2B] bg-[#183D2B]/10 rounded-xl cursor-pointer"
+        >
+          <Wallet class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2" />
+          <span>Saldo</span>
+        </button>
+
+        <button
+          type="button"
+          @click="showMobileMenu = !showMobileMenu"
+          class="tactile-btn p-2 text-[#18221B] bg-stone-100 hover:bg-stone-200 rounded-xl cursor-pointer"
+          :aria-expanded="showMobileMenu"
+          aria-label="Buka Menu Opsi"
+        >
+          <component :is="showMobileMenu ? X : Menu" class="w-5 h-5" :stroke-width="2" />
         </button>
       </div>
     </div>
@@ -84,35 +127,54 @@ const showMobileMenu = ref(false);
     <!-- Mobile Dropdown Menu -->
     <div
       v-if="showMobileMenu"
-      class="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-2 shadow-md animate-fadeIn"
+      class="md:hidden border-t border-stone-200 bg-white/95 backdrop-blur-xl px-4 py-3 space-y-2 shadow-lg animate-modal-enter"
     >
       <button
-        @click="emit('openManage'); showMobileMenu = false;"
-        class="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 rounded-lg flex items-center justify-between"
-      >
-        <span>🏷️ Kelola Kategori & Sumber</span>
-        <span>›</span>
-      </button>
-      <button
-        @click="emit('openMonthEndReview'); showMobileMenu = false;"
-        class="w-full text-left px-3 py-2 text-xs font-medium text-amber-800 bg-amber-50 rounded-lg flex items-center justify-between"
-      >
-        <span>📋 Tinjauan Bulan Lalu</span>
-        <span>›</span>
-      </button>
-      <button
+        type="button"
         @click="emit('openSimulator'); showMobileMenu = false;"
-        class="w-full text-left px-3 py-2 text-xs font-semibold text-emerald-900 bg-emerald-50 rounded-lg flex items-center justify-between"
+        class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-[#183D2B] bg-[#B8DF38]/20 rounded-xl flex items-center justify-between border border-[#B8DF38]/50 cursor-pointer"
       >
-        <span>📊 Simulator KPR & Target</span>
-        <span>›</span>
+        <span class="flex items-center gap-2">
+          <Calculator class="w-4 h-4 text-[#183D2B]" :stroke-width="2" />
+          <span>Simulator KPR & Target Impian</span>
+        </span>
+        <ChevronRight class="w-4 h-4 text-[#183D2B]" />
       </button>
+
       <button
-        @click="emit('logout'); showMobileMenu = false;"
-        class="w-full text-left px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg flex items-center justify-between"
+        type="button"
+        @click="emit('openMonthEndReview'); showMobileMenu = false;"
+        class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-[#18221B] bg-stone-50 rounded-xl flex items-center justify-between border border-stone-200 cursor-pointer"
       >
-        <span>🚪 Keluar dari Aplikasi</span>
-        <span>›</span>
+        <span class="flex items-center gap-2">
+          <CalendarCheck class="w-4 h-4 text-stone-700" :stroke-width="1.75" />
+          <span>Tinjauan Evaluasi Akhir Bulan</span>
+        </span>
+        <ChevronRight class="w-4 h-4 text-stone-400" />
+      </button>
+
+      <button
+        type="button"
+        @click="emit('openManage'); showMobileMenu = false;"
+        class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-[#18221B] bg-stone-50 rounded-xl flex items-center justify-between border border-stone-200 cursor-pointer"
+      >
+        <span class="flex items-center gap-2">
+          <Tag class="w-4 h-4 text-stone-700" :stroke-width="1.75" />
+          <span>Kelola Kategori & Sumber Dana</span>
+        </span>
+        <ChevronRight class="w-4 h-4 text-stone-400" />
+      </button>
+
+      <button
+        type="button"
+        @click="emit('logout'); showMobileMenu = false;"
+        class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-rose-700 bg-rose-50/70 rounded-xl flex items-center justify-between border border-rose-200/60 cursor-pointer"
+      >
+        <span class="flex items-center gap-2">
+          <LogOut class="w-4 h-4 text-rose-600" :stroke-width="1.75" />
+          <span>Keluar dari Akun</span>
+        </span>
+        <ChevronRight class="w-4 h-4 text-rose-400" />
       </button>
     </div>
   </header>

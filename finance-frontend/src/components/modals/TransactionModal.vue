@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { financeApi, type Category, type IncomeSource, type SavingsGoal } from '../../api/services';
 import { formatRupiah } from '../../utils/format';
+import { X, ArrowDownLeft, ArrowUpRight } from 'lucide-vue-next';
 
 const props = defineProps<{
   show: boolean;
@@ -83,67 +84,81 @@ const handleSave = async () => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50"
+    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
     role="dialog"
     aria-modal="true"
     aria-labelledby="trx-modal-title"
+    @click.self="emit('close')"
   >
-    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b pb-3">
-        <div class="flex items-center space-x-2">
-          <h3 id="trx-modal-title" class="text-lg font-bold text-[#202820]">
-            {{ type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran' }}
-          </h3>
-          <span
-            :class="type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-            class="text-xs font-bold px-2 py-0.5 rounded"
+    <div class="fintech-card rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 animate-modal-enter border border-stone-200/90 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <div
+            class="w-9 h-9 rounded-xl flex items-center justify-center"
+            :class="type === 'income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'"
           >
-            {{ type === 'income' ? 'Uang Masuk' : 'Uang Keluar' }}
-          </span>
+            <ArrowDownLeft v-if="type === 'income'" class="w-5 h-5" :stroke-width="2.5" />
+            <ArrowUpRight v-else class="w-5 h-5" :stroke-width="2.5" />
+          </div>
+          <div>
+            <h3 id="trx-modal-title" class="text-base font-extrabold text-[#18221B]">
+              {{ type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran' }}
+            </h3>
+            <span
+              :class="type === 'income' ? 'text-emerald-700' : 'text-rose-700'"
+              class="text-[11px] font-bold"
+            >
+              {{ type === 'income' ? 'Arus Uang Masuk' : 'Arus Uang Keluar' }}
+            </span>
+          </div>
         </div>
+
         <button
+          type="button"
           @click="emit('close')"
-          class="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
+          class="tactile-btn p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
-          ✕
+          <X class="w-5 h-5" />
         </button>
       </div>
 
-      <div class="space-y-3">
+      <!-- Form Inputs -->
+      <div class="space-y-3.5">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Nominal (Rp)</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Nominal (Rp)</label>
           <input
             v-model="amount"
             type="text"
             placeholder="0"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base font-bold text-gray-900 focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
           />
-          <span class="text-xs text-[#183D2B] font-semibold mt-1 block">
+          <span class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
             Pratinjau: {{ formatRupiah(amount) }}
           </span>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Kategori</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Kategori Transaksi</label>
           <select
             v-model="categoryId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
             <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
-              {{ cat.name }} {{ cat.type === 'expense' ? `(${cat.group})` : '' }}
+              {{ cat.name }} {{ cat.type === 'expense' ? `(${cat.group === 'NEED' ? 'Kebutuhan' : 'Keinginan'})` : '' }}
             </option>
           </select>
           <div v-if="filteredCategories.length === 0" class="text-xs text-amber-600 mt-1">
-            Belum ada kategori aktif. Silakan buat via tombol "Kelola Kategori".
+            Belum ada kategori aktif. Silakan buat via menu "Kategori".
           </div>
         </div>
 
         <div v-if="type === 'income'">
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Sumber Pemasukan (Opsional)</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Sumber Pemasukan (Opsional)</label>
           <select
             v-model="incomeSourceId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
             <option :value="null">-- Pilih Sumber Pemasukan --</option>
             <option v-for="src in incomeSources.filter(s => !s.isArchived)" :key="src.id" :value="src.id">
@@ -153,10 +168,10 @@ const handleSave = async () => {
         </div>
 
         <div v-if="type === 'expense'">
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Sumber Dana (Opsional)</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Pos / Sumber Dana (Opsional)</label>
           <select
             v-model="sourceGoalId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
             <option :value="null">Uang Belum Disisihkan / Bebas (Default)</option>
             <option
@@ -164,49 +179,50 @@ const handleSave = async () => {
               :key="goal.id"
               :value="goal.id"
             >
-              {{ goal.type === 'EMERGENCY' ? '🛡️' : '🎯' }} {{ goal.name }} (Saldo: {{ formatRupiah(goal.currentBalance) }})
+              [{{ goal.type === 'EMERGENCY' ? 'Darurat' : 'Target' }}] {{ goal.name }} (Saldo: {{ formatRupiah(goal.currentBalance) }})
             </option>
           </select>
-          <span class="text-[11px] text-gray-400 mt-0.5 block">
+          <span class="text-[10px] text-stone-500 mt-1 block">
             Pilih jika biaya ini diambil dari dana darurat atau target impian yang telah disisihkan.
           </span>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Tanggal Transaksi</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Tanggal Transaksi</label>
           <input
             v-model="date"
             type="date"
             :max="todayDateString"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           />
-          <span class="text-[11px] text-gray-400 mt-0.5 block">Tanggal di masa depan tidak diizinkan.</span>
+          <span class="text-[10px] text-stone-500 mt-1 block">Tanggal masa depan tidak diizinkan.</span>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Catatan (Opsional)</label>
+          <label class="block text-xs font-bold text-[#18221B] mb-1">Catatan Tambahan (Opsional)</label>
           <input
             v-model="note"
             type="text"
             placeholder="Keterangan singkat..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#183D2B]"
+            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20"
           />
         </div>
       </div>
 
-      <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-2 pt-3 border-t border-stone-100">
         <button
-          @click="emit('close')"
           type="button"
-          class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+          @click="emit('close')"
+          class="tactile-btn px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer border border-stone-200"
         >
           Batal
         </button>
         <button
+          type="button"
           @click="handleSave"
           :disabled="submitting"
-          type="button"
-          class="px-4 py-2 text-xs font-semibold text-white bg-[#183D2B] hover:bg-[#24553d] rounded-lg shadow-xs disabled:opacity-50 cursor-pointer transition"
+          class="tactile-btn px-4 py-2 text-xs font-bold text-white bg-[#183D2B] hover:bg-[#24553d] rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
         >
           {{ submitting ? 'Menyimpan...' : 'Simpan Transaksi' }}
         </button>

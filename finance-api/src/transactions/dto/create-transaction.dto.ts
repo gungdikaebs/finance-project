@@ -5,8 +5,9 @@ export class CreateTransactionDto {
   @Matches(/^[1-9][0-9]*$/, { message: 'amount must be a positive integer greater than 0' })
   amount: string;
 
+  @IsOptional()
   @IsInt()
-  categoryId: number;
+  categoryId?: number;
 
   @IsNotEmpty()
   @IsString()

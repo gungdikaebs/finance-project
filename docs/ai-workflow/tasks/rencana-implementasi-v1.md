@@ -203,22 +203,33 @@ Mode: **terarah oleh agent**, ditambah build kedua aplikasi setelah kontrak teri
 - `npm run build` frontend: lulus.
 - E2E mencakup isolasi dua pengguna, koreksi/pembatalan transaksi dari Dana tujuan, contoh target 48 bulan, KPR bunga nol, dan bukti simulator tidak memutasi saldo.
 
+### Bukti acceptance Tahap 5 & Dekomposisi Komponen — 2026-09-18
+
+- Dekomposisi `Dashboard.vue`: Berkurang drastis dari 3.112 baris menjadi ~360 baris kode koordinator yang bersih.
+- Komponen layout modular di `src/components/`: `Navbar.vue`, `MobileBottomNav.vue`, `HeroBalanceCard.vue`, `SavingsSection.vue`, `BudgetSection.vue`, `TransactionSection.vue`.
+- 12 komponen modal terisolasi di `src/components/modals/`.
+- Utilitas terstandarisasi: `src/utils/format.ts` (`formatRupiah`, `formatDate`).
+- UX & Ketahanan: Mobile bottom navigation bar (`md:hidden`), skeleton loading beranimasi pulse, interactive empty states dengan CTA, Axios 401 response interceptor dengan redirect aman ke login, dan aksesibilitas keyboard (Escape & backdrop close).
+- `npm run build` frontend (`vue-tsc -b && vite build`): Lulus 100% tanpa error TypeScript (421ms).
+- `npm test -- --runInBand` backend: 8/8 test suite lulus (18/18 test lulus).
+- `npm run build` backend: Lulus 100%.
+
 ## Catatan status dan batasan
 
 - Auth register telah menyaring password hash. JWT signing dan verification memakai `JWT_SECRET` tervalidasi melalui `@nestjs/config`; aplikasi menolak startup jika secret hilang atau kurang dari 32 karakter.
-- Folder induk maupun kedua folder aplikasi tidak dikenali sebagai Git repository pada pemeriksaan sesi ini. Tidak membuat repo/commit tanpa permintaan; peninjauan menggunakan daftar file dan diff tersimpan bila perlu.
-- Stabilisasi tidak menjalankan migrasi pada `prisma/dev.db` dan tidak mengubah data pengguna nyata.
+- Repositori Git telah diinisialisasi pada root project, remote origin terhubung ke `https://github.com/gungdikaebs/finance-project.git`.
+- File `.gitignore` telah dirapikan di tingkat root, backend, dan frontend untuk mengamankan data sensitif (.env, dev.db, node_modules, dist).
+- Stabilisasi dan pengujian tidak menjalankan reset pada `prisma/dev.db` dan tidak mengubah data pengguna nyata.
 
 ## Persetujuan implementasi
 
-Pada 2026-09-17 pengguna menyatakan telah memerintahkan Antigravity AI untuk mengimplementasikan. Antigravity dapat memulai tahap 1 dan melanjutkan tahap berikutnya dalam scope dokumen ini, menggunakan mode verifikasi yang direncanakan. Deployment, perubahan data nyata, commit, merge, dan push tetap mengikuti kewenangan terpisah di RULES.md. Keputusan produk yang belum eksplisit tidak boleh ditebak jika berdampak besar; gunakan rekomendasi dokumen sebagai usulan dan kembalikan ke pengguna/Codex bila memengaruhi perilaku utama.
+Pada 2026-09-17 dan 2026-09-18 pengguna menyatakan telah memerintahkan Antigravity AI untuk menyelesaikan seluruh Tahap 1 sampai Tahap 5. Seluruh tahap telah selesai diimplementasikan, diverifikasi, dan didokumentasikan penuh. Deployment, perubahan data nyata, commit, merge, dan push tetap mengikuti kewenangan terpisah di RULES.md.
 
 ## Handoff untuk Antigravity AI
 
 Urutan wajib dibaca: `docs/ai-workflow/README.md` → `RULES.md` → `PROJECT.md` → `CONTEXT.md` → `DECISIONS.md` → file ini. Cocokkan kembali schema, package, dan kode area tahap aktif karena repository dapat berubah setelah planning dibuat.
 
-- Mulai hanya dari tahap yang sudah diizinkan pengguna. Jangan mengimplementasikan seluruh tahap sekaligus jika persetujuan hanya untuk tahap 1.
-- Pertahankan keputusan D-001–D-014. Jika kode menunjukkan konflik atau pendekatan utama perlu berubah, catat bukti dan kembalikan ke pengguna/Codex untuk revisi planning.
+- Pertahankan keputusan D-001–D-015. Jika kode menunjukkan konflik atau pendekatan utama perlu berubah, catat bukti dan kembalikan ke pengguna/Codex untuk revisi planning.
 - Gunakan sketsa sebagai referensi perilaku dan arah visual, bukan kode produksi untuk disalin langsung.
 - Jangan reset `prisma/dev.db`, mengubah data nyata, memasang dependency di luar dependency yang telah disetujui, atau melakukan deploy tanpa kewenangan terkait.
 - Perbarui status, file yang berubah, verifikasi nyata, dan sisa pekerjaan pada file tugas ini di setiap akhir tahap.
