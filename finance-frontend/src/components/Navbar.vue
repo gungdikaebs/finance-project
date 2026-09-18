@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Clock,
 } from 'lucide-vue-next';
 
 defineProps<{
@@ -17,6 +18,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'openSimulator'): void;
+  (e: 'openRecurring'): void;
   (e: 'openMonthEndReview'): void;
   (e: 'openManage'): void;
   (e: 'openProfile'): void;
@@ -139,6 +141,18 @@ const showMobileMenu = ref(false);
           <span>Simulator KPR & Target Impian</span>
         </span>
         <ChevronRight class="w-4 h-4 text-[#183D2B]" />
+      </button>
+
+      <button
+        type="button"
+        @click="emit('openRecurring'); showMobileMenu = false;"
+        class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-[#18221B] bg-stone-50 rounded-xl flex items-center justify-between border border-stone-200 cursor-pointer"
+      >
+        <span class="flex items-center gap-2">
+          <Clock class="w-4 h-4 text-stone-700" :stroke-width="1.75" />
+          <span>Transaksi Berulang & Tagihan</span>
+        </span>
+        <ChevronRight class="w-4 h-4 text-stone-400" />
       </button>
 
       <button

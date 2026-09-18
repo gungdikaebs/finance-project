@@ -7,6 +7,8 @@ export interface FinanceProfile {
   startDate: string;
   timezone: string;
   monthlyNeeds: string;
+  isOnboardingCompleted?: boolean;
+  onboardingStep?: number;
 }
 
 export interface IncomeSource {
@@ -94,6 +96,43 @@ export interface GoalSimulationParams {
   calculationMode: 'MONTHLY_SAVINGS' | 'TARGET_DATE';
   targetMonths?: number;
   monthlySavings?: string;
+}
+
+export interface TopUpSuggestion {
+  extraMonthlySavings: string;
+  monthsSaved: number;
+  newTargetMonths: number;
+  newTargetDateFormatted: string;
+}
+
+export interface GoalMilestone {
+  currentPercent: number;
+  achievedMilestones: number[];
+  nextMilestone: number | null;
+  label: string;
+}
+
+export interface GoalForecast {
+  goalId: number;
+  goalName: string;
+  mode: string | null;
+  currentBalance: string;
+  targetPrice: string;
+  estimatedMonthlySavings: string;
+  averageMonthlyIncome: string;
+  savingsRatioBps: number;
+  shareRatioBps: number;
+  inflationRateBps: number;
+  isAchieved: boolean;
+  isUnachievable: boolean;
+  unachievableReason?: 'INFLATION_OUTPACING' | 'ZERO_SAVINGS' | 'HORIZON_EXCEEDED' | null;
+  unachievableMessage?: string | null;
+  targetMonths: number | null;
+  targetDate: string | null;
+  targetDateFormatted: string | null;
+  projectedPrice: string;
+  topUpSuggestion?: TopUpSuggestion | null;
+  milestone: GoalMilestone;
 }
 
 export interface GoalSimulationResult {
@@ -222,6 +261,27 @@ export interface MonthEndReview {
   suggestedSavings: string;
 }
 
+export interface MonthlyAnalyticsData {
+  incomeVsExpenseTrend: {
+    months: string[];
+    incomeData: string[];
+    expenseData: string[];
+  };
+  categoryDistribution: {
+    categoryId: number;
+    categoryName: string;
+    group: 'NEED' | 'WANT';
+    totalAmount: string;
+    percentage: number;
+    color: string;
+  }[];
+  budgetVsActual: {
+    needs: { budget: string; actual: string; variancePercent: number };
+    wants: { budget: string; actual: string; variancePercent: number };
+    savings: { target: string; allocated: string; achievementPercent: number };
+  };
+}
+
 export interface BudgetSourceOverride {
   id?: number;
   incomeSourceId: number;
@@ -252,6 +312,13 @@ export const financeApi = {
     timezone?: string;
     monthlyNeeds?: string;
   }) => api.put<{ data: FinanceProfile }>('/finance-profile', data),
+  updateOnboarding: (data: {
+    isOnboardingCompleted?: boolean;
+    onboardingStep?: number;
+    initialBalance?: string;
+    monthlyNeeds?: string;
+    emergencyMonthsTarget?: number;
+  }) => api.patch<{ data: FinanceProfile }>('/finance-profile/onboarding', data),
 
   // Income Sources
   getIncomeSources: (includeArchived = false) =>
@@ -353,6 +420,10 @@ export const financeApi = {
     api.patch<{ data: SavingsGoal }>(`/savings-goals/${id}/archive`),
   updateGoalShares: (shares: { goalId: number; shareRatio: number }[]) =>
     api.patch<{ data: any }>('/savings-goals/shares', { shares }),
+  getGoalForecasts: () =>
+    api.get<{ data: GoalForecast[] }>('/savings-goals/forecast'),
+  getGoalForecast: (id: number) =>
+    api.get<{ data: GoalForecast }>(`/savings-goals/${id}/forecast`),
 
   // Allocations
   getAllocationStatus: () =>
@@ -388,10 +459,91 @@ export const financeApi = {
     api.get<{ data: MonthlyReport }>(`/reports/monthly?month=${month}&year=${year}`),
   getMonthEndReview: (month: number, year: number) =>
     api.get<{ data: MonthEndReview }>(`/reports/month-end-review?month=${month}&year=${year}`),
+  getAnalytics: (month: number, year: number) =>
+    api.get<{ data: MonthlyAnalyticsData }>(`/reports/analytics?month=${month}&year=${year}`),
+  exportCsv: (month: number, year: number) =>
+    api.get(`/reports/export/csv?month=${month}&year=${year}`, {
+      responseType: 'blob',
+    }),
+  exportExcel: (month: number, year: number) =>
+    api.get(`/reports/export/excel?month=${month}&year=${year}`, {
+      responseType: 'blob',
+    }),
+  exportPdf: (month: number, year: number) =>
+    api.get(`/reports/export/pdf?month=${month}&year=${year}`, {
+      responseType: 'blob',
+    }),
 
   // Simulations (Tahap 4)
   simulateGoal: (data: GoalSimulationParams) =>
     api.post<{ data: GoalSimulationResult }>('/simulations/goal', data),
   simulateMortgage: (data: MortgageSimulationParams) =>
     api.post<{ data: MortgageSimulationResult }>('/simulations/mortgage', data),
+
+  // Recurring Transactions (Modul 5)
+  getRecurringTransactions: () =>
+    api.get<{ data: RecurringTransaction[] }>('/recurring-transactions'),
+  getUpcomingRecurring: (days = 7) =>
+    api.get<{ data: RecurringTransaction[] }>(`/recurring-transactions/upcoming?days=${days}`),
+  createRecurringTransaction: (data: CreateRecurringDto) =>
+    api.post<{ data: RecurringTransaction }>('/recurring-transactions', data),
+  updateRecurringTransaction: (id: number, data: UpdateRecurringDto) =>
+    api.patch<{ data: RecurringTransaction }>(`/recurring-transactions/${id}`, data),
+  deleteRecurringTransaction: (id: number) =>
+    api.delete<{ data: { success: boolean; message: string } }>(`/recurring-transactions/${id}`),
+  executeRecurringNow: (id: number) =>
+    api.post<{ data: { transaction: Transaction; recurringTransaction: RecurringTransaction } }>(
+      `/recurring-transactions/${id}/execute`,
+    ),
 };
+
+export interface RecurringTransaction {
+  id: number;
+  userId: number;
+  type: 'expense' | 'income';
+  amount: string;
+  categoryId: number | null;
+  incomeSourceId: number | null;
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  interval: number;
+  dayOfExecution: number;
+  startDate: string;
+  endDate: string | null;
+  lastExecutedAt: string | null;
+  nextRunDate: string;
+  isActive: boolean;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  category?: Category | null;
+  incomeSource?: IncomeSource | null;
+}
+
+export interface CreateRecurringDto {
+  type: 'expense' | 'income';
+  amount: string;
+  categoryId?: number;
+  incomeSourceId?: number;
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  interval?: number;
+  dayOfExecution: number;
+  startDate: string;
+  endDate?: string;
+  note?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateRecurringDto {
+  type?: 'expense' | 'income';
+  amount?: string;
+  categoryId?: number;
+  incomeSourceId?: number;
+  frequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  interval?: number;
+  dayOfExecution?: number;
+  startDate?: string;
+  endDate?: string;
+  note?: string;
+  isActive?: boolean;
+}
+

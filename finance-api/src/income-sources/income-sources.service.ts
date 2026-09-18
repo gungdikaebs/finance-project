@@ -3,12 +3,25 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncomeSourceDto } from './dto/create-income-source.dto';
 import { UpdateIncomeSourceDto } from './dto/update-income-source.dto';
 
+import { DEFAULT_INCOME_SOURCES } from '../auth/auth.service';
+
 @Injectable()
 export class IncomeSourcesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(userId: number, includeArchived = false) {
-    return this.prisma.incomeSource.findMany({
+  async seedDefaultSources(userId: number) {
+    const existing = await this.prisma.incomeSource.count({ where: { userId } });
+    if (existing > 0) return;
+
+    for (const name of DEFAULT_INCOME_SOURCES) {
+      await this.prisma.incomeSource.create({
+        data: { name, userId },
+      });
+    }
+  }
+
+  async findAll(userId: number, includeArchived = false) {
+    let sources = await this.prisma.incomeSource.findMany({
       where: {
         userId,
         ...(includeArchived ? {} : { isArchived: false }),
@@ -17,6 +30,19 @@ export class IncomeSourcesService {
         createdAt: 'asc',
       },
     });
+
+    if (sources.length === 0 && !includeArchived) {
+      const totalCount = await this.prisma.incomeSource.count({ where: { userId } });
+      if (totalCount === 0) {
+        await this.seedDefaultSources(userId);
+        sources = await this.prisma.incomeSource.findMany({
+          where: { userId, isArchived: false },
+          orderBy: { createdAt: 'asc' },
+        });
+      }
+    }
+
+    return sources;
   }
 
   create(userId: number, dto: CreateIncomeSourceDto) {

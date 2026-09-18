@@ -7,6 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
 import { UpdateSavingsGoalDto } from './dto/update-savings-goal.dto';
 import { UpdateGoalSharesDto } from './dto/update-goal-shares.dto';
+import {
+  GoalForecastDto,
+  TopUpSuggestionDto,
+  GoalMilestoneDto,
+} from './dto/goal-forecast.dto';
 
 @Injectable()
 export class SavingsGoalsService {
@@ -271,4 +276,390 @@ export class SavingsGoalsService {
 
     return this.findAll(userId);
   }
+
+  private formatTargetMonth(offsetMonths: number): {
+    targetDate: string;
+    targetDateFormatted: string;
+  } {
+    const MONTH_NAMES = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Ags',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth() + offsetMonths;
+    year += Math.floor(month / 12);
+    month = ((month % 12) + 12) % 12;
+    const targetDate = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const targetDateFormatted = `${MONTH_NAMES[month]} ${year}`;
+    return { targetDate, targetDateFormatted };
+  }
+
+  async getForecasts(
+    userId: number,
+    goalId?: number,
+  ): Promise<GoalForecastDto[] | GoalForecastDto> {
+    const now = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    // 1. Hitung rata-rata pemasukan bulanan dari transaksi riil pengguna
+    const recentIncomeTrx = await this.prisma.transaction.findMany({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: sixMonthsAgo },
+      },
+      include: { category: true },
+    });
+
+    let totalIncome = BigInt(0);
+    const distinctMonths = new Set<string>();
+    for (const trx of recentIncomeTrx) {
+      const isIncome =
+        trx.typeSnapshot === 'INCOME' || trx.category?.type === 'income';
+      if (isIncome) {
+        totalIncome += trx.amount;
+        distinctMonths.add(`${trx.date.getFullYear()}-${trx.date.getMonth()}`);
+      }
+    }
+
+    let avgMonthlyIncome = BigInt(0);
+    if (distinctMonths.size > 0) {
+      avgMonthlyIncome = totalIncome / BigInt(distinctMonths.size);
+    } else {
+      const allIncomeTrx = await this.prisma.transaction.findMany({
+        where: { userId, status: 'ACTIVE' },
+        include: { category: true },
+      });
+      let allIncome = BigInt(0);
+      const allMonths = new Set<string>();
+      for (const trx of allIncomeTrx) {
+        const isIncome =
+          trx.typeSnapshot === 'INCOME' || trx.category?.type === 'income';
+        if (isIncome) {
+          allIncome += trx.amount;
+          allMonths.add(`${trx.date.getFullYear()}-${trx.date.getMonth()}`);
+        }
+      }
+      if (allMonths.size > 0) {
+        avgMonthlyIncome = allIncome / BigInt(allMonths.size);
+      } else {
+        const profile = await this.prisma.financeProfile.findUnique({
+          where: { userId },
+        });
+        if (profile && profile.monthlyNeeds > BigInt(0)) {
+          avgMonthlyIncome = profile.monthlyNeeds * BigInt(2);
+        }
+      }
+    }
+
+    // 2. Ambil kebijakan anggaran aktif pengguna
+    const nowYear = now.getFullYear();
+    const nowMonth = now.getMonth() + 1;
+    const activePolicy = await this.prisma.budgetPolicy.findFirst({
+      where: {
+        userId,
+        OR: [
+          { effectiveYear: { lt: nowYear } },
+          { effectiveYear: nowYear, effectiveMonth: { lte: nowMonth } },
+        ],
+      },
+      orderBy: [{ effectiveYear: 'desc' }, { effectiveMonth: 'desc' }],
+    });
+    const savingsRatioBps = activePolicy ? activePolicy.savingsRatio : 3000;
+
+    // 3. Ambil target impian yang akan dihitung proyeksinya
+    const goals = await this.prisma.savingsGoal.findMany({
+      where: {
+        userId,
+        type: 'PURCHASE',
+        isArchived: false,
+        ...(goalId ? { id: goalId } : {}),
+      },
+      include: {
+        shares: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (goalId && goals.length === 0) {
+      throw new NotFoundException('Target impian tidak ditemukan');
+    }
+
+    const forecasts: GoalForecastDto[] = await Promise.all(
+      goals.map(async (g) => {
+        const balance = await this.getGoalBalance(g.id);
+        const targetPriceBig = g.priceReference || g.targetAmount || BigInt(0);
+        const shareRatioBps = g.shares.length > 0 ? g.shares[0].shareRatio : 0;
+        const inflationRateBps =
+          g.annualPriceIncreaseRatio !== null &&
+          g.annualPriceIncreaseRatio !== undefined
+            ? g.annualPriceIncreaseRatio
+            : 500; // default 5% laju inflasi
+
+        const rAnnual = inflationRateBps / 10000;
+        const iMonthly = rAnnual / 12;
+
+        // Formula Roadmap 4.2:
+        // S_monthly = avgIncome * savingsRatio * 40% (porsi impian) * shareRatio
+        const monthlySavingsPot =
+          (avgMonthlyIncome * BigInt(savingsRatioBps)) / BigInt(10000);
+        const impianPot = (monthlySavingsPot * BigInt(4000)) / BigInt(10000); // 40% D-005
+        const sMonthly = (impianPot * BigInt(shareRatioBps)) / BigInt(10000);
+
+        // Milestone perhitungan (25%, 50%, 75%, 100%)
+        const targetPriceNum = Number(targetPriceBig);
+        const balanceNum = Number(balance);
+        const currentPercent =
+          targetPriceNum > 0
+            ? Math.min(100, Math.round((balanceNum / targetPriceNum) * 100))
+            : 0;
+        const checkpoints = [25, 50, 75, 100];
+        const achievedMilestones = checkpoints.filter(
+          (c) => currentPercent >= c,
+        );
+        const nextMilestone =
+          checkpoints.find((c) => currentPercent < c) || null;
+        let milestoneLabel = 'Awal Perjalanan';
+        if (currentPercent >= 100) milestoneLabel = 'Tercapai Penuh (100%)';
+        else if (currentPercent >= 75) milestoneLabel = '75% Tercapai';
+        else if (currentPercent >= 50) milestoneLabel = '50% Tercapai';
+        else if (currentPercent >= 25) milestoneLabel = '25% Tercapai';
+
+        const milestone: GoalMilestoneDto = {
+          currentPercent,
+          achievedMilestones,
+          nextMilestone,
+          label: milestoneLabel,
+        };
+
+        // Jika target harga belum diisi
+        if (targetPriceBig <= BigInt(0)) {
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: '0',
+            estimatedMonthlySavings: sMonthly.toString(),
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: false,
+            isUnachievable: false,
+            targetMonths: null,
+            targetDate: null,
+            targetDateFormatted: null,
+            projectedPrice: '0',
+            topUpSuggestion: null,
+            milestone,
+          };
+        }
+
+        // Jika target sudah tercapai penuh (Saldo >= Target)
+        if (balance >= targetPriceBig) {
+          const { targetDate, targetDateFormatted } = this.formatTargetMonth(0);
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: targetPriceBig.toString(),
+            estimatedMonthlySavings: sMonthly.toString(),
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: true,
+            isUnachievable: false,
+            targetMonths: 0,
+            targetDate,
+            targetDateFormatted,
+            projectedPrice: targetPriceBig.toString(),
+            topUpSuggestion: null,
+            milestone: {
+              ...milestone,
+              currentPercent: 100,
+              label: 'Tercapai Penuh (100%)',
+            },
+          };
+        }
+
+        // Jika tabungan bulanan bernilai 0 (tidak ada pemasukan / share 0)
+        if (sMonthly === BigInt(0)) {
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: targetPriceBig.toString(),
+            estimatedMonthlySavings: '0',
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: false,
+            isUnachievable: true,
+            unachievableReason: 'ZERO_SAVINGS',
+            unachievableMessage:
+              'Belum ada alokasi tabungan bulanan yang mengalir ke target ini.',
+            targetMonths: null,
+            targetDate: null,
+            targetDateFormatted: null,
+            projectedPrice: targetPriceBig.toString(),
+            topUpSuggestion: null,
+            milestone,
+          };
+        }
+
+        // Cek kondisi kalah cepat dari inflasi (Roadmap 4.2):
+        // Kenaikan harga bulanan pada bulan 1 = P0 * (r / 12)
+        const monthlyInflationIncrease = Math.round(targetPriceNum * iMonthly);
+        if (sMonthly <= BigInt(monthlyInflationIncrease)) {
+          const neededToBeat =
+            BigInt(monthlyInflationIncrease) - sMonthly + BigInt(50000);
+          const cleanExtra =
+            ((neededToBeat + BigInt(9999)) / BigInt(10000)) * BigInt(10000);
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: targetPriceBig.toString(),
+            estimatedMonthlySavings: sMonthly.toString(),
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: false,
+            isUnachievable: true,
+            unachievableReason: 'INFLATION_OUTPACING',
+            unachievableMessage:
+              'Pertumbuhan tabungan saat ini kalah cepat dari kenaikan harga akibat inflasi.',
+            targetMonths: null,
+            targetDate: null,
+            targetDateFormatted: null,
+            projectedPrice: targetPriceBig.toString(),
+            topUpSuggestion: {
+              extraMonthlySavings: cleanExtra.toString(),
+              monthsSaved: 0,
+              newTargetMonths: 0,
+              newTargetDateFormatted: 'Mengatasi Laju Inflasi',
+            },
+            milestone,
+          };
+        }
+
+        // Iterasi pencarian integer m terkecil (1 s/d 600 bulan = 50 tahun)
+        let targetM: number | null = null;
+        let finalProjectedPrice = targetPriceBig;
+
+        for (let m = 1; m <= 600; m++) {
+          const factor = Math.pow(1 + iMonthly, m);
+          const pM = BigInt(Math.round(targetPriceNum * factor));
+          const aM = balance + sMonthly * BigInt(m);
+
+          if (aM >= pM) {
+            targetM = m;
+            finalProjectedPrice = pM;
+            break;
+          }
+        }
+
+        if (!targetM) {
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: targetPriceBig.toString(),
+            estimatedMonthlySavings: sMonthly.toString(),
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: false,
+            isUnachievable: true,
+            unachievableReason: 'HORIZON_EXCEEDED',
+            unachievableMessage:
+              'Target belum tercapai dalam simulasi 50 tahun (600 bulan).',
+            targetMonths: null,
+            targetDate: null,
+            targetDateFormatted: null,
+            projectedPrice: targetPriceBig.toString(),
+            topUpSuggestion: null,
+            milestone,
+          };
+        }
+
+        const { targetDate, targetDateFormatted } =
+          this.formatTargetMonth(targetM);
+
+        // Rekomendasi Top-up: Nabung ekstra Rp X/bln untuk maju k bulan lebih cepat
+        let topUpSuggestion: TopUpSuggestionDto | null = null;
+        if (targetM >= 2) {
+          const k = targetM >= 6 ? 3 : targetM >= 3 ? 2 : 1;
+          const mPrime = targetM - k;
+          const factorPrime = Math.pow(1 + iMonthly, mPrime);
+          const pMPrime = BigInt(Math.round(targetPriceNum * factorPrime));
+          const deficitPrime =
+            pMPrime > balance ? pMPrime - balance : BigInt(0);
+          const requiredMonthly =
+            (deficitPrime + BigInt(mPrime - 1)) / BigInt(mPrime);
+
+          if (requiredMonthly > sMonthly) {
+            let deltaS = requiredMonthly - sMonthly;
+            deltaS = ((deltaS + BigInt(9999)) / BigInt(10000)) * BigInt(10000);
+            const primeFormatted = this.formatTargetMonth(mPrime);
+
+            topUpSuggestion = {
+              extraMonthlySavings: deltaS.toString(),
+              monthsSaved: k,
+              newTargetMonths: mPrime,
+              newTargetDateFormatted: primeFormatted.targetDateFormatted,
+            };
+          }
+        }
+
+        return {
+          goalId: g.id,
+          goalName: g.name,
+          mode: g.mode,
+          currentBalance: balance.toString(),
+          targetPrice: targetPriceBig.toString(),
+          estimatedMonthlySavings: sMonthly.toString(),
+          averageMonthlyIncome: avgMonthlyIncome.toString(),
+          savingsRatioBps,
+          shareRatioBps,
+          inflationRateBps,
+          isAchieved: false,
+          isUnachievable: false,
+          targetMonths: targetM,
+          targetDate,
+          targetDateFormatted,
+          projectedPrice: finalProjectedPrice.toString(),
+          topUpSuggestion,
+          milestone,
+        };
+      }),
+    );
+
+    if (goalId) {
+      return forecasts[0];
+    }
+    return forecasts;
+  }
 }
+

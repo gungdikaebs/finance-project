@@ -15,7 +15,9 @@ import { SavingsGoalsModule } from './savings-goals/savings-goals.module';
 import { AllocationsModule } from './allocations/allocations.module';
 import { SimulationsModule } from './simulations/simulations.module';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { validateEnvironment } from './config/env.validation';
+import { RecurringTransactionsModule } from './recurring-transactions/recurring-transactions.module';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { validateEnvironment } from './config/env.validation';
       isGlobal: true,
       validate: validateEnvironment,
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     PrismaModule,
     UsersModule,
@@ -36,6 +39,7 @@ import { validateEnvironment } from './config/env.validation';
     SavingsGoalsModule,
     AllocationsModule,
     SimulationsModule,
+    RecurringTransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

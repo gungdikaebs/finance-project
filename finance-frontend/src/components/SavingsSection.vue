@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { formatRupiah, formatDate } from '../utils/format';
-import type { SavingsGoal, FinanceProfile } from '../api/services';
+import type { SavingsGoal, FinanceProfile, GoalForecast } from '../api/services';
 import {
   ShieldCheck,
   Target,
@@ -11,6 +11,9 @@ import {
   Unlock,
   Package,
   CheckCircle2,
+  Calendar,
+  TrendingUp,
+  AlertTriangle,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -19,6 +22,7 @@ const props = defineProps<{
   unassignedGoal?: SavingsGoal;
   profile?: FinanceProfile | null;
   emergencyMonths?: number;
+  forecasts?: Record<number, GoalForecast>;
 }>();
 
 const emit = defineEmits<{
@@ -26,7 +30,9 @@ const emit = defineEmits<{
   (e: 'openAddGoalModal'): void;
   (e: 'openReleaseModal', goalId?: number): void;
   (e: 'openSimulatorWithGoal', goal: SavingsGoal): void;
+  (e: 'openSimulatorWithTopUp', payload: { goal: SavingsGoal; recommendedMonthly: string }): void;
 }>();
+
 
 const coverageMonths = computed(() => {
   if (props.emergencyMonths !== undefined && props.emergencyMonths !== null) {
@@ -65,6 +71,10 @@ const getGoalProgress = (goal: SavingsGoal): number => {
   const bal = Number(goal.currentBalance || 0);
   if (target <= 0) return 0;
   return Math.min(100, Math.round((bal / target) * 100));
+};
+
+const getForecast = (goalId: number): GoalForecast | undefined => {
+  return props.forecasts ? props.forecasts[goalId] : undefined;
 };
 </script>
 
@@ -208,12 +218,28 @@ const getGoalProgress = (goal: SavingsGoal): number => {
                 </div>
               </div>
 
+              <!-- Time Estimation / Status Badge (Roadmap 4.3) -->
               <span
-                v-if="isGoalFunded(goal)"
-                class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"
+                v-if="isGoalFunded(goal) || forecasts?.[goal.id]?.isAchieved"
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"
               >
                 <CheckCircle2 class="w-3 h-3 text-emerald-600" />
                 <span>Tercapai</span>
+              </span>
+              <span
+                v-else-if="getForecast(goal.id)?.isUnachievable"
+                class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-50 text-rose-700 border border-rose-200"
+                title="Laju inflasi tahunan lebih cepat daripada laju tabungan saat ini"
+              >
+                <AlertTriangle class="w-3 h-3 text-rose-600" />
+                <span>Kalah Inflasi</span>
+              </span>
+              <span
+                v-else-if="getForecast(goal.id)?.targetMonths !== null && getForecast(goal.id)?.targetMonths !== undefined"
+                class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-[#183D2B] border border-[#183D2B]/20 tabular-nums"
+              >
+                <Calendar class="w-3 h-3 text-[#183D2B]" />
+                <span>~{{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
               </span>
               <span
                 v-else
@@ -223,7 +249,7 @@ const getGoalProgress = (goal: SavingsGoal): number => {
               </span>
             </div>
 
-            <!-- Progress Bar -->
+            <!-- Progress Bar & Price Comparison -->
             <div class="space-y-1.5">
               <div class="flex justify-between text-xs font-semibold">
                 <span class="text-[#183D2B] font-bold tabular-nums">{{ formatRupiah(goal.currentBalance) }}</span>
@@ -237,8 +263,72 @@ const getGoalProgress = (goal: SavingsGoal): number => {
               </div>
               <div class="flex justify-between text-[10px] text-stone-500 font-medium">
                 <span>Acuan: {{ formatDate(goal.referenceDate) }}</span>
-                <span class="font-bold text-[#18221B] tabular-nums">{{ getGoalProgress(goal) }}%</span>
+                <span
+                  v-if="getForecast(goal.id)?.projectedPrice && !getForecast(goal.id)?.isAchieved && !getForecast(goal.id)?.isUnachievable"
+                  class="text-stone-400"
+                >
+                  Harga Masa Depan: <strong class="text-stone-600 tabular-nums">{{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}</strong>
+                </span>
+                <span v-else class="font-bold text-[#18221B] tabular-nums">{{ getGoalProgress(goal) }}%</span>
               </div>
+            </div>
+
+            <!-- Milestone Badges Track (Roadmap 4.3) -->
+            <div class="flex items-center gap-1.5 pt-0.5 border-t border-stone-100/80">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Tahapan:</span>
+              <div class="flex items-center gap-1">
+                <span
+                  v-for="ms in [25, 50, 75]"
+                  :key="ms"
+                  class="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-md tabular-nums transition-colors"
+                  :class="getGoalProgress(goal) >= ms
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/90'
+                    : 'bg-stone-50 text-stone-400 border border-stone-200/50'"
+                >
+                  <CheckCircle2 v-if="getGoalProgress(goal) >= ms" class="w-2.5 h-2.5 text-emerald-600" :stroke-width="3" />
+                  <span>{{ ms }}%</span>
+                </span>
+              </div>
+              <span class="ml-auto text-[10px] font-bold text-stone-500 tabular-nums">
+                {{ getGoalProgress(goal) }}% Terkumpul
+              </span>
+            </div>
+
+            <!-- Smart Top-up Recommendation Box (Roadmap 4.3) -->
+            <div
+              v-if="getForecast(goal.id)?.topUpSuggestion && !isGoalFunded(goal)"
+              class="p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/90 via-[#B8DF38]/10 to-transparent border border-emerald-200/70 flex items-center justify-between gap-2.5 text-xs"
+            >
+              <div class="flex items-start gap-2 min-w-0">
+                <div class="w-6 h-6 rounded-lg bg-[#183D2B] text-[#B8DF38] flex items-center justify-center shrink-0 mt-0.5">
+                  <TrendingUp class="w-3.5 h-3.5" :stroke-width="2.25" />
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-[#183D2B] leading-tight">
+                    <template v-if="getForecast(goal.id)!.isUnachievable">
+                      Nabung ekstra <strong class="tabular-nums">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk melampaui laju inflasi
+                    </template>
+                    <template v-else>
+                      Nabung ekstra <strong class="tabular-nums">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk maju <span class="tabular-nums font-extrabold">{{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bln</span> lebih cepat ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }})
+                    </template>
+                  </div>
+                  <p class="text-[10px] text-stone-500 font-normal mt-0.5">
+                    Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                @click="emit('openSimulatorWithTopUp', {
+                  goal,
+                  recommendedMonthly: (BigInt(getForecast(goal.id)!.estimatedMonthlySavings) + BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings)).toString()
+                })"
+                class="tactile-btn shrink-0 px-2.5 py-1 text-[11px] font-bold text-[#183D2B] bg-[#B8DF38] hover:bg-[#a6cd2b] rounded-lg cursor-pointer shadow-2xs whitespace-nowrap"
+                title="Uji skenario tabungan ekstra ini di simulator"
+              >
+                Uji di Simulator
+              </button>
             </div>
 
             <!-- Action buttons inside card -->

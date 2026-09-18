@@ -148,6 +148,87 @@ Preferensi workflow berada di [RULES.md](RULES.md). Persetujuan arah produk di b
 - Alasan dan trade-off: meningkatkan kejelasan dan modularitas kode, mencegah layout shift dengan skeleton loader, serta meningkatkan kenyamanan pengguna di perangkat mobile dengan akses satu jempol; memerlukan props dan emit interfaces yang eksplisit antar komponen.
 - Dasar persetujuan: arahan pengguna untuk memecah dashboard menjadi beberapa komponen kecil dan menyetujui implementasi Tahap 5.
 
+### D-016 — Standarisasi Sistem Notifikasi Toast & Dialog Konfirmasi Anti-Slop (Eliminasi alert() & confirm())
+
+- Tanggal: 2026-09-18
+- Status: disetujui
+- Konteks: Dialog bawaan browser `window.alert()` dan `window.confirm()` memblokir thread JavaScript browser, menampilkan modal abu-abu kaku ("localhost:5173 says"), dan melanggar prinsip desain fintech anti-slop serta standar kanonikal D-010.
+- Keputusan: Mengeliminasi 100% pemanggilan `alert(...)` dan `confirm(...)` di seluruh frontend dan menggantikannya dengan:
+  1. `useToast.ts` & `ToastContainer.vue`: Notifikasi toast reaktif mengambang (`z-[9999]`) dengan 4 status terformat kanonikal D-010 (Success Deep Forest Green `#183D2B`, Error Crimson `#2A0E12`, Warning Amber `#2B1B0A`, Info Slate `#101F2B`), ikon Lucide, auto-dismiss 4 detik, dan tombol tutup silang (`X`).
+  2. `useConfirm.ts` & `ConfirmModal.vue`: Modal konfirmasi dialog berbasis Promise asinkronus (`await confirmDialog.ask(...)`) dengan visualisasi risiko bertingkat dan touch target minimal 44x44px.
+  3. Validasi formulir inline: Menampilkan border merah dinamis (`border-rose-400 focus:ring-rose-200`) dan teks panduan kesalahan langsung di bawah input formulir yang tidak valid.
+- Alasan dan trade-off: Meningkatkan kenyamanan pengguna (UX) secara dramatis, non-blocking, serta mematuhi aturan WCAG dan skill design-taste-frontend; memerlukan pemanggilan hook composables di setiap komponen dialog.
+- Dasar persetujuan: Pengujian pengguna dan arahan eksplisit untuk mengganti alert bawaan javascript menjadi alert yang lebih ber-style dan proper.
+
+### D-017 — Arsitektur Ekspor Data Finansial Mandiri (CSV, Excel, PDF) & Analitik Visual (Chart.js)
+
+- Tanggal: 2026-09-18
+- Status: disetujui
+- Konteks: Pengguna membutuhkan kepemilikan data mandiri (*data ownership*), backup spreadsheet, laporan bulanan resmi siap cetak, serta analitik visual tren arus kas tanpa harus melakukan kalkulasi manual.
+- Keputusan:
+  1. Backend `ReportsService` & `ReportsController`: Streaming respon langsung (bypass global interceptor via `@Res()`) untuk `GET /reports/export/csv` (dengan UTF-8 BOM `\uFEFF` untuk kompatibilitas Excel), `GET /reports/export/excel` (menggunakan `exceljs` dengan palet hijau hutan `#183D2B`), dan `GET /reports/export/pdf` (menggunakan `pdfkit` dengan layout A4 minimalis dan kartu KPI).
+  2. Visualisasi Grafis `CashflowAnalyticsSection.vue`: Mengintegrasikan `chart.js` dan `vue-chartjs` untuk grafik batang tren pemasukan vs pengeluaran 6 bulan terakhir, distribusi pengeluaran donut chart, dan kartu variansi realisasi 50/30/20.
+  3. Frontend Aksi Ekspor `TransactionSection.vue`: Menu dropdown taktil dengan 3 format unduhan langsung via browser blob download URL.
+- Alasan dan trade-off: Memenuhi kebutuhan pelaporan komprehensif roadmap P2 (Modul 3 dan Modul 7); menambah dependensi `exceljs`, `pdfkit`, dan `chart.js`.
+- Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 3 dan Modul 7 serta persetujuan rencana implementasi.
+
+### D-018 — Arsitektur Proyeksi & Estimasi Cerdas Target Impian (Goal Forecaster & Smart Top-Up)
+
+- Tanggal: 2026-09-18
+- Status: disetujui
+- Konteks: Target impian pembelian barang/aset memerlukan estimasi waktu pencapaian dinamis berbasis kapasitas tabungan aktual riil (rata-rata pemasukan bulanan dikalikan rasio tabungan, dikalikan 40% alokasi impian D-005, dikalikan bobot/share target) dan koreksi inflasi harga acuan ($P(m) = P_0 \times (1 + r/12)^m$).
+- Keputusan:
+  1. Backend `SavingsGoalsService` & `SavingsGoalsController`:
+     - Menghitung estimasi tabungan bulanan riil: $S_{monthly} = \text{avgIncome} \times \text{savingsRatio} \times 40\% \times \text{shareRatio}$.
+     - Menghitung proyeksi bulan target dengan iterasi majemuk inflasi bulanan hingga saldo terakumulasi melampaui harga terinflasi, serta menghitung tanggal kalender target (misal: "Nov 2030").
+     - Deteksi inflasi tak terkejar (`isUnachievable: true`, kode `INFLATION_OUTPACING`) jika tabungan bulanan $\le P_0 \times \frac{r}{12}$.
+     - Rekomendasi top-up cerdas (`topUpSuggestion`): menghitung ekstra tabungan bulanan $\Delta S$ yang diperlukan untuk mempercepat target sebanyak 3 bulan (atau melampaui inflasi) dengan pembulatan kelipatan Rp 10.000.
+     - Milestone tahapan: Menghitung persentase progres dan penanda batas pencapaian 25%, 50%, 75%, 100%.
+     - Endpoint API: `GET /savings-goals/forecast` (daftar proyeksi seluruh target aktif) dan `GET /savings-goals/:id/forecast` (proyeksi spesifik satu target). Rute didaftarkan mendahului `:id` untuk menghindari tabrakan rute NestJS.
+  2. Frontend `SavingsSection.vue` & `Dashboard.vue`:
+     - Menampilkan badge estimasi waktu (`~X bln (Bulan YYYY)`), badge waspada `Kalah Inflasi`, dan badge `Tercapai`.
+     - Menampilkan lintasan tahapan (milestone track: 25%, 50%, 75%) dengan visualisasi centang hijau saat tercapai.
+     - Menampilkan harga masa depan (*Future Projected Price*) terinflasi.
+     - Kotak rekomendasi tabungan pintar (*Smart Top-up Recommendation Box*) dengan tombol aksi langsung "Uji di Simulator" yang membuka `SimulationModal` dengan nilai mode `TARGET_DATE` dan nilai tabungan terisi otomatis.
+- Alasan dan trade-off: Membantu pengguna memvisualisasikan daya beli riil terhadap target impian secara akurat dan proaktif tanpa terkejut oleh erosi daya beli akibat inflasi; membutuhkan perhitungan majemuk bulanan di backend.
+- Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 4 dan persetujuan rencana implementasi.
+
+### D-019 — Arsitektur Transaksi Berulang & Pengingat Tagihan (Recurring Transactions & Upcoming Bills)
+
+- Tanggal: 2026-09-18
+- Status: disetujui
+- Konteks: Pengeluaran rutin (sewa tempat tinggal, internet, listrik PLN, langganan aplikasi) dan pemasukan rutin bulanan sering kali terlambat dicatat secara manual, menyebabkan saldo aktual dan laporan realisasi 50/30/20 tidak akurat.
+- Keputusan:
+  1. Skema Database Prisma:
+     - Model `RecurringTransaction` mencakup `type` ('expense' | 'income'), `amount` (BigInt), relasi ke `Category` dan `IncomeSource`, `frequency` ('DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'), `interval`, `dayOfExecution`, `startDate`, `endDate`, `nextRunDate`, `lastExecutedAt`, `isActive`, dan `note`.
+  2. Backend Engine NestJS & Scheduler:
+     - Menggunakan `@nestjs/schedule` (v5.0.1) untuk cron harian `@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)` yang mengevaluasi seluruh jadwal aktif dengan `nextRunDate <= now()`.
+     - Algoritma `calculateNextRunDate` menangani penyesuaian tanggal akhir bulan (misal tanggal 31 pada bulan Februari atau April) dengan mengamankan `next.setDate(1)` sebelum manipulasi bulan, lalu membatasi hari dengan `Math.min(dayOfExecution, maxDays)`.
+     - Eksekusi instan: Endpoint `POST /recurring-transactions/:id/execute` mencatat transaksi langsung ke tabel `Transaction` melalui `TransactionsService` (mematuhi pembagian pos NEED/WANT dan alokasi pemasukan D-004/D-005) serta memajukan `nextRunDate`.
+     - Endpoint `GET /recurring-transactions/upcoming?days=7` menyaring jadwal jatuh tempo dalam 7 hari ke depan untuk widget proaktif.
+  3. Frontend Taktil D-010:
+     - `RecurringTransactionModal.vue`: Manajemen jadwal penuh (tab daftar dan tab tambah formulir), toggle jeda/aktifkan, tombol eksekusi cepat, dan konfirmasi hapus via `useConfirm`.
+     - `UpcomingBillsWidget.vue`: Widget pengingat tagihan 7 hari ke depan di dashboard utama dengan tombol aksi cepat `Bayar Sekarang` dan feedback via `useToast`.
+- Alasan dan trade-off: Mengurangi beban kognitif pengguna dalam mengingat tagihan rutin dan memastikan integritas ledger transaksi keuangan; membutuhkan package `@nestjs/schedule`.
+- Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 5 dan persetujuan rencana implementasi dari pengguna.
+
+### D-020 — Penataan Urutan Navigasi Dashboard dan Penghapusan Header Navbar Mobile
+
+- Tanggal: 2026-09-18
+- Status: disetujui
+- Konteks: Pada tampilan mobile dan desktop, urutan item navigasi di sidebar serta bilah filter pil mobile tidak mencerminkan alur visual dashboard yang sebenarnya dari atas ke bawah. Selain itu, header `Navbar.vue` pada layar mobile memakan ruang vertikal layar secara berlebihan dan mengganggu pengalaman pengguna.
+- Keputusan:
+  1. Urutan Navigasi Kanonikal: Menstandarkan urutan navigasi di `Sidebar.vue` dan horizontal pill bar di `Dashboard.vue` menjadi:
+     1. Ringkasan Saldo (`#section-ringkasan`)
+     2. Tabungan & Impian (`#section-tabungan`)
+     3. Anggaran 50/30/20 (`#section-anggaran`)
+     4. Analitik & Tren (`#section-analitik`)
+     5. Riwayat Transaksi (`#section-transaksi`)
+  2. Penghapusan Navbar Mobile: Menghapus `<Navbar class="lg:hidden" ... />` dari `Dashboard.vue`.
+  3. Integrasi Mobile Menu Modal: Menyediakan `MobileMenuModal.vue` (bottom sheet dialog) yang dapat diakses melalui tombol `Menu` ke-5 pada `MobileBottomNav.vue` (`@open-menu`) untuk menampung seluruh fitur utilitas dan akun pengguna (Profil Keuangan, Kategori & Sumber Dana, Transaksi Berulang, Simulator KPR, Evaluasi Akhir Bulan, dan Logout).
+- Alasan dan trade-off: Memaksimalkan area pandang mobile screen, navigasi intuitif satu jempol, dan konsistensi urutan seksi secara hierarkis.
+- Dasar persetujuan: Permintaan pengguna untuk memperbaiki urutan sidebar dan menghapus navbar pada tampilan mobile.
+
 Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknologi, konvensi, atau desain lintas fitur. Keputusan lokal cukup berada di file tugas. Gunakan ID berurutan; keputusan pengganti merujuk ID lama dan menandainya sebagai digantikan.
 
 ## Format entri
@@ -164,3 +245,4 @@ Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknolo
 - Dasar persetujuan: ringkasan arahan pengguna atau tautan file tugas.
 - Sumber: dokumentasi primer jika keputusan bergantung pada riset.
 ```
+

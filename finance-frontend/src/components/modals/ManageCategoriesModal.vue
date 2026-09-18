@@ -38,6 +38,12 @@ const cancelEditCategory = () => {
   editingCatName.value = '';
 };
 
+import { useToast } from '../../composables/useToast';
+import { useConfirm } from '../../composables/useConfirm';
+
+const toast = useToast();
+const confirmDialog = useConfirm();
+
 const handleUpdateCategory = async (id: number) => {
   if (!editingCatName.value.trim()) return;
   submittingEditCat.value = true;
@@ -46,26 +52,32 @@ const handleUpdateCategory = async (id: number) => {
       name: editingCatName.value.trim(),
       group: editingCatGroup.value,
     });
+    toast.success('Kategori berhasil diperbarui');
     editingCatId.value = null;
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal memperbarui kategori');
+    toast.error(err.response?.data?.message || 'Gagal memperbarui kategori');
   } finally {
     submittingEditCat.value = false;
   }
 };
 
 const handleDeleteCategory = async (cat: Category) => {
-  const confirmed = confirm(
-    `PERINGATAN: Menghapus kategori "${cat.name}" akan menghapus seluruh data transaksi yang terkait secara permanen.\n\nHal ini akan memengaruhi dan mengganggu jumlah total ${cat.type === 'income' ? 'pemasukan' : 'pengeluaran'} Anda.\n\nApakah Anda yakin ingin menghapus kategori ini secara permanen?`
-  );
+  const confirmed = await confirmDialog.ask({
+    title: 'Hapus Kategori Permanen',
+    message: `PERINGATAN: Menghapus kategori "${cat.name}" akan menghapus seluruh data transaksi terkait secara permanen. Hal ini akan memengaruhi jumlah total ${cat.type === 'income' ? 'pemasukan' : 'pengeluaran'} Anda. Apakah Anda yakin?`,
+    confirmText: 'Hapus Permanen',
+    cancelText: 'Batal',
+    type: 'danger',
+  });
   if (!confirmed) return;
 
   try {
     await financeApi.deleteCategory(cat.id);
+    toast.success(`Kategori "${cat.name}" berhasil dihapus.`);
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menghapus kategori');
+    toast.error(err.response?.data?.message || 'Gagal menghapus kategori');
   }
 };
 
@@ -91,26 +103,32 @@ const handleUpdateSource = async (id: number) => {
     await financeApi.updateIncomeSource(id, {
       name: editingSourceName.value.trim(),
     });
+    toast.success('Sumber pemasukan berhasil diperbarui');
     editingSourceId.value = null;
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal memperbarui sumber pemasukan');
+    toast.error(err.response?.data?.message || 'Gagal memperbarui sumber pemasukan');
   } finally {
     submittingEditSource.value = false;
   }
 };
 
 const handleDeleteSource = async (src: IncomeSource) => {
-  const confirmed = confirm(
-    `PERINGATAN: Menghapus sumber pemasukan "${src.name}" akan menghapus seluruh data transaksi dan aturan alokasi terkait secara permanen.\n\nHal ini akan memengaruhi dan mengganggu jumlah total pemasukan Anda.\n\nApakah Anda yakin ingin menghapus sumber pemasukan ini secara permanen?`
-  );
+  const confirmed = await confirmDialog.ask({
+    title: 'Hapus Sumber Pemasukan',
+    message: `PERINGATAN: Menghapus sumber pemasukan "${src.name}" akan menghapus seluruh data transaksi dan aturan alokasi terkait secara permanen. Hal ini akan memengaruhi riwayat pemasukan Anda. Apakah Anda yakin?`,
+    confirmText: 'Hapus Permanen',
+    cancelText: 'Batal',
+    type: 'danger',
+  });
   if (!confirmed) return;
 
   try {
     await financeApi.deleteIncomeSource(src.id);
+    toast.success(`Sumber pemasukan "${src.name}" berhasil dihapus.`);
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menghapus sumber pemasukan');
+    toast.error(err.response?.data?.message || 'Gagal menghapus sumber pemasukan');
   }
 };
 
@@ -119,31 +137,43 @@ const handleAddSource = async () => {
   submittingSource.value = true;
   try {
     await financeApi.createIncomeSource(newSource.value.trim());
+    toast.success(`Sumber pemasukan "${newSource.value.trim()}" berhasil ditambahkan`);
     newSource.value = '';
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menambahkan sumber pemasukan');
+    toast.error(err.response?.data?.message || 'Gagal menambahkan sumber pemasukan');
   } finally {
     submittingSource.value = false;
   }
 };
 
 const handleArchiveSource = async (id: number) => {
-  if (!confirm('Yakin ingin mengarsipkan sumber pemasukan ini?')) return;
+  const target = props.incomeSources.find((s) => s.id === id);
+  const confirmed = await confirmDialog.ask({
+    title: 'Arsipkan Sumber Pemasukan',
+    message: `Yakin ingin mengarsipkan sumber pemasukan "${target?.name || ''}"? Sumber ini tidak akan muncul pada pilihan transaksi baru.`,
+    confirmText: 'Arsipkan',
+    cancelText: 'Batal',
+    type: 'warning',
+  });
+  if (!confirmed) return;
+
   try {
     await financeApi.archiveIncomeSource(id);
+    toast.success('Sumber pemasukan berhasil diarsipkan');
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal mengarsipkan');
+    toast.error(err.response?.data?.message || 'Gagal mengarsipkan');
   }
 };
 
 const handleUnarchiveSource = async (id: number) => {
   try {
     await financeApi.unarchiveIncomeSource(id);
+    toast.success('Sumber pemasukan berhasil dipulihkan');
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal memulihkan sumber pemasukan');
+    toast.error(err.response?.data?.message || 'Gagal memulihkan sumber pemasukan');
   }
 };
 
@@ -156,31 +186,43 @@ const handleAddCategory = async () => {
       type: newCatType.value,
       group: newCatType.value === 'expense' ? newCatGroup.value : undefined,
     });
+    toast.success(`Kategori "${newCatName.value.trim()}" berhasil ditambahkan`);
     newCatName.value = '';
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menambahkan kategori');
+    toast.error(err.response?.data?.message || 'Gagal menambahkan kategori');
   } finally {
     submittingCat.value = false;
   }
 };
 
 const handleArchiveCategory = async (id: number) => {
-  if (!confirm('Yakin ingin mengarsipkan kategori ini?')) return;
+  const target = props.categories.find((c) => c.id === id);
+  const confirmed = await confirmDialog.ask({
+    title: 'Arsipkan Kategori',
+    message: `Yakin ingin mengarsipkan kategori "${target?.name || ''}"? Kategori ini tidak akan muncul pada pilihan transaksi baru.`,
+    confirmText: 'Arsipkan',
+    cancelText: 'Batal',
+    type: 'warning',
+  });
+  if (!confirmed) return;
+
   try {
     await financeApi.archiveCategory(id);
+    toast.success('Kategori berhasil diarsipkan');
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal mengarsipkan kategori');
+    toast.error(err.response?.data?.message || 'Gagal mengarsipkan kategori');
   }
 };
 
 const handleUnarchiveCategory = async (id: number) => {
   try {
     await financeApi.unarchiveCategory(id);
+    toast.success('Kategori berhasil dipulihkan');
     emit('refresh');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal memulihkan kategori');
+    toast.error(err.response?.data?.message || 'Gagal memulihkan kategori');
   }
 };
 </script>
@@ -188,21 +230,21 @@ const handleUnarchiveCategory = async (id: number) => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
+    class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="manage-categories-title"
     @click.self="emit('close')"
   >
-    <div class="fintech-card bg-white w-full max-w-2xl rounded-2xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto border border-emerald-950/10 animate-in fade-in zoom-in-95 duration-200">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between border-b border-emerald-950/10 pb-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-2xl mx-auto flex flex-col shadow-2xl border border-emerald-950/10 overflow-hidden animate-modal-enter">
+      <!-- Modal Header (shrink-0) -->
+      <div class="px-5 sm:px-6 py-4 border-b border-emerald-950/10 flex items-center justify-between shrink-0 bg-white">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-[#183D2B]/10 text-[#183D2B] flex items-center justify-center">
+          <div class="w-10 h-10 rounded-xl bg-[#183D2B]/10 text-[#183D2B] flex items-center justify-center shrink-0">
             <FolderTree class="w-5 h-5" />
           </div>
           <div>
-            <h3 id="manage-categories-title" class="text-base sm:text-lg font-bold text-[#18221B]">
+            <h3 id="manage-categories-title" class="text-base sm:text-lg font-bold text-[#18221B] leading-tight">
               Kelola Kategori & Sumber Dana
             </h3>
             <p class="text-xs text-[#18221B]/60">Atur sumber pemasukan serta kategori pos kebutuhan dan keinginan</p>
@@ -210,14 +252,16 @@ const handleUnarchiveCategory = async (id: number) => {
         </div>
         <button
           @click="emit('close')"
-          class="rounded-xl p-2 text-emerald-950/40 hover:text-emerald-950 hover:bg-emerald-950/5 transition cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-emerald-950/40 hover:text-emerald-950 hover:bg-emerald-950/5 transition cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
         </button>
       </div>
 
-      <!-- Bagian Sumber Pemasukan -->
+      <!-- Body Content (flex-1 overscroll-contain) -->
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-6">
+        <!-- Bagian Sumber Pemasukan -->
       <div class="space-y-3.5">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -493,14 +537,15 @@ const handleUnarchiveCategory = async (id: number) => {
           </div>
         </div>
       </div>
+      </div>
 
-      <!-- Modal Footer -->
-      <div class="flex justify-end pt-4 border-t border-emerald-950/10">
+      <!-- Modal Footer (shrink-0) -->
+      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-emerald-950/10 bg-stone-50/80 shrink-0">
         <button
           @click="emit('close')"
-          class="tactile-btn px-5 py-2.5 bg-canvas hover:bg-emerald-950/10 text-[#18221B] rounded-xl text-xs font-bold cursor-pointer transition flex items-center space-x-1.5"
+          class="tactile-btn min-h-[44px] px-6 py-2.5 bg-[#183D2B] text-white hover:bg-emerald-900 rounded-xl text-xs font-bold cursor-pointer transition flex items-center space-x-1.5 shadow-sm"
         >
-          <Check class="w-4 h-4 text-emerald-700" />
+          <Check class="w-4 h-4 text-[#B8DF38]" />
           <span>Selesai</span>
         </button>
       </div>

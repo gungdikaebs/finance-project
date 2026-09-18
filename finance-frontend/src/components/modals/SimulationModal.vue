@@ -21,6 +21,7 @@ import {
 const props = defineProps<{
   show: boolean;
   initialGoal?: SavingsGoal | null;
+  initialMonthlySavings?: string | number | null;
 }>();
 
 const emit = defineEmits<{
@@ -75,14 +76,29 @@ watch(
           simTargetMonths.value = props.initialGoal.targetMonths;
         }
       }
+
+      if (props.initialMonthlySavings) {
+        simCalcMode.value = 'TARGET_DATE';
+        simMonthlySavings.value = String(props.initialMonthlySavings);
+        setTimeout(() => {
+          handleRunGoalSim();
+        }, 60);
+      } else {
+        simMonthlySavings.value = '';
+        simCalcMode.value = 'MONTHLY_SAVINGS';
+      }
     }
   }
 );
 
+import { useToast } from '../../composables/useToast';
+
+const toast = useToast();
+
 const handleRunGoalSim = async () => {
   const cleanPrice = simPrice.value.replace(/[^0-9]/g, '');
   if (!cleanPrice || cleanPrice === '0') {
-    alert('Harga acuan harus lebih besar dari 0');
+    toast.error('Harga acuan harus lebih besar dari Rp 0');
     return;
   }
 
@@ -106,7 +122,7 @@ const handleRunGoalSim = async () => {
     });
     simGoalResult.value = res.data.data;
   } catch (err: any) {
-    alert(err?.response?.data?.message || 'Gagal menghitung simulasi target');
+    toast.error(err?.response?.data?.message || 'Gagal menghitung simulasi target');
   } finally {
     simGoalLoading.value = false;
   }
@@ -115,7 +131,7 @@ const handleRunGoalSim = async () => {
 const handleRunMortgageSim = async () => {
   const cleanPrincipal = simMortgagePrincipal.value.replace(/[^0-9]/g, '');
   if (!cleanPrincipal || cleanPrincipal === '0') {
-    alert('Pokok pinjaman KPR harus lebih besar dari 0');
+    toast.error('Pokok pinjaman KPR harus lebih besar dari Rp 0');
     return;
   }
 
@@ -132,7 +148,7 @@ const handleRunMortgageSim = async () => {
     });
     simMortgageResult.value = res.data.data;
   } catch (err: any) {
-    alert(err?.response?.data?.message || 'Gagal menghitung simulasi KPR');
+    toast.error(err?.response?.data?.message || 'Gagal menghitung simulasi KPR');
   } finally {
     simMortgageLoading.value = false;
   }
@@ -148,23 +164,23 @@ const continueToMortgage = (principalAmount: string) => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
+    class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="sim-modal-title"
     @click.self="emit('close')"
   >
     <div
-      class="fintech-card rounded-2xl w-full max-w-4xl p-5 sm:p-7 space-y-5 animate-modal-enter my-auto border border-stone-200/90 shadow-2xl max-h-[92vh] flex flex-col"
+      class="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-4xl mx-auto max-h-[92dvh] sm:max-h-[85vh] flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden animate-modal-enter"
     >
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between border-b border-stone-100 pb-3.5 shrink-0">
+      <!-- Modal Header (shrink-0) -->
+      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 flex items-center justify-between shrink-0 bg-white">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#183D2B] flex items-center justify-center shrink-0">
             <Calculator class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="sim-modal-title" class="text-base font-extrabold text-[#18221B]">
+            <h3 id="sim-modal-title" class="text-base font-extrabold text-[#18221B] leading-tight">
               Simulator Finansial Majemuk
             </h3>
             <p class="text-xs text-[#5E6961] mt-0.5">
@@ -176,12 +192,15 @@ const continueToMortgage = (principalAmount: string) => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
           aria-label="Tutup Modal"
         >
           <X class="w-5 h-5" />
         </button>
       </div>
+
+      <!-- Body Content (flex-1 overscroll-contain) -->
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-5">
 
       <!-- Tab Buttons -->
       <div class="flex gap-2 border-b border-stone-100 pb-2 shrink-0">
@@ -206,8 +225,8 @@ const continueToMortgage = (principalAmount: string) => {
         </button>
       </div>
 
-      <!-- Scrollable Tab Content Area -->
-      <div class="overflow-y-auto space-y-4 pr-1">
+      <!-- Tab Content Area -->
+      <div class="space-y-4">
         <!-- TAB 1: SIMULASI TARGET IMPIAN -->
         <div v-if="simActiveTab === 'goal'" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -642,13 +661,14 @@ const continueToMortgage = (principalAmount: string) => {
           </div>
         </div>
       </div>
+      </div>
 
-      <!-- Footer Button -->
-      <div class="flex justify-end pt-3 border-t border-stone-100 shrink-0">
+      <!-- Footer Button (shrink-0) -->
+      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-stone-100 bg-stone-50/80 shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn px-5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer transition border border-stone-200"
+          class="tactile-btn min-h-[44px] px-6 py-2 bg-[#183D2B] text-white hover:bg-emerald-900 rounded-xl text-xs font-bold cursor-pointer transition shadow-sm"
         >
           Tutup Simulator
         </button>

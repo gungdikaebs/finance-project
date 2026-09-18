@@ -19,10 +19,18 @@ const newGoalMonths = ref<number | null>(null);
 const newGoalMode = ref<'FULL' | 'DOWN_PAYMENT'>('FULL');
 const submitting = ref(false);
 
+import { useToast } from '../../composables/useToast';
+
+const toast = useToast();
+const nameError = ref('');
+const priceError = ref('');
+
 watch(
   () => props.show,
   (show) => {
     if (show) {
+      nameError.value = '';
+      priceError.value = '';
       newGoalName.value = '';
       newGoalPrice.value = '';
       newGoalMonths.value = null;
@@ -32,15 +40,23 @@ watch(
 );
 
 const handleCreateGoal = async () => {
+  nameError.value = '';
+  priceError.value = '';
+  let hasError = false;
+
   if (!newGoalName.value.trim()) {
-    alert('Nama target wajib diisi');
-    return;
+    nameError.value = 'Nama target impian wajib diisi';
+    toast.error('Nama target impian wajib diisi');
+    hasError = true;
   }
   const cleanPrice = newGoalPrice.value.replace(/[^0-9]/g, '');
   if (!cleanPrice || cleanPrice === '0') {
-    alert('Harga target harus lebih besar dari 0');
-    return;
+    priceError.value = 'Harga target harus lebih besar dari Rp 0';
+    if (!hasError) toast.error('Harga target harus lebih besar dari Rp 0');
+    hasError = true;
   }
+
+  if (hasError) return;
 
   submitting.value = true;
   try {
@@ -52,10 +68,11 @@ const handleCreateGoal = async () => {
       targetAmount: cleanPrice,
       targetMonths: newGoalMonths.value || undefined,
     });
+    toast.success(`Target "${newGoalName.value.trim()}" berhasil ditambahkan!`);
     emit('saved');
     emit('close');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menambahkan target impian');
+    toast.error(err.response?.data?.message || 'Gagal menambahkan target impian');
   } finally {
     submitting.value = false;
   }
@@ -65,21 +82,21 @@ const handleCreateGoal = async () => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
+    class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="add-goal-title"
     @click.self="emit('close')"
   >
-    <div class="fintech-card rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 animate-modal-enter border border-stone-200/90 shadow-2xl">
-      <!-- Header -->
-      <div class="flex items-center justify-between border-b border-stone-100 pb-3.5">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-md mx-auto flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden animate-modal-enter">
+      <!-- Header (shrink-0) -->
+      <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between shrink-0 bg-white">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-[#183D2B] flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#183D2B] flex items-center justify-center shrink-0">
             <Target class="w-5 h-5 text-[#183D2B]" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="add-goal-title" class="text-base font-extrabold text-[#18221B]">Tambah Target Impian</h3>
+            <h3 id="add-goal-title" class="text-base font-extrabold text-[#18221B] leading-tight">Tambah Target Impian</h3>
             <span class="text-[11px] text-stone-500 font-medium">Target pembelian barang, properti, atau dana tujuan</span>
           </div>
         </div>
@@ -87,12 +104,15 @@ const handleCreateGoal = async () => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
         </button>
       </div>
+
+      <!-- Form Inputs (flex-1 overscroll-contain) -->
+      <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
 
       <div class="space-y-3.5">
         <div>
@@ -101,8 +121,12 @@ const handleCreateGoal = async () => {
             v-model="newGoalName"
             type="text"
             placeholder="Contoh: Beli Rumah Pertama, Mobil, Laptop..."
-            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20"
+            class="w-full px-3.5 py-2.5 border rounded-xl text-xs bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2"
+            :class="nameError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
           />
+          <p v-if="nameError" class="text-xs text-rose-600 mt-1 font-semibold">
+            {{ nameError }}
+          </p>
         </div>
 
         <div>
@@ -111,9 +135,13 @@ const handleCreateGoal = async () => {
             v-model="newGoalPrice"
             type="text"
             placeholder="0"
-            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
+            class="w-full px-3.5 py-2.5 border rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 tabular-nums"
+            :class="priceError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
           />
-          <span class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
+          <p v-if="priceError" class="text-xs text-rose-600 mt-1 font-semibold">
+            {{ priceError }}
+          </p>
+          <span v-else class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
             Pratinjau: {{ formatRupiah(newGoalPrice) }}
           </span>
         </div>
@@ -141,11 +169,14 @@ const handleCreateGoal = async () => {
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-3 border-t border-stone-100">
+      </div>
+
+      <!-- Action Buttons (shrink-0) -->
+      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-stone-100 bg-stone-50/80 shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer border border-stone-200"
+          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer border border-stone-200"
         >
           Batal
         </button>
@@ -153,7 +184,7 @@ const handleCreateGoal = async () => {
           type="button"
           @click="handleCreateGoal"
           :disabled="submitting"
-          class="tactile-btn px-5 py-2 bg-[#183D2B] hover:bg-[#24553d] text-white text-xs font-bold rounded-xl disabled:opacity-50 cursor-pointer transition shadow-xs"
+          class="tactile-btn min-h-[44px] px-5 py-2 bg-[#183D2B] hover:bg-[#24553d] text-white text-xs font-bold rounded-xl disabled:opacity-50 cursor-pointer transition shadow-sm"
         >
           {{ submitting ? 'Menyimpan...' : 'Simpan Target' }}
         </button>

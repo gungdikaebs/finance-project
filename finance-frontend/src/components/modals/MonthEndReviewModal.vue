@@ -16,21 +16,21 @@ const emit = defineEmits<{
 <template>
   <div
     v-if="show && review"
-    class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
+    class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="review-modal-title"
     @click.self="emit('close')"
   >
-    <div class="fintech-card rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 animate-modal-enter border border-stone-200/90 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <!-- Header -->
-      <div class="flex items-center justify-between border-b border-stone-100 pb-3.5">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-lg mx-auto flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden animate-modal-enter">
+      <!-- Header (shrink-0) -->
+      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 flex items-center justify-between shrink-0 bg-white">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center shrink-0">
             <CalendarCheck class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="review-modal-title" class="text-base font-extrabold text-[#18221B]">
+            <h3 id="review-modal-title" class="text-base font-extrabold text-[#18221B] leading-tight">
               Tinjauan Bulan {{ review.reviewedMonth }}/{{ review.reviewedYear }}
             </h3>
             <span class="text-[11px] text-stone-500 font-medium">Evaluasi efisiensi anggaran periode lalu</span>
@@ -40,22 +40,19 @@ const emit = defineEmits<{
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
         </button>
       </div>
 
-      <p class="text-xs text-stone-500 leading-relaxed font-normal">
-        Evaluasi realisasi anggaran bulan sebelumnya untuk mengoptimalkan penyisihan tabungan secara terarah.
-      </p>
-
-      <div class="space-y-3.5">
+      <!-- Body (scrollable) -->
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div class="p-3.5 bg-stone-50/70 rounded-xl border border-stone-200/80">
             <span class="text-[11px] font-medium text-stone-500 block">Total Pemasukan</span>
-            <span class="text-base font-extrabold text-emerald-700 tabular-nums block mt-0.5">{{ formatRupiah(review.income) }}</span>
+            <span class="text-base font-extrabold text-[#18221B] tabular-nums block mt-0.5">{{ formatRupiah(review.income) }}</span>
           </div>
           <div class="p-3.5 bg-stone-50/70 rounded-xl border border-stone-200/80">
             <span class="text-[11px] font-medium text-stone-500 block">Total Pengeluaran</span>
@@ -97,11 +94,12 @@ const emit = defineEmits<{
         </div>
       </div>
 
-      <div class="flex justify-end pt-3 border-t border-stone-100">
+      <!-- Action Buttons (shrink-0) -->
+      <div class="flex items-center justify-end p-4 border-t border-stone-100 bg-stone-50/80 shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn px-5 py-2 bg-[#183D2B] hover:bg-[#24553d] text-white rounded-xl text-xs font-bold cursor-pointer transition shadow-xs"
+          class="tactile-btn min-h-[44px] px-6 py-2 bg-[#183D2B] hover:bg-[#24553d] text-white rounded-xl text-xs font-bold cursor-pointer transition shadow-sm"
         >
           Tutup Tinjauan
         </button>

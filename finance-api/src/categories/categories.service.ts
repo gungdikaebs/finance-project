@@ -3,9 +3,36 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+import {
+  DEFAULT_NEED_CATEGORIES,
+  DEFAULT_WANT_CATEGORIES,
+  DEFAULT_INCOME_CATEGORIES,
+} from '../auth/auth.service';
+
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
+
+  async seedDefaultCategories(userId: number) {
+    const existing = await this.prisma.category.count({ where: { userId } });
+    if (existing > 0) return;
+
+    for (const name of DEFAULT_NEED_CATEGORIES) {
+      await this.prisma.category.create({
+        data: { name, type: 'expense', group: 'NEED', userId },
+      });
+    }
+    for (const name of DEFAULT_WANT_CATEGORIES) {
+      await this.prisma.category.create({
+        data: { name, type: 'expense', group: 'WANT', userId },
+      });
+    }
+    for (const name of DEFAULT_INCOME_CATEGORIES) {
+      await this.prisma.category.create({
+        data: { name, type: 'income', group: 'UNASSIGNED', userId },
+      });
+    }
+  }
 
   create(userId: number, dto: CreateCategoryDto) {
     const group = dto.group || (dto.type === 'income' ? 'UNASSIGNED' : 'NEED');
@@ -19,8 +46,8 @@ export class CategoriesService {
     });
   }
 
-  findAll(userId: number, includeArchived = false, type?: string) {
-    return this.prisma.category.findMany({
+  async findAll(userId: number, includeArchived = false, type?: string) {
+    let categories = await this.prisma.category.findMany({
       where: {
         userId,
         ...(includeArchived ? {} : { isArchived: false }),
@@ -28,6 +55,19 @@ export class CategoriesService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    if (categories.length === 0 && !includeArchived && !type) {
+      const totalCount = await this.prisma.category.count({ where: { userId } });
+      if (totalCount === 0) {
+        await this.seedDefaultCategories(userId);
+        categories = await this.prisma.category.findMany({
+          where: { userId, isArchived: false },
+          orderBy: { createdAt: 'desc' },
+        });
+      }
+    }
+
+    return categories;
   }
 
   async update(userId: number, id: number, dto: UpdateCategoryDto) {

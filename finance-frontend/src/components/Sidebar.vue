@@ -11,19 +11,21 @@ import {
   Plus,
   LogOut,
   Clock,
+  TrendingUp,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
-  activeSection?: 'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi';
+  activeSection?: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi';
   timezone?: string;
   userName?: string;
   userEmail?: string;
 }>();
 
 const emit = defineEmits<{
-  (e: 'navigate', section: 'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi'): void;
+  (e: 'navigate', section: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi'): void;
   (e: 'openCreateTransaction', type?: 'income' | 'expense'): void;
   (e: 'openSimulator'): void;
+  (e: 'openRecurring'): void;
   (e: 'openMonthEndReview'): void;
   (e: 'openManage'): void;
   (e: 'openProfile'): void;
@@ -70,7 +72,7 @@ const emit = defineEmits<{
           Navigasi Utama
         </p>
 
-        <!-- Ringkasan -->
+        <!-- 1. Ringkasan -->
         <button
           type="button"
           @click="emit('navigate', 'ringkasan')"
@@ -83,20 +85,7 @@ const emit = defineEmits<{
           <span class="truncate">Ringkasan Saldo</span>
         </button>
 
-        <!-- Anggaran -->
-        <button
-          type="button"
-          @click="emit('navigate', 'anggaran')"
-          class="tactile-btn w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer"
-          :class="activeSection === 'anggaran'
-            ? 'bg-[#183D2B]/10 text-[#183D2B] font-bold'
-            : 'text-[#18221B]/70 hover:bg-canvas hover:text-[#18221B]'"
-        >
-          <PieChart class="w-4 h-4 shrink-0" :class="activeSection === 'anggaran' ? 'text-[#183D2B]' : 'text-[#18221B]/50'" />
-          <span class="truncate">Anggaran 50/30/20</span>
-        </button>
-
-        <!-- Tabungan -->
+        <!-- 2. Tabungan -->
         <button
           type="button"
           @click="emit('navigate', 'tabungan')"
@@ -109,7 +98,33 @@ const emit = defineEmits<{
           <span class="truncate">Tabungan & Impian</span>
         </button>
 
-        <!-- Transaksi -->
+        <!-- 3. Anggaran -->
+        <button
+          type="button"
+          @click="emit('navigate', 'anggaran')"
+          class="tactile-btn w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer"
+          :class="activeSection === 'anggaran'
+            ? 'bg-[#183D2B]/10 text-[#183D2B] font-bold'
+            : 'text-[#18221B]/70 hover:bg-canvas hover:text-[#18221B]'"
+        >
+          <PieChart class="w-4 h-4 shrink-0" :class="activeSection === 'anggaran' ? 'text-[#183D2B]' : 'text-[#18221B]/50'" />
+          <span class="truncate">Anggaran 50/30/20</span>
+        </button>
+
+        <!-- 4. Analitik & Tren -->
+        <button
+          type="button"
+          @click="emit('navigate', 'analitik')"
+          class="tactile-btn w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer"
+          :class="activeSection === 'analitik'
+            ? 'bg-[#183D2B]/10 text-[#183D2B] font-bold'
+            : 'text-[#18221B]/70 hover:bg-canvas hover:text-[#18221B]'"
+        >
+          <TrendingUp class="w-4 h-4 shrink-0" :class="activeSection === 'analitik' ? 'text-[#183D2B]' : 'text-[#18221B]/50'" />
+          <span class="truncate">Analitik & Tren</span>
+        </button>
+
+        <!-- 5. Transaksi -->
         <button
           type="button"
           @click="emit('navigate', 'transaksi')"
@@ -137,6 +152,16 @@ const emit = defineEmits<{
         >
           <Calculator class="w-4 h-4 shrink-0 text-emerald-700" />
           <span class="truncate">Simulasi KPR & Target</span>
+        </button>
+
+        <!-- Transaksi Berulang (Modul 5) -->
+        <button
+          type="button"
+          @click="emit('openRecurring')"
+          class="tactile-btn w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium text-[#18221B]/75 hover:bg-canvas hover:text-[#18221B] transition cursor-pointer"
+        >
+          <Clock class="w-4 h-4 shrink-0 text-emerald-700" />
+          <span class="truncate">Transaksi Berulang</span>
         </button>
 
         <!-- Review Akhir Bulan -->

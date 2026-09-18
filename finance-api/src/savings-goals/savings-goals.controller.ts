@@ -36,6 +36,16 @@ export class SavingsGoalsController {
     return this.service.updateShares(req.user.sub, dto);
   }
 
+  @Get('forecast')
+  getForecasts(@Request() req) {
+    return this.service.getForecasts(req.user.sub);
+  }
+
+  @Get(':id/forecast')
+  getGoalForecast(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.service.getForecasts(req.user.sub, id);
+  }
+
   @Get(':id')
   findOne(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(req.user.sub, id);

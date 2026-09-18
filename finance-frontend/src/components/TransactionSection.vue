@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { formatRupiah, formatDate } from '../utils/format';
-import type { Transaction } from '../api/services';
+import { financeApi, type Transaction } from '../api/services';
 import {
   ReceiptText,
   Filter,
@@ -9,9 +10,18 @@ import {
   Plus,
   Minus,
   Target,
+  Download,
+  FileText,
+  FileSpreadsheet,
+  FileDown,
+  ChevronDown,
+  Loader2,
 } from 'lucide-vue-next';
+import { useToast } from '../composables/useToast';
 
-defineProps<{
+const toast = useToast();
+
+const props = defineProps<{
   transactions: Transaction[];
   currentMonth: number;
   currentYear: number;
@@ -30,6 +40,47 @@ const emit = defineEmits<{
   (e: 'openCreateIncome'): void;
   (e: 'openCreateExpense'): void;
 }>();
+
+const isExporting = ref(false);
+const exportFormat = ref<string | null>(null);
+const showExportDropdown = ref(false);
+
+const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
+  isExporting.value = true;
+  exportFormat.value = format;
+  showExportDropdown.value = false;
+  try {
+    let response: any;
+    let extension = '';
+    if (format === 'csv') {
+      response = await financeApi.exportCsv(props.currentMonth, props.currentYear);
+      extension = 'csv';
+    } else if (format === 'excel') {
+      response = await financeApi.exportExcel(props.currentMonth, props.currentYear);
+      extension = 'xlsx';
+    } else {
+      response = await financeApi.exportPdf(props.currentMonth, props.currentYear);
+      extension = 'pdf';
+    }
+
+    const blob = new Blob([response.data]);
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    const monthStr = String(props.currentMonth).padStart(2, '0');
+    link.download = `Laporan_Keuangan_${props.currentYear}_${monthStr}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+    toast.success(`Berkas ${format.toUpperCase()} berhasil diunduh!`);
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || 'Gagal mengekspor berkas laporan');
+  } finally {
+    isExporting.value = false;
+    exportFormat.value = null;
+  }
+};
 </script>
 
 <template>
@@ -94,6 +145,84 @@ const emit = defineEmits<{
           <option value="ACTIVE">Aktif</option>
           <option value="CANCELLED">Dibatalkan</option>
         </select>
+
+        <!-- Export Dropdown (Modul 7) -->
+        <div class="relative">
+          <button
+            type="button"
+            @click="showExportDropdown = !showExportDropdown"
+            :disabled="isExporting"
+            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200/90 text-[#18221B] rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50"
+            title="Ekspor data transaksi bulan ini"
+          >
+            <Loader2 v-if="isExporting" class="w-3.5 h-3.5 animate-spin text-[#183D2B]" />
+            <Download v-else class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2" />
+            <span>{{ isExporting ? 'Mengekspor...' : 'Ekspor Data' }}</span>
+            <ChevronDown class="w-3.5 h-3.5 text-stone-400" />
+          </button>
+
+          <!-- Backdrop click listener for closing dropdown -->
+          <div
+            v-if="showExportDropdown"
+            class="fixed inset-0 z-10"
+            @click="showExportDropdown = false"
+          ></div>
+
+          <!-- Dropdown Menu -->
+          <div
+            v-if="showExportDropdown"
+            class="absolute right-0 mt-1.5 w-52 bg-white rounded-2xl shadow-xl border border-stone-200/90 py-1.5 z-20 animate-modal-enter"
+          >
+            <div class="px-3 py-1.5 border-b border-stone-100 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+              Pilihan Format Ekspor
+            </div>
+
+            <!-- CSV Option -->
+            <button
+              type="button"
+              @click="handleExport('csv')"
+              class="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-[#183D2B] transition cursor-pointer"
+            >
+              <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <FileText class="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span class="block leading-tight">Unduh CSV</span>
+                <span class="text-[10px] text-stone-400 font-normal">Data tabel mentah (.csv)</span>
+              </div>
+            </button>
+
+            <!-- Excel Option -->
+            <button
+              type="button"
+              @click="handleExport('excel')"
+              class="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-[#183D2B] transition cursor-pointer"
+            >
+              <div class="w-6 h-6 rounded-lg bg-emerald-50 text-[#183D2B] flex items-center justify-center shrink-0">
+                <FileSpreadsheet class="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span class="block leading-tight">Unduh Spreadsheet</span>
+                <span class="text-[10px] text-stone-400 font-normal">Format Excel rapi (.xlsx)</span>
+              </div>
+            </button>
+
+            <!-- PDF Option -->
+            <button
+              type="button"
+              @click="handleExport('pdf')"
+              class="w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-rose-700 transition cursor-pointer"
+            >
+              <div class="w-6 h-6 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center shrink-0">
+                <FileDown class="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span class="block leading-tight">Cetak Laporan PDF</span>
+                <span class="text-[10px] text-stone-400 font-normal">Dokumen siap cetak (.pdf)</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -14,25 +14,28 @@ import {
   type FinanceProfile,
   type SavingsGoal,
   type AllocationStatus,
+  type GoalForecast,
+  type RecurringTransaction,
 } from '../api/services';
+import { formatRupiah } from '../utils/format';
+import { useConfirm } from '../composables/useConfirm';
 import {
   AlertCircle,
   RefreshCw,
-  LayoutDashboard,
-  PieChart,
-  Target,
-  ReceiptText,
-  Layers,
 } from 'lucide-vue-next';
+import { useToast } from '../composables/useToast';
 
 // Modular Components
 import Sidebar from '../components/Sidebar.vue';
-import Navbar from '../components/Navbar.vue';
 import MobileBottomNav from '../components/MobileBottomNav.vue';
+import MobileMenuModal from '../components/modals/MobileMenuModal.vue';
 import HeroBalanceCard from '../components/HeroBalanceCard.vue';
 import SavingsSection from '../components/SavingsSection.vue';
 import BudgetSection from '../components/BudgetSection.vue';
 import TransactionSection from '../components/TransactionSection.vue';
+import CashflowAnalyticsSection from '../components/CashflowAnalyticsSection.vue';
+import UpcomingBillsWidget from '../components/UpcomingBillsWidget.vue';
+import type { MonthlyAnalyticsData } from '../api/services';
 
 // Modular Modals
 import ProfileModal from '../components/modals/ProfileModal.vue';
@@ -47,9 +50,13 @@ import ReleaseModal from '../components/modals/ReleaseModal.vue';
 import AddGoalModal from '../components/modals/AddGoalModal.vue';
 import GoalSharesModal from '../components/modals/GoalSharesModal.vue';
 import SimulationModal from '../components/modals/SimulationModal.vue';
+import OnboardingWizardModal from '../components/modals/OnboardingWizardModal.vue';
+import RecurringTransactionModal from '../components/modals/RecurringTransactionModal.vue';
 
 const router = useRouter();
 const auth = useAuthStore();
+const toast = useToast();
+const confirmDialog = useConfirm();
 
 // Core Data State
 const profile = ref<FinanceProfile | null>(null);
@@ -57,16 +64,19 @@ const summary = ref<ReportSummary | null>(null);
 const monthlyReport = ref<MonthlyReport | null>(null);
 const activePolicy = ref<BudgetPolicy | null>(null);
 const monthEndReview = ref<MonthEndReview | null>(null);
+const analytics = ref<MonthlyAnalyticsData | null>(null);
 const transactions = ref<Transaction[]>([]);
 const categories = ref<Category[]>([]);
 const incomeSources = ref<IncomeSource[]>([]);
 const savingsGoals = ref<SavingsGoal[]>([]);
+const goalForecasts = ref<Record<number, GoalForecast>>({});
+const upcomingBills = ref<RecurringTransaction[]>([]);
 const allocationStatus = ref<AllocationStatus | null>(null);
 const loading = ref(false);
 const loadError = ref<string | null>(null);
 
 // Responsive Navigation & Filter State
-const mobileTab = ref<'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi' | 'semua'>('ringkasan');
+const mobileTab = ref<'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi' | 'semua'>('ringkasan');
 const now = new Date();
 const currentMonth = ref(now.getMonth() + 1);
 const currentYear = ref(now.getFullYear());
@@ -91,6 +101,10 @@ const showAddGoalModal = ref(false);
 const showSharesModal = ref(false);
 const showSimModal = ref(false);
 const simInitialGoal = ref<SavingsGoal | null>(null);
+const simInitialMonthly = ref<string | null>(null);
+const showOnboardingModal = ref(false);
+const showRecurringModal = ref(false);
+const showMobileMenu = ref(false);
 
 // Computed goal views
 const emergencyGoal = computed(() => savingsGoals.value.find((g) => g.type === 'EMERGENCY'));
@@ -119,7 +133,7 @@ const loadAllData = async () => {
   loading.value = true;
   loadError.value = null;
   try {
-    const [profRes, sumRes, monthRes, policyRes, catRes, srcRes, trxRes, goalsRes, allocRes] = await Promise.all([
+    const [profRes, sumRes, monthRes, policyRes, catRes, srcRes, trxRes, goalsRes, allocRes, analyticsRes, forecastRes, recurringRes] = await Promise.all([
       financeApi.getProfile(),
       financeApi.getSummary(),
       financeApi.getMonthly(currentMonth.value, currentYear.value),
@@ -134,9 +148,15 @@ const loadAllData = async () => {
       }),
       financeApi.getSavingsGoals(),
       financeApi.getAllocationStatus(),
+      financeApi.getAnalytics(currentMonth.value, currentYear.value),
+      financeApi.getGoalForecasts(),
+      financeApi.getUpcomingRecurring(7),
     ]);
 
     profile.value = profRes.data.data;
+    if (profile.value && !profile.value.isOnboardingCompleted) {
+      showOnboardingModal.value = true;
+    }
     summary.value = sumRes.data.data;
     monthlyReport.value = monthRes.data.data;
     activePolicy.value = policyRes.data.data;
@@ -145,6 +165,13 @@ const loadAllData = async () => {
     transactions.value = trxRes.data.data.items;
     savingsGoals.value = goalsRes.data.data;
     allocationStatus.value = allocRes.data.data;
+    analytics.value = analyticsRes.data.data;
+    upcomingBills.value = recurringRes.data.data;
+    if (forecastRes.data?.data) {
+      goalForecasts.value = Object.fromEntries(
+        forecastRes.data.data.map((f: GoalForecast) => [f.goalId, f])
+      );
+    }
   } catch (err: any) {
     if (err.response?.status === 401) {
       auth.logout();
@@ -191,13 +218,50 @@ const openMonthEndReview = async () => {
     monthEndReview.value = res.data.data;
     showReviewModal.value = true;
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal memuat tinjauan akhir bulan');
+    toast.error(err.response?.data?.message || 'Gagal memuat tinjauan akhir bulan');
   }
 };
 
 const openSimulator = (goal?: SavingsGoal) => {
   simInitialGoal.value = goal || null;
+  simInitialMonthly.value = null;
   showSimModal.value = true;
+};
+
+const handleOpenSimulatorWithTopUp = (payload: { goal: SavingsGoal; recommendedMonthly: string }) => {
+  simInitialGoal.value = payload.goal;
+  simInitialMonthly.value = payload.recommendedMonthly;
+  showSimModal.value = true;
+};
+
+const handleExecuteBill = async (bill: RecurringTransaction) => {
+  const confirmed = await confirmDialog.ask({
+    title: 'Bayar & Catat Tagihan Sekarang?',
+    message: `Catat transaksi "${bill.note || (bill.type === 'expense' ? 'Tagihan Rutin' : 'Pemasukan Rutin')}" sebesar ${formatRupiah(bill.amount)} ke buku kas saat ini? Tanggal jadwal berikutnya akan otomatis dimajukan.`,
+    confirmText: 'Ya, Bayar Sekarang',
+    cancelText: 'Batal',
+    type: 'warning',
+  });
+
+  if (!confirmed) return;
+
+  try {
+    await financeApi.executeRecurringNow(bill.id);
+    toast.success('Tagihan berhasil dicatat dan jadwal telah dimajukan');
+    await loadAllData();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || 'Gagal mengeksekusi tagihan');
+  }
+};
+
+const handleOnboardingCompleted = () => {
+  showOnboardingModal.value = false;
+  loadAllData();
+};
+
+const handleOnboardingSkipped = () => {
+  showOnboardingModal.value = false;
+  loadAllData();
 };
 
 const handleLogout = () => {
@@ -207,6 +271,8 @@ const handleLogout = () => {
 
 // Keyboard Accessibility: Escape key closes top modal
 const closeTopModal = () => {
+  if (showMobileMenu.value) { showMobileMenu.value = false; return; }
+  if (showRecurringModal.value) { showRecurringModal.value = false; return; }
   if (showSimModal.value) { showSimModal.value = false; return; }
   if (showAddGoalModal.value) { showAddGoalModal.value = false; return; }
   if (showSharesModal.value) { showSharesModal.value = false; return; }
@@ -227,9 +293,9 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
   }
 };
 
-const activeSection = ref<'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi'>('ringkasan');
+const activeSection = ref<'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi'>('ringkasan');
 
-const scrollToSection = (section: 'ringkasan' | 'anggaran' | 'tabungan' | 'transaksi') => {
+const scrollToSection = (section: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi') => {
   activeSection.value = section;
   if (mobileTab.value !== 'semua' && mobileTab.value !== section) {
     mobileTab.value = section;
@@ -264,7 +330,7 @@ onMounted(() => {
   );
 
   setTimeout(() => {
-    ['ringkasan', 'tabungan', 'anggaran', 'transaksi'].forEach((s) => {
+    ['ringkasan', 'tabungan', 'anggaran', 'analitik', 'transaksi'].forEach((s) => {
       const el = document.getElementById(`section-${s}`);
       if (el) sectionObserver?.observe(el);
     });
@@ -288,6 +354,7 @@ onUnmounted(() => {
       @navigate="scrollToSection"
       @open-create-transaction="openCreateTransaction()"
       @open-simulator="openSimulator()"
+      @open-recurring="showRecurringModal = true"
       @open-month-end-review="openMonthEndReview"
       @open-manage="showManageModal = true"
       @open-profile="showProfileModal = true"
@@ -296,16 +363,6 @@ onUnmounted(() => {
 
     <!-- Main Content Area: Offset on lg+ by lg:pl-64 -->
     <div class="flex-1 min-w-0 flex flex-col min-h-screen lg:pl-64">
-      <!-- Navbar Header (Mobile & Tablet only < lg) -->
-      <Navbar
-        class="lg:hidden"
-        :timezone="profile?.timezone"
-        @open-simulator="openSimulator()"
-        @open-month-end-review="openMonthEndReview"
-        @open-manage="showManageModal = true"
-        @open-profile="showProfileModal = true"
-        @logout="handleLogout"
-      />
 
       <!-- Main Content Container -->
       <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-28 lg:pb-12">
@@ -386,54 +443,14 @@ onUnmounted(() => {
 
       <!-- MAIN CONTENT -->
       <template v-else>
-        <!-- Mobile Section Pill Bar (md:hidden) -->
-        <div class="flex md:hidden items-center justify-between bg-white p-1.5 rounded-2xl border border-stone-200/80 shadow-xs mb-2 text-xs overflow-x-auto gap-1">
-          <button
-            type="button"
-            @click="mobileTab = 'ringkasan'"
-            :class="mobileTab === 'ringkasan' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
-            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
-          >
-            <LayoutDashboard class="w-3.5 h-3.5" />
-            <span>Ringkasan</span>
-          </button>
-          <button
-            type="button"
-            @click="mobileTab = 'anggaran'"
-            :class="mobileTab === 'anggaran' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
-            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
-          >
-            <PieChart class="w-3.5 h-3.5" />
-            <span>Anggaran</span>
-          </button>
-          <button
-            type="button"
-            @click="mobileTab = 'tabungan'"
-            :class="mobileTab === 'tabungan' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
-            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
-          >
-            <Target class="w-3.5 h-3.5" />
-            <span>Tabungan</span>
-          </button>
-          <button
-            type="button"
-            @click="mobileTab = 'transaksi'"
-            :class="mobileTab === 'transaksi' ? 'bg-[#183D2B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'"
-            class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer"
-          >
-            <ReceiptText class="w-3.5 h-3.5" />
-            <span>Transaksi</span>
-          </button>
-          <button
-            type="button"
-            @click="mobileTab = 'semua'"
-            :class="mobileTab === 'semua' ? 'bg-stone-800 text-white font-bold' : 'text-stone-500 hover:bg-stone-100'"
-            class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer text-[11px]"
-          >
-            <Layers class="w-3 h-3" />
-            <span>Semua</span>
-          </button>
-        </div>
+
+        <!-- WIDGET TAGIHAN JATUH TEMPO (MODUL 5) -->
+        <UpcomingBillsWidget
+          :upcoming-bills="upcomingBills"
+          :loading="loading"
+          @open-manage-recurring="showRecurringModal = true"
+          @execute-bill="handleExecuteBill"
+        />
 
         <!-- SECTION 1: HERO KARTU SALDO UTAMA -->
         <section
@@ -460,10 +477,12 @@ onUnmounted(() => {
             :purchase-goals="purchaseGoals"
             :unassigned-goal="unassignedGoal"
             :profile="profile"
+            :forecasts="goalForecasts"
             @open-shares-modal="showSharesModal = true"
             @open-add-goal-modal="showAddGoalModal = true"
             @open-release-modal="openReleaseModal"
             @open-simulator-with-goal="openSimulator"
+            @open-simulator-with-top-up="handleOpenSimulatorWithTopUp"
           />
         </section>
 
@@ -483,7 +502,20 @@ onUnmounted(() => {
           />
         </section>
 
-        <!-- SECTION 4: RIWAYAT TRANSAKSI -->
+        <!-- SECTION 4: ANALITIK & TREN ARUS KAS (MODUL 3) -->
+        <section
+          id="section-analitik"
+          :class="{ 'hidden md:block': mobileTab !== 'analitik' && mobileTab !== 'semua' }"
+        >
+          <CashflowAnalyticsSection
+            :analytics="analytics"
+            :loading="loading"
+            :current-month="currentMonth"
+            :current-year="currentYear"
+          />
+        </section>
+
+        <!-- SECTION 5: RIWAYAT TRANSAKSI -->
         <section
           id="section-transaksi"
           :class="{ 'hidden md:block': mobileTab !== 'transaksi' && mobileTab !== 'semua' }"
@@ -509,7 +541,7 @@ onUnmounted(() => {
     <MobileBottomNav
       :active-tab="mobileTab"
       @update:active-tab="mobileTab = $event"
-      @open-simulator="openSimulator()"
+      @open-menu="showMobileMenu = true"
     />
 
     <!-- MODALS -->
@@ -600,7 +632,38 @@ onUnmounted(() => {
     <SimulationModal
       :show="showSimModal"
       :initial-goal="simInitialGoal"
+      :initial-monthly-savings="simInitialMonthly"
       @close="showSimModal = false"
+    />
+
+    <OnboardingWizardModal
+      :show="showOnboardingModal"
+      :profile="profile"
+      @completed="handleOnboardingCompleted"
+      @skipped="handleOnboardingSkipped"
+    />
+
+    <RecurringTransactionModal
+      :show="showRecurringModal"
+      :categories="categories"
+      :income-sources="incomeSources"
+      @close="showRecurringModal = false"
+      @changed="loadAllData"
+    />
+
+    <MobileMenuModal
+      :show="showMobileMenu"
+      :profile="profile"
+      :user-name="auth.user?.name"
+      :user-email="auth.user?.email"
+      @close="showMobileMenu = false"
+      @open-profile="showProfileModal = true"
+      @open-manage="showManageModal = true"
+      @open-recurring="showRecurringModal = true"
+      @open-simulator="openSimulator()"
+      @open-month-end-review="openMonthEndReview"
+      @open-analytics="mobileTab = 'analitik'"
+      @logout="handleLogout"
     />
   </div>
 </template>
