@@ -258,8 +258,14 @@ export const financeApi = {
     api.get<{ data: IncomeSource[] }>(`/income-sources?includeArchived=${includeArchived}`),
   createIncomeSource: (name: string) =>
     api.post<{ data: IncomeSource }>('/income-sources', { name }),
+  updateIncomeSource: (id: number, data: { name: string }) =>
+    api.patch<{ data: IncomeSource }>(`/income-sources/${id}`, data),
   archiveIncomeSource: (id: number) =>
     api.patch<{ data: IncomeSource }>(`/income-sources/${id}/archive`),
+  unarchiveIncomeSource: (id: number) =>
+    api.patch<{ data: IncomeSource }>(`/income-sources/${id}/unarchive`),
+  deleteIncomeSource: (id: number) =>
+    api.delete<{ data: IncomeSource }>(`/income-sources/${id}`),
 
   // Categories
   getCategories: (includeArchived = false, type?: string) => {
@@ -269,8 +275,14 @@ export const financeApi = {
   },
   createCategory: (data: { name: string; type: 'income' | 'expense'; group?: string }) =>
     api.post<{ data: Category }>('/categories', data),
+  updateCategory: (id: number, data: { name?: string; group?: string }) =>
+    api.patch<{ data: Category }>(`/categories/${id}`, data),
   archiveCategory: (id: number) =>
     api.patch<{ data: Category }>(`/categories/${id}/archive`),
+  unarchiveCategory: (id: number) =>
+    api.patch<{ data: Category }>(`/categories/${id}/unarchive`),
+  deleteCategory: (id: number) =>
+    api.delete<{ data: Category }>(`/categories/${id}`),
 
   // Budget Policies
   getActiveBudgetPolicy: (year?: number, month?: number) => {

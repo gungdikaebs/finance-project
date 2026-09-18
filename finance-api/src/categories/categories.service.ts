@@ -53,6 +53,10 @@ export class CategoriesService {
     return this.update(userId, id, { isArchived: true });
   }
 
+  async unarchive(userId: number, id: number) {
+    return this.update(userId, id, { isArchived: false });
+  }
+
   async delete(userId: number, categoryId: number) {
     const category = await this.prisma.category.findFirst({
       where: {
@@ -65,23 +69,30 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    const used = await this.prisma.transaction.count({
-      where: {
-        categoryId,
-        userId,
-      },
-    });
+    return this.prisma.$transaction(async (prisma) => {
+      const txs = await prisma.transaction.findMany({
+        where: { categoryId, userId },
+        select: { id: true },
+      });
+      const txIds = txs.map((t) => t.id);
 
-    if (used > 0) {
-      throw new BadRequestException(
-        'Category is used in transactions. Please archive it instead.',
-      );
-    }
+      if (txIds.length > 0) {
+        await prisma.transactionRevision.deleteMany({
+          where: { transactionId: { in: txIds } },
+        });
+        await prisma.allocationEvent.deleteMany({
+          where: { transactionId: { in: txIds } },
+        });
+        await prisma.transaction.deleteMany({
+          where: { id: { in: txIds } },
+        });
+      }
 
-    return this.prisma.category.delete({
-      where: {
-        id: categoryId,
-      },
+      return prisma.category.delete({
+        where: {
+          id: categoryId,
+        },
+      });
     });
   }
 }

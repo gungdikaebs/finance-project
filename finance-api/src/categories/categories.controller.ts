@@ -49,6 +49,11 @@ export class CategoriesController {
     return this.service.archive(req.user.sub, id);
   }
 
+  @Patch(':id/unarchive')
+  unarchive(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.service.unarchive(req.user.sub, id);
+  }
+
   @Delete(':id')
   delete(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.service.delete(req.user.sub, id);
