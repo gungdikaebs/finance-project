@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { financeApi, type Transaction, type Category } from '../../api/services';
-import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
+import { formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { Edit3, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -130,9 +130,6 @@ const handleUpdate = async () => {
           <p v-if="amountError" class="text-xs text-rose-600 mt-1 font-semibold">
             {{ amountError }}
           </p>
-          <span v-else class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
-            Pratinjau: {{ formatRupiah(editAmount) }}
-          </span>
         </div>
 
         <div>

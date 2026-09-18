@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { financeApi } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { Target, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -24,6 +24,12 @@ import { useToast } from '../../composables/useToast';
 const toast = useToast();
 const nameError = ref('');
 const priceError = ref('');
+
+const handlePriceInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  newGoalPrice.value = formatNumberInput(target.value);
+  if (priceError.value) priceError.value = '';
+};
 
 watch(
   () => props.show,
@@ -49,7 +55,7 @@ const handleCreateGoal = async () => {
     toast.error('Nama target impian wajib diisi');
     hasError = true;
   }
-  const cleanPrice = newGoalPrice.value.replace(/[^0-9]/g, '');
+  const cleanPrice = parseCleanNumber(newGoalPrice.value);
   if (!cleanPrice || cleanPrice === '0') {
     priceError.value = 'Harga target harus lebih besar dari Rp 0';
     if (!hasError) toast.error('Harga target harus lebih besar dari Rp 0');
@@ -132,8 +138,10 @@ const handleCreateGoal = async () => {
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Harga Acuan / Target Dana (Rp)</label>
           <input
-            v-model="newGoalPrice"
+            :value="newGoalPrice"
+            @input="handlePriceInput"
             type="text"
+            inputmode="numeric"
             placeholder="0"
             class="w-full px-3.5 py-2.5 border rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 tabular-nums"
             :class="priceError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
@@ -141,9 +149,6 @@ const handleCreateGoal = async () => {
           <p v-if="priceError" class="text-xs text-rose-600 mt-1 font-semibold">
             {{ priceError }}
           </p>
-          <span v-else class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
-            Pratinjau: {{ formatRupiah(newGoalPrice) }}
-          </span>
         </div>
 
         <div>

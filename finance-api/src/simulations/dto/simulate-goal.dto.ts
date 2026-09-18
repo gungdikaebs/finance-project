@@ -38,9 +38,9 @@ export class SimulateGoalDto {
 
   @IsOptional()
   @IsInt()
-  @Min(100)
+  @Min(0)
   @Max(10000)
-  dpPercent?: number; // basis points, default 2000 = 20%
+  dpPercent?: number; // basis points, e.g. 0 = 0%, 2000 = 20%
 
   @IsOptional()
   @Matches(/^[0-9]+$/, {

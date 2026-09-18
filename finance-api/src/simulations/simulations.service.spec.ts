@@ -56,6 +56,25 @@ describe('SimulationsService', () => {
     ).toThrow(BadRequestException);
   });
 
+  it('mendukung simulasi target dengan DP 0% (kredit penuh)', () => {
+    const result = service.simulateGoal({
+      priceReference: '100000000',
+      annualPriceIncreaseRatio: 0,
+      currentSavings: '0',
+      mode: 'DOWN_PAYMENT',
+      dpPercent: 0,
+      initialFees: '2000000',
+      calculationMode: 'MONTHLY_SAVINGS',
+      targetMonths: 10,
+    });
+
+    expect(result.isAchievable).toBe(true);
+    expect(result.downPayment).toBe('0');
+    expect(result.loanPrincipal).toBe('100000000');
+    expect(result.requiredFunds).toBe('2000000'); // Hanya butuh biaya legalitas
+    expect(result.monthlySavings).toBe('200000'); // 2 jt / 10 bln = 200 rb
+  });
+
   it('mendukung pinjaman fixed sepanjang tenor tanpa floating rate', () => {
     const result = service.simulateMortgage({
       principal: '120000000',

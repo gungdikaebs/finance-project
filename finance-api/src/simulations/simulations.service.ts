@@ -117,7 +117,7 @@ export class SimulationsService {
           const requestedDp = BigInt(dto.dpAmount);
           dp = requestedDp > priceAtM ? priceAtM : requestedDp;
         } else {
-          const ratio = (dto.dpPercent || 2000) / 10000;
+          const ratio = (dto.dpPercent !== undefined && dto.dpPercent !== null ? dto.dpPercent : 2000) / 10000;
           dp = BigInt(Math.round(Number(priceAtM) * ratio));
         }
         loanPrincipal = priceAtM > dp ? priceAtM - dp : BigInt(0);

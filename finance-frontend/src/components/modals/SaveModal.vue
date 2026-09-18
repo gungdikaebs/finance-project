@@ -140,9 +140,6 @@ const handleExecuteSave = async () => {
             placeholder="0"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-lg font-black text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
           />
-          <span class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
-            Pratinjau: {{ formatRupiah(saveAmountInput) }}
-          </span>
         </div>
 
         <!-- Pratinjau Alokasi Otomatis (Live Preview) -->

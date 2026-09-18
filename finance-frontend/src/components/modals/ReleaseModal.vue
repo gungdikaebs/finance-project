@@ -142,9 +142,6 @@ const handleExecuteRelease = async () => {
           <p v-if="releaseError" class="text-xs text-rose-600 mt-1 font-semibold">
             {{ releaseError }}
           </p>
-          <span v-else class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
-            Pratinjau: {{ formatRupiah(releaseAmountInput) }}
-          </span>
         </div>
 
         <div>

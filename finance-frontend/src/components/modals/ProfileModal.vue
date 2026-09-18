@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { financeApi, type FinanceProfile } from '../../api/services';
-import { formatRupiah } from '../../utils/format';
+import { formatNumberInput, parseCleanNumber } from '../../utils/format';
 import { Wallet, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -19,12 +19,22 @@ const monthlyNeeds = ref('');
 const timezone = ref('Asia/Makassar');
 const submitting = ref(false);
 
+const handleInitialBalanceInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  initialBalance.value = formatNumberInput(target.value);
+};
+
+const handleMonthlyNeedsInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  monthlyNeeds.value = formatNumberInput(target.value);
+};
+
 watch(
   () => props.profile,
   (newVal) => {
     if (newVal) {
-      initialBalance.value = newVal.initialBalance || '0';
-      monthlyNeeds.value = newVal.monthlyNeeds || '0';
+      initialBalance.value = formatNumberInput(newVal.initialBalance || '0');
+      monthlyNeeds.value = formatNumberInput(newVal.monthlyNeeds || '0');
       timezone.value = newVal.timezone || 'Asia/Makassar';
     }
   },
@@ -39,8 +49,8 @@ const handleSave = async () => {
   submitting.value = true;
   try {
     await financeApi.updateProfile({
-      initialBalance: initialBalance.value.replace(/[^0-9]/g, '') || '0',
-      monthlyNeeds: monthlyNeeds.value.replace(/[^0-9]/g, '') || '0',
+      initialBalance: parseCleanNumber(initialBalance.value),
+      monthlyNeeds: parseCleanNumber(monthlyNeeds.value),
       timezone: timezone.value,
     });
     toast.success('Profil keuangan berhasil diperbarui!');
@@ -96,22 +106,23 @@ const handleSave = async () => {
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Saldo Awal (Rp)</label>
           <input
-            v-model="initialBalance"
+            :value="initialBalance"
+            @input="handleInitialBalanceInput"
             type="text"
-            placeholder="Contoh: 10000000"
+            inputmode="numeric"
+            placeholder="Contoh: 10.000.000"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-base font-extrabold text-[#18221B] bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
           />
-          <span class="text-xs text-[#183D2B] font-bold mt-1 block tabular-nums">
-            Pratinjau: {{ formatRupiah(initialBalance) }}
-          </span>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-[#18221B] mb-1">Kebutuhan Pokok Bulanan (Rp)</label>
           <input
-            v-model="monthlyNeeds"
+            :value="monthlyNeeds"
+            @input="handleMonthlyNeedsInput"
             type="text"
-            placeholder="Contoh: 3000000"
+            inputmode="numeric"
+            placeholder="Contoh: 3.000.000"
             class="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold bg-stone-50/70 focus:bg-white text-[#18221B] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 tabular-nums"
           />
           <span class="text-[10px] text-stone-500 mt-1 block">
