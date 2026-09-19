@@ -245,6 +245,78 @@ Preferensi workflow berada di [RULES.md](RULES.md). Persetujuan arah produk di b
 - Alasan dan trade-off: Memberikan kejelasan kognitif tanpa ambigu mengenai kebutuhan uang muka riil dan memperluas kegunaan simulator untuk segala jenis cicilan konsumtif.
 - Dasar persetujuan: Feedback langsung pengguna terkait kebingungan pada label "Biaya Awal" serta kebutuhan simulasi cicilan yang fleksibel.
 
+### D-022 — Arsitektur Akun Penyimpanan Fisik (Multi-Wallets / Sub-Accounts) & Transfer Antar Dompet
+
+- Tanggal: 2026-09-19
+- Status: disetujui
+- Konteks: Pengguna memiliki uang yang tersimpan di berbagai wadah fisik/digital nyata (rekening bank BCA/Mandiri, e-wallet GoPay/OVO, uang tunai di dompet). Sistem sebelumnya hanya memiliki satu saldo agregat (`mainBalance`) tanpa kemampuan melacak di mana uang fisik tersebut berada atau memindahkan saldo antar wadah tanpa mencatatnya sebagai pengeluaran/pemasukan.
+- Keputusan:
+  1. Relasi & Penyimpanan Data:
+     - Menambahkan entitas `WalletAccount` (`id`, `userId`, `name`, `type`, `balance`, `accountNumber`, `color`, `icon`, `isDefault`, `isArchived`). Tipe dompet: `BANK`, `EWALLET`, `CASH`, `INVESTMENT`, `OTHER`.
+     - Menambahkan entitas `WalletTransfer` (`id`, `userId`, `sourceWalletId`, `targetWalletId`, `amount`, `date`, `note`) untuk mencatat mutasi pemindahan dana.
+     - Menambahkan relasi opsional `Transaction.walletAccountId` untuk mengaitkan pemasukan/pengeluaran dengan akun penyimpanan fisik tertentu.
+  2. Prinsip Domain D-003, D-004 & D-005 (Keseimbangan & Netralitas Anggaran):
+     - Total saldo semua dompet aktif berbanding lurus dengan `mainBalance`.
+     - Transfer antar dompet bersifat netral: hanya memutasi saldo individual dompet pengirim (-amount) dan dompet penerima (+amount) secara atomik dalam `$transaction`. Transfer TIDAK menghasilkan entri pengeluaran/pemasukan pada anggaran 50/30/20 dan tidak mengubah `mainBalance`.
+     - Alokasi pos tabungan/impian tetap terpisah dari lokasi fisik penyimpanan uang (uang impian dapat tersimpan di dompet mana saja).
+  3. Kompatibilitas Akun Lama (Seamless Backward Compatibility):
+     - `ensureDefaultWallet`: Otomatis membuat dompet default "Rekening Utama / Tunai" (tipe BANK) dengan saldo awal sebesar `mainBalance` pengguna jika belum memiliki dompet.
+     - Setiap transaksi masa lalu yang memiliki `walletAccountId = null` otomatis dikaitkan ke dompet default tersebut saat diakses.
+  4. Antarmuka Pengguna (Anti-AI-Slop):
+     - `HeroBalanceCard.vue`: Menyertakan wallet preview pill strip yang menampilkan ringkasan saldo per dompet, tombol aksi cepat "Pindah Dana" dan "Kelola".
+     - `ManageWalletsModal.vue`: Modal kelola akun dompet dengan tab daftar akun & form tambah/edit, pemilihan tipe dompet berikon visual tajam, proteksi arsip (dompet dengan saldo > 0 tidak dapat diarsipkan sembarangan).
+     - `TransferWalletModal.vue`: Modal transfer antar dompet dengan switch swap arah transfer, format ribuan dinamis, validasi real-time saldo tidak mencukupi, dan info edukatif D-003.
+     - `TransactionModal.vue`: Selector akun dompet pada form catat transaksi baru.
+     - `Sidebar.vue` & `MobileMenuModal.vue`: Integrasi tautan navigasi langsung ke fitur dompet dan transfer.
+### D-023 — Mode Gelap Konsisten (High-Contrast Dark Mode) Sesuai Taste Skills & Palet D-010
+
+- Tanggal: 2026-09-19
+- Status: disetujui
+- Konteks: Antarmuka aplikasi sebelumnya hanya mendukung light mode penuh. Pengguna membutuhkan mode gelap yang nyaman untuk pencatatan di malam hari tanpa merusak estetika dan keterbacaan data finansial yang padat.
+- Keputusan:
+  1. Palet Kanonikal D-010 High-Contrast Dark Theme:
+     - Background / Canvas: `#0E1410` (Dark Forest Grey)
+     - Kartu & Panel: `#16201A` (Deep Forest Pine)
+     - Border & Pembatas: `#243329`
+     - Teks Utama: `#F0F4F1` (Kontras tinggi memenuhi WCAG AA)
+     - Teks Sekunder: `#98A79D`
+     - Kartu Utama (Hero Balance): Gradasi `#132E21` ke `#0A1B13` dengan border aksen `#B8DF38/30`
+     - Aksen Utama: Electric Lime (`#B8DF38`) dengan teks `#0E1410`
+  2. Arsitektur Anti-FOUC (Flicker-Free Theme Engine):
+     - Menempatkan script evaluasi tema langsung di `<head>` dokumen `index.html` yang membaca `localStorage.getItem('finance_theme')` dan `window.matchMedia('(prefers-color-scheme: dark)')` sebelum render DOM pertama, mencegah kedipan putih pada cold start.
+     - `src/composables/useTheme.ts`: Reactive state manager dengan sinkronisasi `localStorage`, deteksi OS change listener, dan helper toggle `'light' | 'dark' | 'system'`.
+  3. Konfigurasi Tailwind CSS v4 & Style System:
+     - `@custom-variant dark (&:where(.dark, .dark *));` di `src/style.css` agar selector `.dark` pada tag `<html>` terintegrasi dengan utilitas Tailwind v4 `dark:...`.
+     - Styling global untuk `<input>`, `<select>`, `<textarea>`, `<option>`, dan scrollbar di bawah `html.dark`.
+     - Chart.js theme reactivity: Menjadikan opsi chart di `CashflowAnalyticsSection.vue` sebagai computed properties yang secara otomatis menyesuaikan warna grid, ticks, dan tooltip secara dinamis saat tema berganti.
+  4. Komponen & Aksesibilitas Taste Skills:
+     - Switcher tema taktil di `Sidebar.vue` (desktop) dan `MobileMenuModal.vue` (mobile drawer).
+     - Menjamin rasio kontras WCAG AA pada semua form input dan tombol aksi utama.
+     - Tabular numbers (`.tabular-nums`) tetap terjaga rapi pada seluruh nilai moneter.
+- Alasan dan trade-off: Memberikan pengalaman penggunaan malam hari yang sangat nyaman, estetis, dan modern tanpa kedipan layout, sekaligus mematuhi standar desain anti-slop.
+- Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 9 dan persetujuan user atas implementation plan.
+
+### D-024 — Penguatan Keamanan Autentikasi, Rate Limiting & Sesi (Security & Auth Hardening)
+
+- Tanggal: 2026-09-19
+- Status: disetujui
+- Konteks: Rute autentikasi rentan terhadap serangan brute force credential stuffing jika tidak memiliki pembatasan laju permintaan (rate limiting), registrasi akun baru sebelumnya memperbolehkan kata sandi lemah (6 karakter alfabetik sederhana), dan belum ada endpoint verifikasi kata sandi untuk aksi sensitif.
+- Keputusan:
+  1. Proteksi Brute Force & Rate Limiting (`@nestjs/throttler`):
+     - Memasang paket `@nestjs/throttler` dan mengonfigurasikannya pada `AppModule` dengan rate limiting global (60 req/menit) dan `ThrottlerGuard` sebagai `APP_GUARD`.
+     - Mengunci endpoint `POST /auth/login` dengan pembatasan ketat `@Throttle({ default: { limit: 5, ttl: 60000 } })` (maksimal 5 percobaan login gagal per menit per IP). Permintaan ke-6 otomatis diblokir dengan status HTTP 429 Too Many Requests.
+  2. Kebijakan Kata Sandi Kuat (`RegisterDto`):
+     - Memperbarui validasi kata sandi saat mendaftar: `@MinLength(8)` dan `@Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/)` yang mewajibkan kombinasi minimal 8 karakter, huruf besar (A-Z), huruf kecil (a-z), serta angka atau simbol.
+  3. Endpoint Konfirmasi Kata Sandi Aksi Sensitif:
+     - Menyediakan endpoint terproteksi `POST /auth/verify-password` (`JwtAuthGuard`) untuk memverifikasi kecocokan kata sandi pengguna terotentikasi via `bcrypt.compare` sebelum aksi destruktif atau perubahan profil.
+  4. Pengalaman Pengguna (Frontend `Login.vue`):
+     - Menambahkan indikator kekuatan kata sandi real-time (*Password Strength Meter*) dengan baris kemajuan berwarna (Merah Lemah, Kuning Cukup, Biru Baik, Lime Kuat) dan checklist 4 kriteria keamanan.
+     - Menambahkan toggle lihat/sembunyikan kata sandi (`Eye` / `EyeOff`) untuk mempermudah pengetikan di perangkat mobile.
+     - Penanganan ramah pesan error 429 ("Terlalu banyak percobaan masuk. Demi keamanan, silakan tunggu 1 menit sebelum mencoba kembali").
+     - Penerapan tema gelap penuh (`dark:bg-[#0E1410]`, `dark:bg-[#16201A]`, `dark:border-[#243329]`) sesuai palet D-010.
+- Alasan dan trade-off: Meningkatkan postur keamanan aplikasi secara signifikan dari ancaman otomatisasi dan password guessing tanpa mempersulit pengguna yang sah.
+- Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 10 dan persetujuan user atas implementation plan.
+
 Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknologi, konvensi, atau desain lintas fitur. Keputusan lokal cukup berada di file tugas. Gunakan ID berurutan; keputusan pengganti merujuk ID lama dan menandainya sebagai digantikan.
 
 ## Format entri

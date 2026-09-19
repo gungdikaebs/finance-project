@@ -22,6 +22,10 @@ export class UpdateTransactionDto {
   incomeSourceId?: number;
 
   @IsOptional()
+  @IsInt()
+  walletAccountId?: number;
+
+  @IsOptional()
   @IsString()
   reason?: string;
 }

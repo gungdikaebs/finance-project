@@ -16,6 +16,7 @@ import {
   type AllocationStatus,
   type GoalForecast,
   type RecurringTransaction,
+  type WalletAccount,
 } from '../api/services';
 import { formatRupiah } from '../utils/format';
 import { useConfirm } from '../composables/useConfirm';
@@ -52,6 +53,8 @@ import GoalSharesModal from '../components/modals/GoalSharesModal.vue';
 import SimulationModal from '../components/modals/SimulationModal.vue';
 import OnboardingWizardModal from '../components/modals/OnboardingWizardModal.vue';
 import RecurringTransactionModal from '../components/modals/RecurringTransactionModal.vue';
+import ManageWalletsModal from '../components/modals/ManageWalletsModal.vue';
+import TransferWalletModal from '../components/modals/TransferWalletModal.vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -71,6 +74,7 @@ const incomeSources = ref<IncomeSource[]>([]);
 const savingsGoals = ref<SavingsGoal[]>([]);
 const goalForecasts = ref<Record<number, GoalForecast>>({});
 const upcomingBills = ref<RecurringTransaction[]>([]);
+const wallets = ref<WalletAccount[]>([]);
 const allocationStatus = ref<AllocationStatus | null>(null);
 const loading = ref(false);
 const loadError = ref<string | null>(null);
@@ -104,6 +108,8 @@ const simInitialGoal = ref<SavingsGoal | null>(null);
 const simInitialMonthly = ref<string | null>(null);
 const showOnboardingModal = ref(false);
 const showRecurringModal = ref(false);
+const showManageWalletsModal = ref(false);
+const showTransferWalletModal = ref(false);
 const showMobileMenu = ref(false);
 
 // Computed goal views
@@ -133,7 +139,7 @@ const loadAllData = async () => {
   loading.value = true;
   loadError.value = null;
   try {
-    const [profRes, sumRes, monthRes, policyRes, catRes, srcRes, trxRes, goalsRes, allocRes, analyticsRes, forecastRes, recurringRes] = await Promise.all([
+    const [profRes, sumRes, monthRes, policyRes, catRes, srcRes, trxRes, goalsRes, allocRes, analyticsRes, forecastRes, recurringRes, walletsRes] = await Promise.all([
       financeApi.getProfile(),
       financeApi.getSummary(),
       financeApi.getMonthly(currentMonth.value, currentYear.value),
@@ -151,6 +157,7 @@ const loadAllData = async () => {
       financeApi.getAnalytics(currentMonth.value, currentYear.value),
       financeApi.getGoalForecasts(),
       financeApi.getUpcomingRecurring(7),
+      financeApi.getWallets(),
     ]);
 
     profile.value = profRes.data.data;
@@ -167,6 +174,7 @@ const loadAllData = async () => {
     allocationStatus.value = allocRes.data.data;
     analytics.value = analyticsRes.data.data;
     upcomingBills.value = recurringRes.data.data;
+    wallets.value = walletsRes.data.data;
     if (forecastRes.data?.data) {
       goalForecasts.value = Object.fromEntries(
         forecastRes.data.data.map((f: GoalForecast) => [f.goalId, f])
@@ -272,6 +280,8 @@ const handleLogout = () => {
 // Keyboard Accessibility: Escape key closes top modal
 const closeTopModal = () => {
   if (showMobileMenu.value) { showMobileMenu.value = false; return; }
+  if (showTransferWalletModal.value) { showTransferWalletModal.value = false; return; }
+  if (showManageWalletsModal.value) { showManageWalletsModal.value = false; return; }
   if (showRecurringModal.value) { showRecurringModal.value = false; return; }
   if (showSimModal.value) { showSimModal.value = false; return; }
   if (showAddGoalModal.value) { showAddGoalModal.value = false; return; }
@@ -344,7 +354,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F3F5EF] text-[#18221B]">
+  <div class="min-h-screen bg-[#F3F5EF] dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] transition-colors duration-200">
     <!-- Desktop Sidebar (Visible on lg+) -->
     <Sidebar
       :active-section="activeSection"
@@ -358,6 +368,8 @@ onUnmounted(() => {
       @open-month-end-review="openMonthEndReview"
       @open-manage="showManageModal = true"
       @open-profile="showProfileModal = true"
+      @open-wallets="showManageWalletsModal = true"
+      @open-transfer="showTransferWalletModal = true"
       @logout="handleLogout"
     />
 
@@ -369,16 +381,16 @@ onUnmounted(() => {
       <!-- Error Alert Banner with Retry -->
       <div
         v-if="loadError"
-        class="bg-rose-50/90 border border-rose-200 text-rose-900 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm"
+        class="bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-900 dark:text-rose-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm"
         role="alert"
       >
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0">
             <AlertCircle class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h4 class="text-sm font-bold text-rose-950">Gagal Memuat Data</h4>
-            <p class="text-xs text-rose-800 mt-0.5 font-normal">{{ loadError }}</p>
+            <h4 class="text-sm font-bold text-rose-950 dark:text-rose-100">Gagal Memuat Data</h4>
+            <p class="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-normal">{{ loadError }}</p>
           </div>
         </div>
         <button
@@ -460,10 +472,13 @@ onUnmounted(() => {
           <HeroBalanceCard
             :summary="summary"
             :allocation-status="allocationStatus"
+            :wallets="wallets"
             @open-income="openCreateTransaction('income')"
             @open-expense="openCreateTransaction('expense')"
             @open-save="showSaveModal = true"
             @open-release="openReleaseModal()"
+            @open-wallets="showManageWalletsModal = true"
+            @open-transfer="showTransferWalletModal = true"
           />
         </section>
 
@@ -558,6 +573,7 @@ onUnmounted(() => {
       :categories="categories"
       :income-sources="incomeSources"
       :savings-goals="savingsGoals"
+      :wallets="wallets"
       @close="showTransactionModal = false"
       @saved="loadAllData"
     />
@@ -658,12 +674,29 @@ onUnmounted(() => {
       :user-email="auth.user?.email"
       @close="showMobileMenu = false"
       @open-profile="showProfileModal = true"
+      @open-wallets="showManageWalletsModal = true"
+      @open-transfer="showTransferWalletModal = true"
       @open-manage="showManageModal = true"
       @open-recurring="showRecurringModal = true"
       @open-simulator="openSimulator()"
       @open-month-end-review="openMonthEndReview"
       @open-analytics="mobileTab = 'analitik'"
       @logout="handleLogout"
+    />
+
+    <ManageWalletsModal
+      :show="showManageWalletsModal"
+      :wallets="wallets"
+      @close="showManageWalletsModal = false"
+      @refresh="loadAllData"
+      @open-transfer="showTransferWalletModal = true"
+    />
+
+    <TransferWalletModal
+      :show="showTransferWalletModal"
+      :wallets="wallets"
+      @close="showTransferWalletModal = false"
+      @transferred="loadAllData"
     />
   </div>
 </template>

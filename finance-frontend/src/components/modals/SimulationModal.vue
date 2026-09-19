@@ -287,19 +287,19 @@ const continueToMortgage = (principalAmount: string) => {
     @click.self="emit('close')"
   >
     <div
-      class="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-4xl mx-auto max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden animate-modal-enter"
+      class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl w-full max-w-4xl mx-auto max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter"
     >
       <!-- Modal Header (shrink-0) -->
-      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 flex items-center justify-between shrink-0 bg-white">
+      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-stone-100 text-[#183D2B] flex items-center justify-center shrink-0 border border-stone-200/70">
+          <div class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center shrink-0 border border-stone-200/70 dark:border-[#344639]">
             <Calculator class="w-4 h-4" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 id="sim-modal-title" class="text-sm sm:text-base font-extrabold text-[#18221B] leading-tight">
+            <h3 id="sim-modal-title" class="text-sm sm:text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
               Simulator Finansial
             </h3>
-            <p class="text-xs text-[#5E6961] mt-0.5">
+            <p class="text-xs text-[#5E6961] dark:text-[#98A79D] mt-0.5">
               Kalkulator mandiri untuk proyeksi tabungan target dan estimasi angsuran kredit.
             </p>
           </div>
@@ -308,7 +308,7 @@ const continueToMortgage = (principalAmount: string) => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-w-[36px] min-h-[36px] flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[36px] min-h-[36px] flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
           aria-label="Tutup Modal"
         >
           <X class="w-4 h-4" />
@@ -316,13 +316,13 @@ const continueToMortgage = (principalAmount: string) => {
       </div>
 
       <!-- Pinned Segmented Control Tabs (shrink-0, stays visible on scroll) -->
-      <div class="px-5 sm:px-6 py-2.5 border-b border-stone-100 bg-stone-50/60 shrink-0">
-        <div class="inline-flex p-1 bg-stone-200/70 rounded-xl w-full sm:w-auto gap-1">
+      <div class="px-5 sm:px-6 py-2.5 border-b border-stone-100 dark:border-[#243329] bg-stone-50/60 dark:bg-[#121A15] shrink-0">
+        <div class="inline-flex p-1 bg-stone-200/70 dark:bg-[#1B2620] rounded-xl w-full sm:w-auto gap-1">
           <button
             type="button"
             @click="simActiveTab = 'goal'"
             class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition select-none cursor-pointer"
-            :class="simActiveTab === 'goal' ? 'bg-white text-[#18221B] shadow-xs' : 'text-stone-600 hover:text-stone-900'"
+            :class="simActiveTab === 'goal' ? 'bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
           >
             <Target class="w-3.5 h-3.5" :stroke-width="2.2" />
             <span>1. Rencana Menabung DP / Tunai</span>
@@ -331,7 +331,7 @@ const continueToMortgage = (principalAmount: string) => {
             type="button"
             @click="simActiveTab = 'mortgage'"
             class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition select-none cursor-pointer"
-            :class="simActiveTab === 'mortgage' ? 'bg-white text-[#18221B] shadow-xs' : 'text-stone-600 hover:text-stone-900'"
+            :class="simActiveTab === 'mortgage' ? 'bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
           >
             <Calculator class="w-3.5 h-3.5" :stroke-width="2.2" />
             <span>2. Kalkulator Cicilan Kredit</span>
@@ -970,11 +970,11 @@ const continueToMortgage = (principalAmount: string) => {
       </div>
 
       <!-- Modal Footer (shrink-0) -->
-      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-stone-100 bg-stone-50/80 shrink-0">
+      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#16201A] shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-h-[40px] px-5 py-2 bg-[#183D2B] text-white hover:bg-[#24553D] rounded-xl text-xs font-bold cursor-pointer transition shadow-xs"
+          class="tactile-btn min-h-[40px] px-5 py-2 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-[#24553D] dark:hover:bg-[#A3C82E] rounded-xl text-xs font-bold cursor-pointer transition shadow-xs"
         >
           Tutup Simulator
         </button>

@@ -1,11 +1,24 @@
 <script setup lang="ts">
 import { formatRupiah } from '../utils/format';
-import type { ReportSummary, AllocationStatus } from '../api/services';
-import { Plus, Minus, PiggyBank, Unlock } from 'lucide-vue-next';
+import type { ReportSummary, AllocationStatus, WalletAccount } from '../api/services';
+import {
+  Plus,
+  Minus,
+  PiggyBank,
+  Unlock,
+  Wallet,
+  Building2,
+  Smartphone,
+  Banknote,
+  TrendingUp,
+  ArrowRightLeft,
+  SlidersHorizontal,
+} from 'lucide-vue-next';
 
 defineProps<{
   summary?: ReportSummary | null;
   allocationStatus?: AllocationStatus | null;
+  wallets?: WalletAccount[];
 }>();
 
 const emit = defineEmits<{
@@ -13,11 +26,29 @@ const emit = defineEmits<{
   (e: 'openExpense'): void;
   (e: 'openSave'): void;
   (e: 'openRelease'): void;
+  (e: 'openWallets'): void;
+  (e: 'openTransfer'): void;
 }>();
+
+const getWalletIcon = (type: string) => {
+  switch (type) {
+    case 'BANK':
+      return Building2;
+    case 'E_WALLET':
+      return Smartphone;
+    case 'CASH':
+      return Banknote;
+    case 'INVESTMENT':
+      return TrendingUp;
+    default:
+      return Wallet;
+  }
+};
+
 </script>
 
 <template>
-  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#183D2B] via-[#143425] to-[#0D2218] text-white p-6 sm:p-8 shadow-[0_12px_40px_-10px_rgba(24,61,43,0.35)] border border-emerald-800/40">
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#183D2B] via-[#143425] to-[#0D2218] dark:from-[#132E21] dark:via-[#0F241A] dark:to-[#0A1B13] text-white p-6 sm:p-8 shadow-[0_12px_40px_-10px_rgba(24,61,43,0.35)] dark:shadow-[0_12px_40px_-10px_rgba(0,0,0,0.6)] border border-emerald-800/40 dark:border-[#B8DF38]/30 transition-all duration-200">
     <!-- Ambient Radial Lighting Glow -->
     <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-[#B8DF38]/10 blur-3xl pointer-events-none"></div>
     <div class="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
@@ -64,6 +95,52 @@ const emit = defineEmits<{
               {{ formatRupiah(summary?.initialBalance) }}
             </span>
             <span class="text-[10px] text-emerald-100/60 font-medium">Basis modal awal</span>
+          </div>
+        </div>
+
+        <!-- Physical Wallets Breakdown Strip (Modul 6) -->
+        <div v-if="wallets && wallets.length > 0" class="pt-3 border-t border-white/10 max-w-xl">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-[11px] font-bold text-emerald-200/90 flex items-center gap-1.5">
+              <Wallet class="w-3.5 h-3.5 text-[#B8DF38]" />
+              Wadah Fisik ({{ wallets.length }})
+            </span>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                @click="emit('openTransfer')"
+                class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer"
+              >
+                <ArrowRightLeft class="w-3 h-3 text-[#B8DF38]" />
+                <span>Pindah Dana</span>
+              </button>
+
+              <button
+                type="button"
+                @click="emit('openWallets')"
+                class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer"
+              >
+                <SlidersHorizontal class="w-3 h-3 text-emerald-300" />
+                <span>Kelola</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Horizontal Scrollable Wallet Badges -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            <div
+              v-for="w in wallets"
+              :key="w.id"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 shrink-0 hover:bg-white/10 transition-colors"
+            >
+              <component
+                :is="getWalletIcon(w.type)"
+                class="w-3.5 h-3.5 text-[#B8DF38]"
+              />
+              <span class="text-xs font-semibold text-stone-200">{{ w.name }}</span>
+              <span class="text-xs font-black text-white tabular-nums">{{ formatRupiah(w.balance) }}</span>
+            </div>
           </div>
         </div>
       </div>

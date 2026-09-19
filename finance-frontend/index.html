@@ -9,9 +9,24 @@
     <!-- Plus Jakarta Sans Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+    <!-- Anti-FOUC Theme Detection Script -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="min-h-[100dvh] bg-[#F3F5EF] text-[#18221B] antialiased selection:bg-[#B8DF38]/30 selection:text-[#183D2B]">
+  <body class="min-h-[100dvh] bg-[#F3F5EF] text-[#18221B] dark:bg-[#0E1410] dark:text-[#F0F4F1] transition-colors duration-200 antialiased selection:bg-[#B8DF38]/30 selection:text-[#183D2B]">
     <div id="app" class="min-h-[100dvh]"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

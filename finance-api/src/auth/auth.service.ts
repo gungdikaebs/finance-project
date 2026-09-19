@@ -146,6 +146,17 @@ export class AuthService {
                 },
             });
 
+            // 8. Default Wallet Account (Modul 6)
+            await tx.walletAccount.create({
+                data: {
+                    userId: createdUser.id,
+                    name: 'Rekening Utama / Tunai',
+                    type: 'BANK',
+                    color: '#183D2B',
+                    balance: BigInt(0),
+                },
+            });
+
             return createdUser;
         });
 
@@ -176,4 +187,22 @@ export class AuthService {
         
         return { token };
     }
+
+    async verifyPassword(userId: number, passwordInput: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Pengguna tidak ditemukan');
+        }
+
+        const isMatch = await bcrypt.compare(passwordInput, user.password);
+        if (!isMatch) {
+            throw new UnauthorizedException('Kata sandi yang dimasukkan tidak sesuai');
+        }
+
+        return { valid: true };
+    }
 }
+

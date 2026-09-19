@@ -25,6 +25,8 @@ model User {
   paymentMethods   PaymentMethod[]
   categories       Category[]
   recurringTransactions RecurringTransaction[]
+  walletAccounts        WalletAccount[]
+  walletTransfers       WalletTransfer[]
 }
 
 model FinanceProfile {
@@ -195,6 +197,9 @@ model Transaction {
   incomeSourceId   Int?
   incomeSource     IncomeSource? @relation(fields: [incomeSourceId], references: [id])
 
+  walletAccountId  Int?
+  walletAccount    WalletAccount? @relation(fields: [walletAccountId], references: [id])
+
   paymentMethodId  Int?
   paymentMethod    PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
 
@@ -239,4 +244,37 @@ model RecurringTransaction {
 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+}
+
+model WalletAccount {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String        // 'BCA Utama', 'Tunai Dompet', 'GoPay'
+  type          String        // 'BANK' | 'E_WALLET' | 'CASH' | 'INVESTMENT'
+  accountNumber String?
+  color         String?       // Hex color / theme accent
+  balance       BigInt        @default(0)
+  isArchived    Boolean       @default(false)
+
+  transactions  Transaction[]
+  transfersFrom WalletTransfer[] @relation("SourceWallet")
+  transfersTo   WalletTransfer[] @relation("TargetWallet")
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model WalletTransfer {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceWalletId Int
+  sourceWallet   WalletAccount @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  targetWalletId Int
+  targetWallet   WalletAccount @relation("TargetWallet", fields: [targetWalletId], references: [id])
+  amount         BigInt
+  date           DateTime      @default(now())
+  note           String?
+  createdAt      DateTime      @default(now())
 }

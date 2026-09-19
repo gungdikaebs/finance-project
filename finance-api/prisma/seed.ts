@@ -141,6 +141,22 @@ async function main() {
     });
   }
 
+  // 8. Default Wallet Account
+  const existingWallet = await prisma.walletAccount.findFirst({
+    where: { userId: user.id, isArchived: false },
+  });
+  if (!existingWallet) {
+    await prisma.walletAccount.create({
+      data: {
+        userId: user.id,
+        name: 'Rekening Utama / Tunai',
+        type: 'BANK',
+        color: '#183D2B',
+        balance: BigInt(5000000),
+      },
+    });
+  }
+
   console.log('Seeding completed successfully.');
 }
 

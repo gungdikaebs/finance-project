@@ -379,9 +379,9 @@ Setiap tahapan dirancang mandiri (*self-contained*) agar AI agent dapat mengimpl
 | **P2** | **Ekspor Laporan (Excel, CSV, PDF)** (Modul 7) | Sedang | Tinggi | **SELESAI** | `finance-api/src/reports/`, `TransactionSection.vue` |
 | **P2** | **Proyeksi Tanggal Target Impian** (Modul 4) | Sedang | Tinggi | **SELESAI** | `SavingsSection.vue`, `SimulationModal.vue`, `savings-goals.*` |
 | **P3** | **Transaksi Berulang & Scheduler** (Modul 5) | Tinggi | Tinggi | **SELESAI** | `recurring-transactions/*`, `RecurringTransactionModal.vue` |
-| **P3** | **Dukungan Dompet Fisik (Wallet Accounts)** (Modul 6) | Tinggi | Tinggi | Menunggu | `prisma/schema.prisma`, `HeroBalanceCard.vue` |
-| **P3** | **Mode Gelap (Dark Mode)** (Modul 9) | Sedang | Sedang | Menunggu | `style.css`, `Navbar.vue`, `tailwind.config` |
-| **P4** | **Penguatan Keamanan & Rate Limiting** (Modul 10) | Rendah | Fondasi | Menunggu | `finance-api/src/auth/`, `main.ts` |
+| **P3** | **Dukungan Dompet Fisik (Wallet Accounts)** (Modul 6) | Tinggi | Tinggi | **SELESAI** | `prisma/schema.prisma`, `wallets/*`, `HeroBalanceCard.vue`, `modals/*` |
+| **P3** | **Mode Gelap (Dark Mode)** (Modul 9) | Sedang | Sedang | **SELESAI** | `style.css`, `useTheme.ts`, `Sidebar.vue`, `MobileMenuModal.vue`, `index.html` |
+| **P4** | **Penguatan Keamanan & Rate Limiting** (Modul 10) | Rendah | Fondasi | **SELESAI** | `finance-api/src/auth/`, `app.module.ts`, `Login.vue` |
 
 ---
 

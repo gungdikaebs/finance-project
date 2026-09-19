@@ -200,6 +200,8 @@ export interface Transaction {
   category: Category;
   incomeSourceId?: number;
   incomeSource?: IncomeSource;
+  walletAccountId?: number | null;
+  walletAccount?: WalletAccount | null;
   paymentMethodId?: number;
   sourceGoalId?: number;
   sourceGoal?: SavingsGoal;
@@ -386,6 +388,7 @@ export const financeApi = {
     date: string;
     note?: string;
     incomeSourceId?: number;
+    walletAccountId?: number;
     paymentMethodId?: number;
     sourceGoalId?: number;
   }) => api.post<{ data: Transaction }>('/transactions', data),
@@ -397,6 +400,7 @@ export const financeApi = {
       date?: string;
       note?: string;
       incomeSourceId?: number;
+      walletAccountId?: number;
       reason?: string;
     }
   ) => api.patch<{ data: Transaction }>(`/transactions/${id}`, data),
@@ -497,7 +501,76 @@ export const financeApi = {
     api.post<{ data: { transaction: Transaction; recurringTransaction: RecurringTransaction } }>(
       `/recurring-transactions/${id}/execute`,
     ),
+
+  // Wallets / Sub-Accounts (Modul 6)
+  getWallets: () =>
+    api.get<{ data: WalletAccount[] }>('/wallets'),
+  createWallet: (data: CreateWalletPayload) =>
+    api.post<{ data: WalletAccount }>('/wallets', data),
+  updateWallet: (id: number, data: UpdateWalletPayload) =>
+    api.patch<{ data: WalletAccount }>(`/wallets/${id}`, data),
+  archiveWallet: (id: number) =>
+    api.delete<{ data: WalletAccount }>(`/wallets/${id}`),
+  transferWallet: (data: TransferWalletPayload) =>
+    api.post<{
+      data: {
+        message: string;
+        transfer: WalletTransfer;
+        sourceWallet: WalletAccount;
+        targetWallet: WalletAccount;
+      };
+    }>('/wallets/transfer', data),
+  getWalletTransfers: (limit = 20) =>
+    api.get<{ data: WalletTransfer[] }>(`/wallets/transfers?limit=${limit}`),
 };
+
+export interface WalletAccount {
+  id: number;
+  userId: number;
+  name: string;
+  type: 'BANK' | 'E_WALLET' | 'CASH' | 'INVESTMENT';
+  accountNumber?: string | null;
+  color?: string | null;
+  balance: string;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WalletTransfer {
+  id: number;
+  userId: number;
+  sourceWalletId: number;
+  targetWalletId: number;
+  amount: string;
+  date: string;
+  note?: string | null;
+  createdAt: string;
+  sourceWallet?: WalletAccount;
+  targetWallet?: WalletAccount;
+}
+
+export interface CreateWalletPayload {
+  name: string;
+  type: string;
+  accountNumber?: string;
+  color?: string;
+}
+
+export interface UpdateWalletPayload {
+  name?: string;
+  type?: string;
+  accountNumber?: string;
+  color?: string;
+}
+
+export interface TransferWalletPayload {
+  sourceWalletId: number;
+  targetWalletId: number;
+  amount: string;
+  note?: string;
+  date?: string;
+}
 
 export interface RecurringTransaction {
   id: number;

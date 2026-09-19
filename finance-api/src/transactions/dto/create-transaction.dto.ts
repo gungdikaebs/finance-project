@@ -27,5 +27,9 @@ export class CreateTransactionDto {
 
   @IsOptional()
   @IsInt()
+  walletAccountId?: number;
+
+  @IsOptional()
+  @IsInt()
   sourceGoalId?: number;
 }

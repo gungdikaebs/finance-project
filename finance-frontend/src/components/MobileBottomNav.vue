@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 <template>
   <aside
-    class="md:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 max-w-md mx-auto z-40 glass-dock rounded-2xl border border-emerald-950/10 py-2 px-3 shadow-[0_12px_32px_-4px_rgba(24,61,43,0.18)] select-none"
+    class="md:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 max-w-md mx-auto z-40 glass-dock rounded-2xl border border-emerald-950/10 dark:border-[#243329] py-2 px-3 shadow-[0_12px_32px_-4px_rgba(24,61,43,0.18)] dark:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] select-none transition-colors"
     aria-label="Navigasi Bawah Mobile"
   >
     <div class="flex justify-around items-center">
@@ -28,7 +28,7 @@ const emit = defineEmits<{
         type="button"
         @click="emit('update:activeTab', 'ringkasan')"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
-        :class="activeTab === 'ringkasan' ? 'text-[#183D2B] font-extrabold' : 'text-stone-500 font-semibold hover:text-stone-700'"
+        :class="activeTab === 'ringkasan' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
         <div class="relative">
           <LayoutDashboard class="w-5 h-5" :stroke-width="activeTab === 'ringkasan' ? 2.25 : 1.75" />
@@ -45,7 +45,7 @@ const emit = defineEmits<{
         type="button"
         @click="emit('update:activeTab', 'tabungan')"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
-        :class="activeTab === 'tabungan' ? 'text-[#183D2B] font-extrabold' : 'text-stone-500 font-semibold hover:text-stone-700'"
+        :class="activeTab === 'tabungan' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
         <div class="relative">
           <Target class="w-5 h-5" :stroke-width="activeTab === 'tabungan' ? 2.25 : 1.75" />
@@ -62,7 +62,7 @@ const emit = defineEmits<{
         type="button"
         @click="emit('update:activeTab', 'anggaran')"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
-        :class="activeTab === 'anggaran' ? 'text-[#183D2B] font-extrabold' : 'text-stone-500 font-semibold hover:text-stone-700'"
+        :class="activeTab === 'anggaran' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
         <div class="relative">
           <PieChart class="w-5 h-5" :stroke-width="activeTab === 'anggaran' ? 2.25 : 1.75" />
@@ -79,7 +79,7 @@ const emit = defineEmits<{
         type="button"
         @click="emit('update:activeTab', 'transaksi')"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
-        :class="activeTab === 'transaksi' ? 'text-[#183D2B] font-extrabold' : 'text-stone-500 font-semibold hover:text-stone-700'"
+        :class="activeTab === 'transaksi' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
         <div class="relative">
           <ReceiptText class="w-5 h-5" :stroke-width="activeTab === 'transaksi' ? 2.25 : 1.75" />
@@ -95,11 +95,13 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('openMenu')"
-        class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center text-[#183D2B] bg-[#B8DF38]/30 hover:bg-[#B8DF38]/50 border border-[#B8DF38]/60 cursor-pointer select-none"
+        class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38]/30 dark:bg-[#B8DF38] hover:bg-[#B8DF38]/50 dark:hover:bg-[#a3c82e] border border-[#B8DF38]/60 dark:border-[#B8DF38] cursor-pointer select-none shadow-xs"
         title="Buka menu & alat lainnya"
       >
-        <Menu class="w-5 h-5 text-[#183D2B]" :stroke-width="2.2" />
-        <span class="text-[10px] font-bold mt-1">Menu</span>
+        <div class="relative">
+          <Menu class="w-5 h-5" :stroke-width="2" />
+        </div>
+        <span class="text-[10px] mt-1 font-bold">Menu</span>
       </button>
     </div>
   </aside>

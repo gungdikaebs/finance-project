@@ -30,6 +30,9 @@ describe('AuthService', () => {
       budgetPolicy: {
         create: jest.fn().mockResolvedValue({}),
       },
+      walletAccount: {
+        create: jest.fn().mockResolvedValue({}),
+      },
     };
 
     const prisma = {
@@ -46,7 +49,7 @@ describe('AuthService', () => {
     const result = await service.register({
       name: 'Dika',
       email: 'dika@example.com',
-      password: 'password-ku',
+      password: 'Password123!',
     });
 
     expect(prisma.$transaction).toHaveBeenCalled();
@@ -58,6 +61,7 @@ describe('AuthService', () => {
     // 2 goals: EMERGENCY (6 months) + UNASSIGNED
     expect(mockTx.savingsGoal.create).toHaveBeenCalledTimes(2);
     expect(mockTx.budgetPolicy.create).toHaveBeenCalled();
+    expect(mockTx.walletAccount.create).toHaveBeenCalled();
 
     expect(result).toEqual({
       id: 1,
@@ -67,4 +71,36 @@ describe('AuthService', () => {
       updatedAt: new Date('2026-09-17T00:00:00.000Z'),
     });
   });
+
+  describe('verifyPassword', () => {
+    it('mengembalikan { valid: true } saat kata sandi cocok', async () => {
+      const bcrypt = require('bcrypt');
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
+
+      const prisma = {
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 1, password: '$2b$10$hashed' }),
+        },
+      } as any;
+
+      const service = new AuthService(prisma, {} as any);
+      const res = await service.verifyPassword(1, 'Password123!');
+      expect(res).toEqual({ valid: true });
+    });
+
+    it('melempar UnauthorizedException saat kata sandi salah', async () => {
+      const bcrypt = require('bcrypt');
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(false));
+
+      const prisma = {
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 1, password: '$2b$10$hashed' }),
+        },
+      } as any;
+
+      const service = new AuthService(prisma, {} as any);
+      await expect(service.verifyPassword(1, 'SalahPassword')).rejects.toThrow('Kata sandi yang dimasukkan tidak sesuai');
+    });
+  });
 });
+

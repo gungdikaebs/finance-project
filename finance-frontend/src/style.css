@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --color-brand-green: #183D2B;
@@ -22,6 +24,15 @@
   color-scheme: light;
 }
 
+html.dark {
+  color-scheme: dark;
+  --color-brand-bg: #0E1410;
+  --color-brand-card: #16201A;
+  --color-brand-text: #F0F4F1;
+  --color-brand-muted: #98A79D;
+  --color-brand-border: #243329;
+}
+
 body {
   background-color: var(--color-brand-bg);
   color: var(--color-brand-text);
@@ -30,6 +41,11 @@ body {
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html.dark body {
+  background-color: #0E1410;
+  color: #F0F4F1;
 }
 
 /* Number display optimization for financial figures */
@@ -53,6 +69,13 @@ body {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
+html.dark .glass-dock {
+  background: rgba(22, 32, 26, 0.90);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: #243329;
+}
+
 .glass-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -66,11 +89,65 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
+html.dark .glass-modal-backdrop {
+  background: rgba(7, 10, 8, 0.75);
+}
+
 /* Subtle card styling with crisp layered edge */
 .fintech-card {
   background: #FFFFFF;
   border: 1px solid rgba(24, 61, 43, 0.07);
   box-shadow: 0 4px 20px -4px rgba(24, 61, 43, 0.05);
+}
+
+html.dark .fintech-card {
+  background: #16201A;
+  border: 1px solid #243329;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* Global Form Controls & Inputs in Dark Mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html.dark select,
+html.dark textarea {
+  background-color: #0E1410 !important;
+  color: #F0F4F1 !important;
+  border-color: #243329 !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"])::placeholder,
+html.dark textarea::placeholder {
+  color: #5E6961 !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  background-color: #0E1410 !important;
+  border-color: #B8DF38 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(184, 223, 56, 0.25) !important;
+}
+
+html.dark option {
+  background-color: #16201A;
+  color: #F0F4F1;
+}
+
+/* Dark mode scrollbars */
+html.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #0E1410;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #243329;
+  border-radius: 9999px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #344639;
 }
 
 .fintech-card-interactive {
@@ -81,6 +158,11 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px -6px rgba(24, 61, 43, 0.09);
   border-color: rgba(24, 61, 43, 0.15);
+}
+
+html.dark .fintech-card-interactive:hover {
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
+  border-color: rgba(184, 223, 56, 0.3);
 }
 
 /* Animations */

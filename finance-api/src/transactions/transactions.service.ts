@@ -138,6 +138,22 @@ export class TransactionsService {
       }
     }
 
+    // VALIDASI WALLET ACCOUNT (D-003, Modul 6)
+    let targetWallet: any = null;
+    if (dto.walletAccountId) {
+      targetWallet = await this.prisma.walletAccount.findFirst({
+        where: { id: dto.walletAccountId, userId, isArchived: false },
+      });
+      if (!targetWallet) {
+        throw new NotFoundException('Akun dompet / rekening tidak ditemukan');
+      }
+    } else {
+      targetWallet = await this.prisma.walletAccount.findFirst({
+        where: { userId, isArchived: false },
+        orderBy: { id: 'asc' },
+      });
+    }
+
     const typeSnapshot = category.type.toUpperCase();
     const groupSnapshot = category.type === 'expense' ? category.group : null;
 
@@ -169,6 +185,21 @@ export class TransactionsService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
+      // Sinkronkan saldo dompet jika ada
+      if (targetWallet) {
+        if (typeSnapshot === 'INCOME') {
+          await prisma.walletAccount.update({
+            where: { id: targetWallet.id },
+            data: { balance: { increment: amount } },
+          });
+        } else {
+          await prisma.walletAccount.update({
+            where: { id: targetWallet.id },
+            data: { balance: { decrement: amount } },
+          });
+        }
+      }
+
       const trx = await prisma.transaction.create({
         data: {
           amount,
@@ -183,12 +214,14 @@ export class TransactionsService {
           userId,
           categoryId: category.id,
           incomeSourceId: dto.incomeSourceId,
+          walletAccountId: targetWallet ? targetWallet.id : null,
           paymentMethodId: dto.paymentMethodId,
           sourceGoalId: dto.sourceGoalId,
         },
         include: {
           category: true,
           incomeSource: true,
+          walletAccount: true,
           paymentMethod: true,
           sourceGoal: true,
         },
@@ -252,6 +285,7 @@ export class TransactionsService {
         include: {
           category: true,
           incomeSource: true,
+          walletAccount: true,
           paymentMethod: true,
           sourceGoal: true,
           revisions: {
@@ -280,6 +314,7 @@ export class TransactionsService {
       include: {
         category: true,
         incomeSource: true,
+        walletAccount: true,
         paymentMethod: true,
         sourceGoal: true,
         revisions: {
@@ -349,6 +384,15 @@ export class TransactionsService {
       }
     }
 
+    if (dto.walletAccountId !== undefined && dto.walletAccountId !== null) {
+      const wallet = await this.prisma.walletAccount.findFirst({
+        where: { id: dto.walletAccountId, userId, isArchived: false },
+      });
+      if (!wallet) {
+        throw new NotFoundException('Akun dompet / rekening tidak ditemukan');
+      }
+    }
+
     let allocatedNeeds = existing.allocatedNeeds;
     let allocatedSavings = existing.allocatedSavings;
     let allocatedWants = existing.allocatedWants;
@@ -378,6 +422,58 @@ export class TransactionsService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
+      const oldWalletId = existing.walletAccountId;
+      const newWalletId =
+        dto.walletAccountId !== undefined
+          ? dto.walletAccountId
+          : existing.walletAccountId;
+
+      if (existing.status === 'ACTIVE') {
+        if (oldWalletId && newWalletId && oldWalletId === newWalletId) {
+          const delta = nextAmount - existing.amount;
+          if (delta !== BigInt(0)) {
+            if (typeSnapshot === 'INCOME') {
+              await prisma.walletAccount.update({
+                where: { id: oldWalletId },
+                data: { balance: { increment: delta } },
+              });
+            } else {
+              await prisma.walletAccount.update({
+                where: { id: oldWalletId },
+                data: { balance: { decrement: delta } },
+              });
+            }
+          }
+        } else {
+          if (oldWalletId) {
+            if (existing.typeSnapshot === 'INCOME') {
+              await prisma.walletAccount.update({
+                where: { id: oldWalletId },
+                data: { balance: { decrement: existing.amount } },
+              });
+            } else {
+              await prisma.walletAccount.update({
+                where: { id: oldWalletId },
+                data: { balance: { increment: existing.amount } },
+              });
+            }
+          }
+          if (newWalletId) {
+            if (typeSnapshot === 'INCOME') {
+              await prisma.walletAccount.update({
+                where: { id: newWalletId },
+                data: { balance: { increment: nextAmount } },
+              });
+            } else {
+              await prisma.walletAccount.update({
+                where: { id: newWalletId },
+                data: { balance: { decrement: nextAmount } },
+              });
+            }
+          }
+        }
+      }
+
       const goalTransactionChanged =
         existing.sourceGoalId &&
         (existing.amount !== nextAmount ||
@@ -462,10 +558,14 @@ export class TransactionsService {
           ...(dto.incomeSourceId !== undefined
             ? { incomeSourceId: dto.incomeSourceId }
             : {}),
+          ...(dto.walletAccountId !== undefined
+            ? { walletAccountId: dto.walletAccountId }
+            : {}),
         },
         include: {
           category: true,
           incomeSource: true,
+          walletAccount: true,
           paymentMethod: true,
           sourceGoal: true,
           revisions: {
@@ -490,6 +590,21 @@ export class TransactionsService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
+      // Balikkan saldo dompet jika ada
+      if (existing.walletAccountId && existing.status === 'ACTIVE') {
+        if (existing.typeSnapshot === 'INCOME') {
+          await prisma.walletAccount.update({
+            where: { id: existing.walletAccountId },
+            data: { balance: { decrement: existing.amount } },
+          });
+        } else {
+          await prisma.walletAccount.update({
+            where: { id: existing.walletAccountId },
+            data: { balance: { increment: existing.amount } },
+          });
+        }
+      }
+
       await prisma.transactionRevision.create({
         data: {
           transactionId: id,
@@ -524,6 +639,7 @@ export class TransactionsService {
         include: {
           category: true,
           incomeSource: true,
+          walletAccount: true,
           paymentMethod: true,
           sourceGoal: true,
           revisions: {
