@@ -407,4 +407,308 @@ Sebelum menyatakan bahwa suatu modul perbaikan selesai, AI agent **wajib** melak
 
 ---
 
-*Spesifikasi teknis ini bersifat final, presisi, dan siap diimplementasikan secara otomatis oleh coding agent.*
+## 🔬 5. Audit UX Mendalam (Post-Implementation Review)
+
+Berdasarkan inspeksi langsung terhadap kode sumber dan antarmuka live (`http://localhost:5173/dashboard`) setelah implementasi modul sebelumnya, ditemukan **7 (tujuh) isu UX kritis** yang belum tertangani. Isu-isu ini bersifat *runtime behavioral* dan *cognitive friction* — tidak terlihat di kode statis, hanya muncul saat pengguna benar-benar mengoperasikan aplikasi.
+
+Setiap isu di bawah ini **wajib diperbaikan** dan dapat dieksekusi secara mandiri oleh AI agent.
+
+---
+
+### Isu UX-01: Disparitas Saldo Utama vs Wadah Fisik (Kebingungan Mental Model)
+
+#### Masalah
+Pada `HeroBalanceCard.vue`, terdapat dua angka saldo yang ditampilkan berdampingan:
+- `SALDO UTAMA AKTUAL: Rp 0` (diambil dari `summary.mainBalance = initialBalance + income - expense`).
+- `Wadah Fisik (1) → Rekening Utama / Tunai: Rp 5.000.000` (diambil dari `WalletAccount.balance`).
+
+Pengguna melihat dua angka yang berbeda dan bertanya: *"Uang saya sebenarnya Rp 0 atau Rp 5 juta?"* Ini memutus kepercayaan pengguna terhadap akurasi aplikasi.
+
+#### Akar Penyebab
+Laporan `mainBalance` dihitung dari `FinanceProfile.initialBalance + sum(income) - sum(expense)` pada `reports.service.ts`. Sementara `WalletAccount.balance` dihitung dari transaksi yang ditautkan langsung ke `walletAccountId`. Saat `ensureDefaultWallet()` membuat dompet default, ia menyalin `currentMainBalance` sebagai saldo awal dompet, tetapi `FinanceProfile.initialBalance` tidak diupdate sinkron. Setelah dompet dibuat, kedua sistem bereputasi secara paralel tanpa rekonsiliasi.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Prinsip**: `mainBalance` (Saldo Utama Aktual) **HARUS** selalu sama dengan `SUM(WalletAccount.balance WHERE isArchived = false)`. Tidak boleh ada disparitas.
+- **Backend (`reports.service.ts`)**:
+  Ubah perhitungan `mainBalance`:
+  ```typescript
+  // GANTI perhitungan lama:
+  // const mainBalance = profile.initialBalance + income - expense;
+  
+  // MENJADI:
+  const wallets = await this.prisma.walletAccount.aggregate({
+    where: { userId, isArchived: false },
+    _sum: { balance: true },
+  });
+  const mainBalance = wallets._sum.balance || BigInt(0);
+  ```
+- **Backend (`wallets.service.ts` — `ensureDefaultWallet`)**:
+  Saat membuat dompet default pertama kali, set `FinanceProfile.initialBalance = 0` (karena saldo kini hidup di dompet, bukan di profil). Tambahkan transaksi saldo awal ke dompet default, bukan ke profil.
+- **Frontend (`HeroBalanceCard.vue`)**:
+  Tambahkan tooltip kecil di sebelah label "Saldo Utama Aktual":
+  ```html
+  <span class="text-[10px] text-emerald-200/60">= Total gabungan seluruh wadah fisik</span>
+  ```
+
+**Prioritas**: 🔴 Kritis (langsung setelah modul 6)
+
+---
+
+### Isu UX-02: Banner Peringatan Anggaran yang Menimbulkan Rasa Bersalah (Guilt-Inducing Alert)
+
+#### Masalah
+Pada `BudgetSection.vue` baris 52-63, ketika pengeluaran bulan berjalan melampaui pemasukan baru bulan tersebut (misal: gaji cair tanggal 25, tapi pengeluaran tercatat tanggal 1-24), muncul banner kuning besar:
+> *"Peringatan: Menggunakan Saldo Bulan Lalu. Total pengeluaran bulan ini melampaui pemasukan baru yang diterima."*
+
+Banner berwarna amber/oranye dengan ikon `AlertCircle` terlihat seperti peringatan krisis keuangan. Padahal, membelanjakan sisa gaji bulan lalu sebelum tanggal gajian berikutnya adalah perilaku keuangan yang normal dan sehat.
+
+#### Dampak
+Pengguna merasa "dituduh tekor/overbudget" oleh aplikasi. Ini memicu rasa bersalah dan resistensi untuk mencatat transaksi secara jujur.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Frontend (`BudgetSection.vue`)**:
+  Ganti komponen peringatan dari "Alert Kritis" menjadi "Info Netral":
+  ```html
+  <!-- GANTI class dari amber/rose ke biru/slate netral -->
+  <div
+    v-if="monthlyReport && BigInt(monthlyReport.consumedPreviousBalance || 0) > 0n"
+    class="p-4 bg-blue-50/80 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/40 rounded-xl text-xs text-blue-800 dark:text-blue-200 flex items-start gap-3"
+  >
+    <Info class="w-5 h-5 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" :stroke-width="2" />
+    <div>
+      <span class="font-bold text-blue-900 dark:text-blue-100 block text-xs">
+        Arus kas didukung saldo berjalan
+      </span>
+      <p class="mt-0.5 text-blue-700 dark:text-blue-300/90 leading-relaxed font-normal">
+        Pengeluaran bulan ini sebagian menggunakan sisa saldo dari bulan sebelumnya. Ini normal dan tidak memengaruhi saldo total Anda.
+      </p>
+    </div>
+  </div>
+  ```
+  - Ganti ikon `AlertCircle` menjadi `Info`.
+  - Hapus kata "Peringatan" dan ganti dengan "Informasi".
+  - Hilangkan warna `amber` (yang berasosiasi dengan bahaya), gunakan `blue` (informatif).
+
+**Prioritas**: 🟡 Tinggi (perbaikan copywriting & emosi UX)
+
+---
+
+### Isu UX-03: Form "Sisihkan ke Tabungan" Mengusulkan 100% Seluruh Uang Bebas
+
+#### Masalah
+Pada `SaveModal.vue` baris 44-48, saat modal dibuka, input nominal otomatis terisi dengan **seluruh** `unallocatedMoney` (total uang bebas pengguna).
+```typescript
+// KODE SAAT INI:
+saveAmountInput.value = formatNumberInput(props.unallocatedMoney || '0');
+```
+
+Jika pengguna baru menerima gaji Rp 3.000.000 dan anggaran menentukan tabungan 30%, seharusnya sistem merekomendasikan Rp 900.000. Namun form mengusarkan untuk menyisihkan seluruh Rp 3.000.000.
+
+#### Dampak
+Jika pengguna asal klik "Simpan", seluruh kas mereka langsung terkunci ke pos tabungan, menyisakan `Uang Belum Disisihkan = Rp 0`. Akibatnya pengguna tidak punya alokasi untuk makan esok hari dan harus melepas alokasi manual — proses yang membingungkan dan memicu frustrasi.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Frontend (`SaveModal.vue`)**:
+  Ubah default input agar hanya mengusulkan **porsi tabungan** (bukan seluruh uang bebas):
+  ```typescript
+  watch(
+    () => props.show,
+    (show) => {
+      if (show) {
+        // Hitung rekomendasi tabungan (30% dari pemasukan bulan ini, atau default)
+        const recommendedSave = props.recommendedSavingAmount || '0';
+        saveAmountInput.value = formatNumberInput(recommendedSave);
+        updateSavePreview();
+      }
+    }
+  );
+  ```
+- **Tambahkan Tombol Pilihan Cepat (Quick Fill Buttons)** di bawah input nominal:
+  ```html
+  <div class="flex gap-2 mt-2">
+    <button @click="saveAmountInput = formatNumberInput(recommendedSaving)" class="quick-btn">
+      Rekomendasi ({{ formatRupiah(recommendedSaving) }})
+    </button>
+    <button @click="saveAmountInput = formatNumberInput(halfOfUnallocated)" class="quick-btn">
+      50% Sisa
+    </button>
+    <button @click="saveAmountInput = formatNumberInput(unallocatedMoney)" class="quick-btn">
+      Semua ({{ formatRupiah(unallocatedMoney) }})
+    </button>
+  </div>
+  ```
+- **Backend (`reports.service.ts`)**:
+  Tambahkan field `recommendedSavingAmount` pada response summary, dihitung dari:
+  `recommendedSaving = monthlyIncome * (savingsRatio / 10000)`
+
+**Prioritas**: 🔴 Kritis (mencegah pengguna "mengunci" seluruh uangnya secara tidak sengaja)
+
+---
+
+### Isu UX-04: Filter Bulan "Bulan 1" s/d "Bulan 12" (Label Robotik)
+
+#### Masalah
+Pada `TransactionSection.vue` baris 114-116, dropdown filter bulan menampilkan opsi sebagai angka ordinal:
+```html
+<option v-for="m in 12" :key="m" :value="m">
+  Bulan {{ m }}
+</option>
+```
+Pengguna manusia mencari berdasarkan nama bulan: "Januari", "Februari", ..., "September". Label "Bulan 9" tidak intuitif dan membutuhkan translasi mental.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Frontend (`TransactionSection.vue`)**:
+  Ganti opsi dropdown dengan nama bulan dalam Bahasa Indonesia:
+  ```html
+  <option v-for="(monthName, index) in monthNames" :key="index + 1" :value="index + 1">
+    {{ monthName }}
+  </option>
+  ```
+  Tambahkan array nama bulan di `<script setup>`:
+  ```typescript
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  ```
+
+**Prioritas**: 🟢 Cepat (Quick Win, 5 menit perbaikan)
+
+---
+
+### Isu UX-05: Inkonsistensi Terminologi "Uang Bebas"
+
+#### Masalah
+Aplikasi menggunakan tiga istilah berbeda untuk konsep yang sama:
+1. `HeroBalanceCard.vue`: **"Uang Belum Disisihkan"**
+2. `ReleaseModal.vue` baris 96: **"Uang Bebas"**
+3. `TransactionSection.vue` baris 291: **"Kas Bebas"**
+
+`CONTEXT.md` hanya mendefinisikan **"Uang belum disisihkan"** sebagai istilah kanonis. Dua variasi lain muncul tidak resmi.
+
+#### Dampak
+Pengguna ragu apakah "Uang Belum Disisihkan", "Uang Bebas", dan "Kas Bebas" adalah tiga saldo yang berbeda. Ini memicu kebingungan konseptual tentang arsitektur keuangan aplikasi.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Lakukan global search-replace** pada seluruh file `.vue`:
+  - Ganti `"Uang Bebas"` → `"Uang Belum Disisihkan"`
+  - Ganti `"Kas Bebas"` → `"Uang Belum Disisihkan"`
+- **File yang harus diperbaiki**:
+  - `finance-frontend/src/components/modals/ReleaseModal.vue` (baris 96)
+  - `finance-frontend/src/components/TransactionSection.vue` (baris 291)
+  - `finance-frontend/src/components/modals/SaveModal.vue` (jika ada)
+  - `finance-frontend/src/components/HeroBalanceCard.vue` (konsistensi label)
+
+**Prioritas**: 🟢 Cepat (Quick Win, konsistensi domain)
+
+---
+
+### Isu UX-06: Tabel Transaksi Horizontal Scroll di Mobile (Bukan Card List)
+
+#### Masalah
+Pada `TransactionSection.vue` baris 230-239, riwayat transaksi menggunakan `<table>` HTML tradisional dengan 6 kolom (Tanggal, Keterangan, Sumber, Nominal, Status, Aksi). Pada layar smartphone (< 480px), tabel ini terlalu lebar dan pengguna harus menggeser horizontal (*horizontal scroll*) untuk melihat nominal dan menekan tombol Edit/Batal.
+
+#### Dampak
+Ergonomi jempol buruk. Pengguna harus scroll kiri-kanan bolak-balik hanya untuk membaca satu baris transaksi. Ini adalah anti-pattern mobile UX yang paling umum dikeluhkan.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Frontend (`TransactionSection.vue`)**:
+  Tambahkan blok `v-if` kondisional berdasarkan breakpoint Tailwind:
+  ```html
+  <!-- Mobile: Card List (di bawah sm) -->
+  <div class="sm:hidden divide-y divide-stone-100 dark:divide-[#243329]">
+    <div
+      v-for="trx in transactions"
+      :key="trx.id"
+      class="p-4 space-y-2"
+      :class="trx.status === 'CANCELLED' ? 'opacity-40' : ''"
+    >
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            {{ trx.note || trx.category?.name || 'Transaksi' }}
+          </span>
+          <p class="text-[10px] text-stone-500 dark:text-[#98A79D] mt-0.5">
+            {{ formatDate(trx.date) }} • {{ trx.category?.name }}
+          </p>
+        </div>
+        <span
+          class="font-black text-sm tabular-nums"
+          :class="trx.typeSnapshot === 'INCOME' ? 'text-emerald-700 dark:text-[#B8DF38]' : 'text-[#18221B] dark:text-[#F0F4F1]'"
+        >
+          {{ trx.typeSnapshot === 'INCOME' ? '+' : '-' }} {{ formatRupiah(trx.amount) }}
+        </span>
+      </div>
+      <div class="flex justify-end gap-2 pt-1">
+        <button @click="emit('openEditTransaction', trx)" class="text-[10px] ...">Edit</button>
+        <button @click="emit('openCancelTransaction', trx)" class="text-[10px] ...">Batal</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Desktop: Tabel (sm ke atas) -->
+  <div v-if="transactions.length > 0" class="hidden sm:block overflow-x-auto">
+    <table class="w-full ...">
+      <!-- Tabel lama tetap di sini -->
+    </table>
+  </div>
+  ```
+
+**Prioritas**: 🟡 Tinggi (mobile ergonomi)
+
+---
+
+### Isu UX-07: Modal Menu Mobile Tidak Tertutup Otomatis Saat Navigasi
+
+#### Masalah
+Pada `Dashboard.vue` baris 683:
+```html
+@open-analytics="mobileTab = 'analitik'"
+```
+Ketika pengguna membuka `MobileMenuModal` dan mengklik "Analitik & Tren", state `mobileTab` berganti, tetapi modal **tetap terbuka** menutupi layar. Pengguna tidak melihat perubahan terjadi dan mengira tombol tidak berfungsi.
+
+#### Solusi & Spesifikasi Perbaikan
+- **Frontend (`Dashboard.vue`)**:
+  Tutup modal secara eksplisit setiap emit navigasi diterima:
+  ```html
+  <MobileMenuModal
+    ...
+    @open-profile="showProfileModal = true; showMobileMenu = false"
+    @open-wallets="showManageWalletsModal = true; showMobileMenu = false"
+    @open-transfer="showTransferWalletModal = true; showMobileMenu = false"
+    @open-manage="showManageModal = true; showMobileMenu = false"
+    @open-recurring="showRecurringModal = true; showMobileMenu = false"
+    @open-simulator="openSimulator(); showMobileMenu = false"
+    @open-month-end-review="openMonthEndReview(); showMobileMenu = false"
+    @open-analytics="mobileTab = 'analitik'; showMobileMenu = false"
+    @logout="handleLogout"
+  />
+  ```
+  Setiap handler `@open-*` harus diakhiri dengan `; showMobileMenu = false`.
+
+**Prioritas**: 🟢 Cepat (Quick Win, bug interaction)
+
+---
+
+## 📊 6. Ringkasan Prioritas Eksekusi Audit UX
+
+| Isu | Deskripsi | Kompleksitas | Dampak | Status | Target File |
+|:---|:---|:---:|:---:|:---:|:---|
+| **UX-01** | Sinkronisasi Saldo Utama vs Wadah Fisik | Sedang | 🔴 Kritis | **SELESAI** | `reports.service.ts`, `finance-profile.service.ts`, `HeroBalanceCard.vue` |
+| **UX-02** | Banner Anggaran Guilt-Inducing → Info Netral | Rendah | 🟡 Tinggi | **SELESAI** | `BudgetSection.vue` |
+| **UX-03** | Default Form Sisihkan 100% → Rekomendasi 30% | Sedang | 🔴 Kritis | **SELESAI** | `SaveModal.vue`, `reports.service.ts`, `Dashboard.vue` |
+| **UX-04** | "Bulan 9" → "September" | Rendah | 🟢 Cepat | **SELESAI** | `TransactionSection.vue` |
+| **UX-05** | Konsistensi "Uang Belum Disisihkan" | Rendah | 🟢 Cepat | **SELESAI** | `ReleaseModal.vue`, `TransactionSection.vue`, `SaveModal.vue` |
+| **UX-06** | Tabel → Card List di Mobile | Sedang | 🟡 Tinggi | **SELESAI** | `TransactionSection.vue` |
+| **UX-07** | Modal Mobile Auto-Close pada Navigasi | Rendah | 🟢 Cepat | **SELESAI** | `Dashboard.vue` |
+
+**Urutan Eksekusi yang Disarankan**:
+1. UX-04, UX-05, UX-07 (Quick Wins — 15 menit total)
+2. UX-02 (Copywriting fix — 10 menit)
+3. UX-03 (Save Modal default — 30 menit)
+4. UX-06 (Mobile Card List — 45 menit)
+5. UX-01 (Sinkronisasi Saldo — 1-2 jam, butuh modifikasi backend)
+
+---
+
+*Bagian 5 (Audit UX) bersifat temuan empiris dari pengujian langsung antarmuka dan wajib dieksekusi setelah Modul 1-10 pada Bagian 2 selesai.*

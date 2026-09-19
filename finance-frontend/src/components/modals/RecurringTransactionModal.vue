@@ -261,17 +261,17 @@ const getRelativeDays = (dateStr: string): string => {
     aria-modal="true"
   >
     <div
-      class="bg-white rounded-2xl border border-stone-200/90 shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden text-[#18221B] animate-in fade-in zoom-in-95 duration-150"
+      class="bg-white dark:bg-[#16201A] rounded-2xl border border-stone-200/90 dark:border-[#243329] shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden text-[#18221B] dark:text-[#F0F4F1] animate-in fade-in zoom-in-95 duration-150"
     >
       <!-- Header -->
-      <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
+      <div class="px-5 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between bg-stone-50/50 dark:bg-[#16201A]">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-[#183D2B] text-[#B8DF38] flex items-center justify-center shadow-xs">
             <Clock class="w-4 h-4" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 class="text-base font-extrabold text-[#18221B]">Transaksi Berulang & Tagihan Rutin</h3>
-            <p class="text-xs text-stone-500 font-normal">
+            <h3 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Transaksi Berulang & Tagihan Rutin</h3>
+            <p class="text-xs text-stone-500 dark:text-[#98A79D] font-normal">
               Otomatisasi pengeluaran dan pemasukan rutin dengan pengingat jatuh tempo
             </p>
           </div>
@@ -280,7 +280,7 @@ const getRelativeDays = (dateStr: string): string => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn p-2 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition cursor-pointer"
+          class="tactile-btn p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] transition cursor-pointer"
           title="Tutup dialog"
         >
           <X class="w-4 h-4" />
@@ -288,12 +288,12 @@ const getRelativeDays = (dateStr: string): string => {
       </div>
 
       <!-- Tab Switcher -->
-      <div class="px-5 pt-3 pb-1 border-b border-stone-100 flex gap-2">
+      <div class="px-5 pt-3 pb-1 border-b border-stone-100 dark:border-[#243329] flex gap-2">
         <button
           type="button"
           @click="activeTab = 'list'"
           class="tactile-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-          :class="activeTab === 'list' ? 'bg-[#183D2B] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-100'"
+          :class="activeTab === 'list' ? 'bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#243329]'"
         >
           <Repeat class="w-3.5 h-3.5" />
           <span>Daftar Jadwal ({{ recurringList.length }})</span>
@@ -302,7 +302,7 @@ const getRelativeDays = (dateStr: string): string => {
           type="button"
           @click="activeTab = 'add'"
           class="tactile-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-          :class="activeTab === 'add' ? 'bg-[#183D2B] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-100'"
+          :class="activeTab === 'add' ? 'bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#243329]'"
         >
           <Plus class="w-3.5 h-3.5" />
           <span>Tambah Jadwal Baru</span>
@@ -313,21 +313,21 @@ const getRelativeDays = (dateStr: string): string => {
       <div class="flex-1 overflow-y-auto p-5 space-y-4">
         <!-- TAB 1: DAFTAR JADWAL -->
         <template v-if="activeTab === 'list'">
-          <div v-if="loadingList" class="py-12 text-center text-stone-400 text-xs flex flex-col items-center gap-2">
-            <Clock class="w-6 h-6 animate-spin text-stone-300" />
+          <div v-if="loadingList" class="py-12 text-center text-stone-400 dark:text-[#98A79D] text-xs flex flex-col items-center gap-2">
+            <Clock class="w-6 h-6 animate-spin text-stone-300 dark:text-stone-600" />
             <span>Memuat jadwal transaksi...</span>
           </div>
 
           <div
             v-else-if="recurringList.length === 0"
-            class="py-12 px-4 text-center rounded-2xl bg-[#F3F5EF] border border-dashed border-stone-200/90 space-y-3"
+            class="py-12 px-4 text-center rounded-2xl bg-[#F3F5EF] dark:bg-[#0E1410] border border-dashed border-stone-200/90 dark:border-[#243329] space-y-3"
           >
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-white shadow-xs flex items-center justify-center text-stone-400">
+            <div class="w-12 h-12 mx-auto rounded-2xl bg-white dark:bg-[#16201A] shadow-xs flex items-center justify-center text-stone-400 dark:text-[#98A79D]">
               <Clock class="w-6 h-6" />
             </div>
             <div>
-              <h4 class="text-sm font-bold text-stone-800">Belum Ada Transaksi Rutin</h4>
-              <p class="text-xs text-stone-500 max-w-sm mx-auto mt-1">
+              <h4 class="text-sm font-bold text-stone-800 dark:text-[#F0F4F1]">Belum Ada Transaksi Rutin</h4>
+              <p class="text-xs text-stone-500 dark:text-[#98A79D] max-w-sm mx-auto mt-1">
                 Jadwalkan tagihan bulanan (sewa kost, internet PLN) atau gaji rutin agar tercatat otomatis tepat waktu.
               </p>
             </div>
@@ -347,13 +347,13 @@ const getRelativeDays = (dateStr: string): string => {
               :key="item.id"
               class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               :class="item.isActive
-                ? 'bg-white border-stone-200/90 hover:border-emerald-700/40 shadow-xs'
-                : 'bg-stone-50/70 border-stone-200/60 opacity-75'"
+                ? 'bg-white dark:bg-[#0E1410] border-stone-200/90 dark:border-[#243329] hover:border-emerald-700/40 dark:hover:border-[#344639] shadow-xs'
+                : 'bg-stone-50/70 dark:bg-[#0E1410]/50 border-stone-200/60 dark:border-[#243329] opacity-75'"
             >
               <div class="flex items-start gap-3 min-w-0">
                 <div
                   class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                  :class="item.type === 'income' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'"
+                  :class="item.type === 'income' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'"
                 >
                   <ArrowUpRight v-if="item.type === 'income'" class="w-4 h-4" :stroke-width="2.2" />
                   <ArrowDownLeft v-else class="w-4 h-4" :stroke-width="2.2" />
@@ -361,21 +361,21 @@ const getRelativeDays = (dateStr: string): string => {
 
                 <div class="min-w-0 space-y-0.5">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-sm font-extrabold text-[#18221B] truncate">
+                    <span class="text-sm font-extrabold text-[#18221B] dark:text-[#F0F4F1] truncate">
                       {{ item.note || (item.type === 'expense' ? 'Tagihan Rutin' : 'Pemasukan Rutin') }}
                     </span>
                     <span
                       class="px-2 py-0.5 text-[10px] font-bold rounded-md"
                       :class="item.isActive
-                        ? 'bg-emerald-100/70 text-emerald-900 border border-emerald-300/60'
-                        : 'bg-stone-200/80 text-stone-700'"
+                        ? 'bg-emerald-100/70 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800/40'
+                        : 'bg-stone-200/80 dark:bg-[#243329] text-stone-700 dark:text-stone-300'"
                     >
                       {{ item.isActive ? 'Aktif' : 'Dijeda' }}
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-2 text-xs text-stone-500 flex-wrap">
-                    <span class="font-semibold text-stone-700">
+                  <div class="flex items-center gap-2 text-xs text-stone-500 dark:text-[#98A79D] flex-wrap">
+                    <span class="font-semibold text-stone-700 dark:text-stone-300">
                       {{ item.category?.name || item.incomeSource?.name || '-' }}
                     </span>
                     <span>•</span>
@@ -385,15 +385,15 @@ const getRelativeDays = (dateStr: string): string => {
                   </div>
 
                   <div class="flex items-center gap-1.5 text-[11px] font-medium pt-1">
-                    <Calendar class="w-3.5 h-3.5 text-stone-400" />
-                    <span class="text-stone-600">
-                      Jatuh tempo: <strong class="text-stone-900 font-bold tabular-nums">{{ formatDate(item.nextRunDate) }}</strong>
+                    <Calendar class="w-3.5 h-3.5 text-stone-400 dark:text-[#98A79D]" />
+                    <span class="text-stone-600 dark:text-[#98A79D]">
+                      Jatuh tempo: <strong class="text-stone-900 dark:text-[#F0F4F1] font-bold tabular-nums">{{ formatDate(item.nextRunDate) }}</strong>
                     </span>
                     <span
                       class="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded"
                       :class="getRelativeDays(item.nextRunDate).includes('lalu')
-                        ? 'bg-rose-100 text-rose-800'
-                        : 'bg-amber-100 text-amber-900'"
+                        ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                        : 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300'"
                     >
                       {{ getRelativeDays(item.nextRunDate) }}
                     </span>
@@ -401,15 +401,15 @@ const getRelativeDays = (dateStr: string): string => {
                 </div>
               </div>
 
-              <div class="flex items-center justify-between sm:justify-end gap-3 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100">
+              <div class="flex items-center justify-between sm:justify-end gap-3 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 dark:border-[#243329]">
                 <div class="text-left sm:text-right">
                   <div
                     class="text-sm font-extrabold tabular-nums"
-                    :class="item.type === 'income' ? 'text-emerald-800' : 'text-[#183D2B]'"
+                    :class="item.type === 'income' ? 'text-emerald-700 dark:text-[#B8DF38]' : 'text-[#18221B] dark:text-[#F0F4F1]'"
                   >
                     {{ item.type === 'income' ? '+' : '-' }}{{ formatRupiah(item.amount) }}
                   </div>
-                  <div v-if="item.lastExecutedAt" class="text-[10px] text-stone-400">
+                  <div v-if="item.lastExecutedAt" class="text-[10px] text-stone-400 dark:text-stone-500">
                     Terakhir: {{ formatDate(item.lastExecutedAt) }}
                   </div>
                 </div>
@@ -419,27 +419,27 @@ const getRelativeDays = (dateStr: string): string => {
                     v-if="item.isActive"
                     type="button"
                     @click="handleExecuteNow(item)"
-                    class="tactile-btn px-2.5 py-1.5 bg-[#183D2B] hover:bg-[#204e37] text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs cursor-pointer"
+                    class="tactile-btn px-2.5 py-1.5 bg-[#183D2B] dark:bg-[#B8DF38] hover:bg-[#204e37] dark:hover:bg-[#a3c82e] text-white dark:text-[#0E1410] text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs cursor-pointer"
                     title="Catat dan bayar sekarang"
                   >
-                    <Play class="w-3.5 h-3.5 text-[#B8DF38] fill-current" />
+                    <Play class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410] fill-current" />
                     <span class="hidden sm:inline">Bayar</span>
                   </button>
 
                   <button
                     type="button"
                     @click="handleToggleActive(item)"
-                    class="tactile-btn p-2 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 border border-stone-200 transition cursor-pointer"
+                    class="tactile-btn p-2 rounded-xl text-stone-500 dark:text-stone-300 hover:text-stone-800 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] transition cursor-pointer"
                     :title="item.isActive ? 'Jeda jadwal' : 'Aktifkan kembali'"
                   >
                     <Pause v-if="item.isActive" class="w-3.5 h-3.5" />
-                    <Play v-else class="w-3.5 h-3.5 text-emerald-700" />
+                    <Play v-else class="w-3.5 h-3.5 text-emerald-700 dark:text-[#B8DF38]" />
                   </button>
 
                   <button
                     type="button"
                     @click="handleDelete(item)"
-                    class="tactile-btn p-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 transition cursor-pointer"
+                    class="tactile-btn p-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition cursor-pointer"
                     title="Hapus jadwal"
                   >
                     <Trash2 class="w-3.5 h-3.5" />
@@ -455,13 +455,13 @@ const getRelativeDays = (dateStr: string): string => {
           <form @submit.prevent="handleCreate" class="space-y-4">
             <!-- Tipe Selector -->
             <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1.5">Jenis Transaksi</label>
-              <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-xl">
+              <label class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1.5">Jenis Transaksi</label>
+              <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 dark:bg-[#0E1410] rounded-xl">
                 <button
                   type="button"
                   @click="formType = 'expense'"
                   class="tactile-btn py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer"
-                  :class="formType === 'expense' ? 'bg-white text-rose-700 shadow-xs' : 'text-stone-600 hover:text-stone-900'"
+                  :class="formType === 'expense' ? 'bg-white dark:bg-[#243329] text-rose-700 dark:text-rose-400 shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                 >
                   <ArrowDownLeft class="w-3.5 h-3.5" />
                   <span>Pengeluaran Rutin</span>
@@ -470,7 +470,7 @@ const getRelativeDays = (dateStr: string): string => {
                   type="button"
                   @click="formType = 'income'"
                   class="tactile-btn py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer"
-                  :class="formType === 'income' ? 'bg-white text-emerald-800 shadow-xs' : 'text-stone-600 hover:text-stone-900'"
+                  :class="formType === 'income' ? 'bg-white dark:bg-[#243329] text-emerald-800 dark:text-[#B8DF38] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                 >
                   <ArrowUpRight class="w-3.5 h-3.5" />
                   <span>Pemasukan Rutin</span>
@@ -480,19 +480,19 @@ const getRelativeDays = (dateStr: string): string => {
 
             <!-- Deskripsi / Nama Tagihan -->
             <div>
-              <label for="rec-note" class="block text-xs font-bold text-stone-700 mb-1">Nama Tagihan / Keterangan</label>
+              <label for="rec-note" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Nama Tagihan / Keterangan</label>
               <input
                 id="rec-note"
                 v-model="formNote"
                 type="text"
                 placeholder="Contoh: Sewa Rumah, Internet Indihome, Gaji Bulanan"
-                class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
               />
             </div>
 
             <!-- Nominal -->
             <div>
-              <label for="rec-amount" class="block text-xs font-bold text-stone-700 mb-1">Nominal Transaksi (Rp)</label>
+              <label for="rec-amount" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Nominal Transaksi (Rp)</label>
               <input
                 id="rec-amount"
                 :value="formAmount"
@@ -501,55 +501,55 @@ const getRelativeDays = (dateStr: string): string => {
                 type="text"
                 inputmode="numeric"
                 placeholder="0"
-                class="w-full px-3.5 py-2.5 text-sm font-bold tabular-nums bg-white border rounded-xl focus:outline-none transition"
+                class="w-full px-3.5 py-2.5 text-sm font-bold tabular-nums bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border rounded-xl focus:outline-none transition"
                 :class="touched.amount && errors.amount
                   ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500'
-                  : 'border-stone-300 focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
+                  : 'border-stone-300 dark:border-[#243329] focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
               />
-              <p v-if="touched.amount && errors.amount" class="text-xs text-rose-600 font-semibold mt-1">
+              <p v-if="touched.amount && errors.amount" class="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1">
                 {{ errors.amount }}
               </p>
             </div>
 
             <!-- Kategori / Sumber -->
             <div v-if="formType === 'expense'">
-              <label for="rec-category" class="block text-xs font-bold text-stone-700 mb-1">Kategori Pengeluaran</label>
+              <label for="rec-category" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Kategori Pengeluaran</label>
               <select
                 id="rec-category"
                 v-model="formCategoryId"
                 @blur="touched.category = true"
-                class="w-full px-3.5 py-2.5 text-xs bg-white border rounded-xl focus:outline-none transition"
+                class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border rounded-xl focus:outline-none transition"
                 :class="touched.category && errors.category
                   ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500'
-                  : 'border-stone-300 focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
+                  : 'border-stone-300 dark:border-[#243329] focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
               >
                 <option value="" disabled>Pilih Kategori</option>
                 <option v-for="c in expenseCategories" :key="c.id" :value="c.id">
                   {{ c.name }} ({{ c.group === 'NEED' ? 'Kebutuhan' : 'Keinginan' }})
                 </option>
               </select>
-              <p v-if="touched.category && errors.category" class="text-xs text-rose-600 font-semibold mt-1">
+              <p v-if="touched.category && errors.category" class="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1">
                 {{ errors.category }}
               </p>
             </div>
 
             <div v-else>
-              <label for="rec-source" class="block text-xs font-bold text-stone-700 mb-1">Sumber Pemasukan</label>
+              <label for="rec-source" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Sumber Pemasukan</label>
               <select
                 id="rec-source"
                 v-model="formIncomeSourceId"
                 @blur="touched.incomeSource = true"
-                class="w-full px-3.5 py-2.5 text-xs bg-white border rounded-xl focus:outline-none transition"
+                class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border rounded-xl focus:outline-none transition"
                 :class="touched.incomeSource && errors.incomeSource
                   ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500'
-                  : 'border-stone-300 focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]'"
+                  : 'border-stone-300 dark:border-[#243329] focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
               >
                 <option value="" disabled>Pilih Sumber Pemasukan</option>
                 <option v-for="s in activeIncomeSources" :key="s.id" :value="s.id">
                   {{ s.name }}
                 </option>
               </select>
-              <p v-if="touched.incomeSource && errors.incomeSource" class="text-xs text-rose-600 font-semibold mt-1">
+              <p v-if="touched.incomeSource && errors.incomeSource" class="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1">
                 {{ errors.incomeSource }}
               </p>
             </div>
@@ -557,11 +557,11 @@ const getRelativeDays = (dateStr: string): string => {
             <!-- Frekuensi & Tanggal Jatuh Tempo / Jadwal Rutin -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="rec-freq" class="block text-xs font-bold text-stone-700 mb-1">Frekuensi Berulang</label>
+                <label for="rec-freq" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Frekuensi Berulang</label>
                 <select
                   id="rec-freq"
                   v-model="formFrequency"
-                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                 >
                   <option value="MONTHLY">Tiap Bulan (Bulanan)</option>
                   <option value="WEEKLY">Tiap Minggu (Mingguan)</option>
@@ -572,7 +572,7 @@ const getRelativeDays = (dateStr: string): string => {
 
               <!-- 1. Kondisional Bulanan: Tanggal Jatuh Tempo / Terima -->
               <div v-if="formFrequency === 'MONTHLY'">
-                <label for="rec-day" class="block text-xs font-bold text-stone-700 mb-1">
+                <label for="rec-day" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">
                   {{ formType === 'expense' ? 'Jatuh Tempo Tiap Tanggal (1 - 31)' : 'Tanggal Terima Tiap Bulan (1 - 31)' }}
                 </label>
                 <input
@@ -582,9 +582,9 @@ const getRelativeDays = (dateStr: string): string => {
                   min="1"
                   max="31"
                   placeholder="Contoh: 15"
-                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                 />
-                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1 font-normal">
                   {{ formType === 'expense'
                     ? `Tagihan akan jatuh tempo setiap tanggal ${formDayOfExecution || 1} bulanan.`
                     : `Pemasukan rutin masuk setiap tanggal ${formDayOfExecution || 1} bulanan.` }}
@@ -593,13 +593,13 @@ const getRelativeDays = (dateStr: string): string => {
 
               <!-- 2. Kondisional Mingguan: Pilihan Hari (Senin - Minggu) -->
               <div v-else-if="formFrequency === 'WEEKLY'">
-                <label for="rec-day-weekly" class="block text-xs font-bold text-stone-700 mb-1">
+                <label for="rec-day-weekly" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">
                   {{ formType === 'expense' ? 'Hari Pembayaran Tiap Minggu' : 'Hari Terima Tiap Minggu' }}
                 </label>
                 <select
                   id="rec-day-weekly"
                   v-model.number="formDayOfExecution"
-                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                 >
                   <option :value="1">Setiap hari Senin</option>
                   <option :value="2">Setiap hari Selasa</option>
@@ -609,23 +609,23 @@ const getRelativeDays = (dateStr: string): string => {
                   <option :value="6">Setiap hari Sabtu</option>
                   <option :value="7">Setiap hari Minggu</option>
                 </select>
-                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1 font-normal">
                   Transaksi otomatis dicatat setiap minggu pada hari yang dipilih.
                 </p>
               </div>
 
               <!-- 3. Kondisional Harian -->
               <div v-else-if="formFrequency === 'DAILY'" class="flex flex-col justify-end">
-                <div class="px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center gap-2">
-                  <Clock class="w-4 h-4 text-[#183D2B] shrink-0" />
+                <div class="px-3.5 py-2.5 bg-stone-50 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs text-stone-600 dark:text-[#98A79D] flex items-center gap-2">
+                  <Clock class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38] shrink-0" />
                   <span>Transaksi akan dicatat otomatis <strong>setiap hari</strong>.</span>
                 </div>
               </div>
 
               <!-- 4. Kondisional Tahunan -->
               <div v-else-if="formFrequency === 'YEARLY'" class="flex flex-col justify-end">
-                <div class="px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center gap-2">
-                  <Calendar class="w-4 h-4 text-[#183D2B] shrink-0" />
+                <div class="px-3.5 py-2.5 bg-stone-50 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs text-stone-600 dark:text-[#98A79D] flex items-center gap-2">
+                  <Calendar class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38] shrink-0" />
                   <span>Jatuh tempo <strong>setahun sekali</strong> mengikuti tanggal mulai.</span>
                 </div>
               </div>
@@ -634,40 +634,40 @@ const getRelativeDays = (dateStr: string): string => {
             <!-- Tanggal Mulai & Akhir -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="rec-start" class="block text-xs font-bold text-stone-700 mb-1">Mulai Berlaku Sejak</label>
+                <label for="rec-start" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">Mulai Berlaku Sejak</label>
                 <input
                   id="rec-start"
                   v-model="formStartDate"
                   type="date"
-                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                 />
-                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1 font-normal">
                   Kapan jadwal ini pertama kali aktif (default: hari ini).
                 </p>
               </div>
 
               <div>
-                <label for="rec-end" class="block text-xs font-bold text-stone-700 mb-1">
+                <label for="rec-end" class="block text-xs font-bold text-stone-700 dark:text-[#F0F4F1] mb-1">
                   Berakhir Pada (Opsional)
                 </label>
                 <input
                   id="rec-end"
                   v-model="formEndDate"
                   type="date"
-                  class="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 focus:border-[#183D2B]"
+                  class="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] border border-stone-300 dark:border-[#243329] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                 />
-                <p class="text-[11px] text-stone-500 mt-1 font-normal">
+                <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1 font-normal">
                   Khusus cicilan / kontrak tertentu. Kosongkan jika rutin selamanya.
                 </p>
               </div>
             </div>
 
             <!-- Submit Button -->
-            <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+            <div class="pt-3 border-t border-stone-100 dark:border-[#243329] flex items-center justify-end gap-2">
               <button
                 type="button"
                 @click="activeTab = 'list'"
-                class="tactile-btn px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer"
+                class="tactile-btn px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
               >
                 Batal
               </button>

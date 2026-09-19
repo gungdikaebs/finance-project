@@ -346,22 +346,22 @@ const continueToMortgage = (principalAmount: string) => {
           <div v-if="simActiveTab === 'goal'" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <!-- Kolom Kiri: Form Input Parameter -->
-              <div class="space-y-3.5 p-4 sm:p-5 bg-white border border-stone-200/80 rounded-2xl shadow-2xs">
+              <div class="space-y-3.5 p-4 sm:p-5 bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#243329] rounded-2xl shadow-2xs">
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Nama Target (Opsional)</label>
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Nama Target (Opsional)</label>
                   <input
                     v-model="simGoalName"
                     type="text"
                     placeholder="Contoh: Rumah Impian, Mobil, Laptop..."
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B]"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                   />
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Tujuan Menabung</label>
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tujuan Menabung</label>
                   <select
                     v-model="simMode"
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] cursor-pointer font-bold"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] cursor-pointer font-bold"
                   >
                     <option value="FULL">Beli Lunas Tunai (100% Cash)</option>
                     <option value="DOWN_PAYMENT">Kredit / Cicilan (Kumpulkan DP Saja Dulu)</option>
@@ -369,7 +369,7 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Harga Acuan Saat Ini (Rp)</label>
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Harga Acuan Saat Ini (Rp)</label>
                   <input
                     :value="simPrice"
                     @input="handlePriceInput"
@@ -377,26 +377,26 @@ const continueToMortgage = (principalAmount: string) => {
                     type="text"
                     inputmode="numeric"
                     placeholder="0"
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm font-extrabold bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-sm font-extrabold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                   />
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Tanggal Harga Acuan</label>
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tanggal Harga Acuan</label>
                   <input
                     v-model="simReferenceDate"
                     type="date"
                     :max="new Date().toISOString().slice(0, 10)"
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] cursor-pointer"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] cursor-pointer"
                   />
-                  <span class="text-[10px] text-stone-400 mt-1 block">
+                  <span class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-1 block">
                     Harga disesuaikan dengan inflasi jika target dibeli di masa mendatang.
                   </span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] mb-1">Inflasi Tahunan (%)</label>
+                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Inflasi Tahunan (%)</label>
                     <input
                       v-model.number="simInflation"
                       @keyup.enter="handleRunGoalSim"
@@ -405,11 +405,11 @@ const continueToMortgage = (principalAmount: string) => {
                       max="100"
                       step="0.1"
                       placeholder="5"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] font-bold"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] font-bold"
                     />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] mb-1">Tabungan Dimiliki (Rp)</label>
+                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tabungan Dimiliki (Rp)</label>
                     <input
                       :value="simCurrentSavings"
                       @input="handleSavingsInput"
@@ -417,29 +417,29 @@ const continueToMortgage = (principalAmount: string) => {
                       type="text"
                       inputmode="numeric"
                       placeholder="0"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums font-bold"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums font-bold"
                     />
                   </div>
                 </div>
 
                 <!-- Parameter Khusus DP & Biaya Legalitas -->
-                <div v-if="simMode === 'DOWN_PAYMENT'" class="space-y-3 pt-3 border-t border-stone-100">
-                  <details class="group text-[11px] text-stone-500 bg-stone-50/80 rounded-xl p-2.5 border border-stone-200/70 cursor-pointer">
-                    <summary class="font-bold text-stone-700 flex items-center justify-between select-none list-none">
+                <div v-if="simMode === 'DOWN_PAYMENT'" class="space-y-3 pt-3 border-t border-stone-100 dark:border-[#243329]">
+                  <details class="group text-[11px] text-stone-500 dark:text-[#98A79D] bg-stone-50/80 dark:bg-[#0E1410] rounded-xl p-2.5 border border-stone-200/70 dark:border-[#243329] cursor-pointer">
+                    <summary class="font-bold text-stone-700 dark:text-[#F0F4F1] flex items-center justify-between select-none list-none">
                       <span class="flex items-center gap-1.5">
-                        <Info class="w-3.5 h-3.5 text-stone-400" />
+                        <Info class="w-3.5 h-3.5 text-stone-400 dark:text-[#98A79D]" />
                         <span>Tentang DP & Biaya Legalitas</span>
                       </span>
-                      <ChevronDown class="w-3.5 h-3.5 text-stone-400 group-open:rotate-180 transition-transform" />
+                      <ChevronDown class="w-3.5 h-3.5 text-stone-400 dark:text-[#98A79D] group-open:rotate-180 transition-transform" />
                     </summary>
-                    <p class="mt-2 text-[11px] text-stone-600 leading-relaxed pt-2 border-t border-stone-200/60">
+                    <p class="mt-2 text-[11px] text-stone-600 dark:text-[#98A79D] leading-relaxed pt-2 border-t border-stone-200/60 dark:border-[#243329]">
                       DP langsung memotong pokok kredit. Biaya legalitas/pajak (BPHTB, notaris, provisi bank) adalah biaya transaksi terpisah di luar harga pokok barang.
                     </p>
                   </details>
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] mb-1">Porsi DP (%)</label>
+                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Porsi DP (%)</label>
                       <div class="relative">
                         <input
                           v-model.number="simDpPercent"
@@ -448,14 +448,14 @@ const continueToMortgage = (principalAmount: string) => {
                           min="0"
                           max="100"
                           placeholder="20"
-                          class="w-full px-3 py-2 pr-7 border border-stone-200 rounded-xl text-xs font-bold bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                          class="w-full px-3 py-2 pr-7 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-bold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                         />
-                        <span class="absolute right-3 top-2 text-xs font-bold text-stone-400">%</span>
+                        <span class="absolute right-3 top-2 text-xs font-bold text-stone-400 dark:text-[#98A79D]">%</span>
                       </div>
                     </div>
 
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] mb-1">Biaya Legalitas / Pajak (Rp)</label>
+                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Biaya Legalitas / Pajak (Rp)</label>
                       <input
                         :value="simInitialFees"
                         @input="handleInitialFeesInput"
@@ -463,40 +463,40 @@ const continueToMortgage = (principalAmount: string) => {
                         type="text"
                         inputmode="numeric"
                         placeholder="0 (Opsional)"
-                        class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                        class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                       />
                     </div>
                   </div>
                 </div>
 
                 <!-- Mode Kalkulasi Waktu vs Setoran -->
-                <div class="pt-3 border-t border-stone-100 space-y-2">
-                  <label class="block text-xs font-bold text-[#18221B]">Metode Perhitungan</label>
-                  <div class="space-y-1.5 text-xs font-medium text-stone-700">
+                <div class="pt-3 border-t border-stone-100 dark:border-[#243329] space-y-2">
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Metode Perhitungan</label>
+                  <div class="space-y-1.5 text-xs font-medium text-stone-700 dark:text-[#98A79D]">
                     <label class="flex items-center gap-2 cursor-pointer select-none">
-                      <input type="radio" v-model="simCalcMode" value="MONTHLY_SAVINGS" class="text-[#183D2B] focus:ring-[#183D2B]" />
+                      <input type="radio" v-model="simCalcMode" value="MONTHLY_SAVINGS" class="text-[#183D2B] focus:ring-[#183D2B] dark:focus:ring-[#B8DF38]" />
                       <span>Tentukan Target Waktu (Hitung Setoran Bulanan)</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer select-none">
-                      <input type="radio" v-model="simCalcMode" value="TARGET_DATE" class="text-[#183D2B] focus:ring-[#183D2B]" />
+                      <input type="radio" v-model="simCalcMode" value="TARGET_DATE" class="text-[#183D2B] focus:ring-[#183D2B] dark:focus:ring-[#B8DF38]" />
                       <span>Tentukan Setoran Tetap (Hitung Waktu Tercapai)</span>
                     </label>
                   </div>
 
                   <div v-if="simCalcMode === 'MONTHLY_SAVINGS'" class="pt-1.5">
-                    <label class="block text-[11px] font-bold text-stone-600 mb-1">Target Waktu (Bulan)</label>
+                    <label class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Target Waktu (Bulan)</label>
                     <input
                       v-model.number="simTargetMonths"
                       @keyup.enter="handleRunGoalSim"
                       type="number"
                       min="1"
                       max="600"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] font-bold tabular-nums"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] font-bold tabular-nums"
                     />
                   </div>
 
                   <div v-if="simCalcMode === 'TARGET_DATE'" class="pt-1.5">
-                    <label class="block text-[11px] font-bold text-stone-600 mb-1">Setoran Tabungan per Bulan (Rp)</label>
+                    <label class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Setoran Tabungan per Bulan (Rp)</label>
                     <input
                       :value="simMonthlySavings"
                       @input="handleMonthlySavingsInput"
@@ -504,7 +504,7 @@ const continueToMortgage = (principalAmount: string) => {
                       type="text"
                       inputmode="numeric"
                       placeholder="Contoh: 1.500.000"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums font-bold"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums font-bold"
                     />
                   </div>
                 </div>
@@ -513,27 +513,27 @@ const continueToMortgage = (principalAmount: string) => {
                   type="button"
                   @click="handleRunGoalSim"
                   :disabled="simGoalLoading"
-                  class="tactile-btn w-full py-2.5 bg-[#183D2B] hover:bg-[#24553D] text-white text-xs font-bold rounded-xl disabled:opacity-50 transition shadow-xs cursor-pointer inline-flex items-center justify-center gap-2"
+                  class="tactile-btn w-full py-2.5 bg-[#183D2B] hover:bg-[#24553D] dark:bg-[#B8DF38] dark:hover:bg-[#a3c82e] text-white dark:text-[#0E1410] text-xs font-bold rounded-xl disabled:opacity-50 transition shadow-xs cursor-pointer inline-flex items-center justify-center gap-2"
                 >
-                  <TrendingUp class="w-3.5 h-3.5 text-[#B8DF38]" :stroke-width="2.5" />
+                  <TrendingUp class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2.5" />
                   <span>{{ simGoalLoading ? 'Menghitung...' : (simMode === 'DOWN_PAYMENT' ? 'Hitung Rencana DP' : 'Hitung Rencana Tabungan') }}</span>
                 </button>
               </div>
 
               <!-- Kolom Kanan: Hasil Visual / Ringkasan Ledger -->
               <div class="flex flex-col justify-between">
-                <div v-if="simGoalResult" class="p-5 rounded-2xl border border-stone-200/80 bg-stone-50/70 flex flex-col justify-between space-y-4">
+                <div v-if="simGoalResult" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4">
                   <div v-if="simGoalResult.isAchievable" class="space-y-3.5">
                     <!-- Header Ringkasan -->
-                    <div class="flex items-center justify-between pb-3 border-b border-stone-200/70">
-                      <span class="text-xs font-black text-[#18221B] uppercase tracking-wider">
+                    <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-[#243329]">
+                      <span class="text-xs font-black text-[#18221B] dark:text-[#F0F4F1] uppercase tracking-wider">
                         {{ simMode === 'DOWN_PAYMENT' ? 'Ringkasan Rencana DP' : 'Ringkasan Rencana Tabungan' }}
                       </span>
                       <span
                         class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border"
-                        :class="isSavingsSufficient ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-stone-100 text-stone-700 border-stone-200'"
+                        :class="isSavingsSufficient ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60' : 'bg-stone-100 dark:bg-[#243329] text-stone-700 dark:text-[#98A79D] border-stone-200 dark:border-[#344639]'"
                       >
-                        <CheckCircle2 class="w-3 h-3" :class="isSavingsSufficient ? 'text-emerald-600' : 'text-stone-500'" />
+                        <CheckCircle2 class="w-3 h-3" :class="isSavingsSufficient ? 'text-emerald-600 dark:text-emerald-400' : 'text-stone-500 dark:text-[#98A79D]'" />
                         <span>{{ isSavingsSufficient ? 'Dana Sudah Cukup' : 'Rencana Tercapai' }}</span>
                       </span>
                     </div>
@@ -541,65 +541,65 @@ const continueToMortgage = (principalAmount: string) => {
                     <!-- KONDISI A: TABUNGAN SUDAH MENCUKUPI (DP TERPENUHI) -->
                     <div
                       v-if="isSavingsSufficient"
-                      class="p-4 bg-white rounded-xl border border-stone-200/80 shadow-2xs space-y-2"
+                      class="p-4 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs space-y-2"
                     >
-                      <div class="flex items-center gap-1.5 text-xs font-black text-[#183D2B]">
-                        <CheckCircle2 class="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div class="flex items-center gap-1.5 text-xs font-black text-[#183D2B] dark:text-[#B8DF38]">
+                        <CheckCircle2 class="w-4 h-4 text-emerald-600 dark:text-[#B8DF38] shrink-0" />
                         <span>{{ simMode === 'DOWN_PAYMENT' ? 'Uang Muka (DP) Sudah Terpenuhi' : 'Dana Pembelian Sudah Terpenuhi' }}</span>
                       </div>
-                      <p class="text-xs text-stone-600 leading-relaxed">
+                      <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed">
                         Tabungan Anda (<strong>{{ formatRupiah(simGoalResult.currentSavings) }}</strong>) sudah mencukupi kebutuhan {{ simMode === 'DOWN_PAYMENT' ? 'DP' : 'dana' }} sebesar <strong>{{ formatRupiah(simGoalResult.requiredFunds) }}</strong>.
                       </p>
-                      <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                        <span class="text-stone-500">Tambahan tabungan bulanan:</span>
-                        <span class="font-bold text-[#183D2B]">Rp 0 / bulan</span>
+                      <div class="pt-2 border-t border-stone-100 dark:border-[#243329] flex items-center justify-between text-xs">
+                        <span class="text-stone-500 dark:text-[#98A79D]">Tambahan tabungan bulanan:</span>
+                        <span class="font-bold text-[#183D2B] dark:text-[#B8DF38]">Rp 0 / bulan</span>
                       </div>
                     </div>
 
                     <!-- KONDISI B: MASIH PERLU MENABUNG BULANAN -->
-                    <div v-else class="p-4 bg-white rounded-xl border border-stone-200/80 shadow-2xs space-y-1">
-                      <span class="text-[11px] font-semibold text-stone-400 block">Setoran Tabungan Bulanan</span>
+                    <div v-else class="p-4 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs space-y-1">
+                      <span class="text-[11px] font-semibold text-stone-400 dark:text-[#98A79D] block">Setoran Tabungan Bulanan</span>
                       <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black text-[#18221B] tabular-nums tracking-tight">
+                        <span class="text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight">
                           {{ formatRupiah(simGoalResult.monthlySavings) }}
                         </span>
-                        <span class="text-xs font-semibold text-stone-500">/ bulan</span>
+                        <span class="text-xs font-semibold text-stone-500 dark:text-[#98A79D]">/ bulan</span>
                       </div>
-                      <span class="text-[11px] text-stone-500 block pt-1 font-medium">
-                        Estimasi terkumpul dalam <strong class="text-stone-800 tabular-nums">{{ simGoalResult.targetMonths }} bulan</strong>
-                        <span v-if="(simGoalResult.targetMonths || 0) >= 12" class="text-stone-400"> ({{ ((simGoalResult.targetMonths || 0) / 12).toFixed(1) }} tahun)</span>
+                      <span class="text-[11px] text-stone-500 dark:text-[#98A79D] block pt-1 font-medium">
+                        Estimasi terkumpul dalam <strong class="text-stone-800 dark:text-[#F0F4F1] tabular-nums">{{ simGoalResult.targetMonths }} bulan</strong>
+                        <span v-if="(simGoalResult.targetMonths || 0) >= 12" class="text-stone-400 dark:text-stone-500"> ({{ ((simGoalResult.targetMonths || 0) / 12).toFixed(1) }} tahun)</span>
                       </span>
                     </div>
 
                     <!-- Rincian Biaya (Ledger Rows) -->
-                    <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 divide-y divide-stone-100 text-xs">
+                    <div class="bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] p-3.5 divide-y divide-stone-100 dark:divide-[#243329] text-xs">
                       <div class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Harga Acuan Awal</span>
-                        <span class="font-bold text-[#18221B] tabular-nums">{{ formatRupiah(simPrice.replace(/[^0-9]/g, '')) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Harga Acuan Awal</span>
+                        <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simPrice.replace(/[^0-9]/g, '')) }}</span>
                       </div>
                       <div v-if="Number(simInflation || 0) > 0" class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Proyeksi Harga (+Inflasi {{ simInflation }}%/thn)</span>
-                        <span class="font-bold text-[#18221B] tabular-nums">{{ formatRupiah(simGoalResult.projectedPrice) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Proyeksi Harga (+Inflasi {{ simInflation }}%/thn)</span>
+                        <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simGoalResult.projectedPrice) }}</span>
                       </div>
                       <div v-if="simMode === 'DOWN_PAYMENT'" class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Kebutuhan Uang Muka (DP {{ simDpPercent }}%)</span>
-                        <span class="font-bold text-stone-800 tabular-nums">{{ formatRupiah(simGoalResult.downPayment) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Kebutuhan Uang Muka (DP {{ simDpPercent }}%)</span>
+                        <span class="font-bold text-stone-800 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simGoalResult.downPayment) }}</span>
                       </div>
                       <div v-if="Number(simGoalResult.initialFees || 0) > 0" class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Biaya Legalitas & Notaris / Pajak</span>
-                        <span class="font-bold text-stone-800 tabular-nums">{{ formatRupiah(simGoalResult.initialFees) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Biaya Legalitas & Notaris / Pajak</span>
+                        <span class="font-bold text-stone-800 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simGoalResult.initialFees) }}</span>
                       </div>
-                      <div class="flex justify-between py-2 font-bold text-stone-700">
+                      <div class="flex justify-between py-2 font-bold text-stone-700 dark:text-[#F0F4F1]">
                         <span>{{ simMode === 'DOWN_PAYMENT' ? 'Total Dana Tunai Awal (DP + Biaya)' : 'Total Kebutuhan Dana' }}</span>
-                        <span class="font-black text-[#183D2B] tabular-nums">{{ formatRupiah(simGoalResult.requiredFunds) }}</span>
+                        <span class="font-black text-[#183D2B] dark:text-[#B8DF38] tabular-nums">{{ formatRupiah(simGoalResult.requiredFunds) }}</span>
                       </div>
-                      <div class="flex justify-between py-1.5 text-stone-500 text-[11px]">
+                      <div class="flex justify-between py-1.5 text-stone-500 dark:text-[#98A79D] text-[11px]">
                         <span>Tabungan Dimiliki Saat Ini</span>
-                        <span class="font-bold tabular-nums text-stone-700">{{ formatRupiah(simGoalResult.currentSavings) }}</span>
+                        <span class="font-bold tabular-nums text-stone-700 dark:text-[#F0F4F1]">{{ formatRupiah(simGoalResult.currentSavings) }}</span>
                       </div>
-                      <div v-if="simMode === 'DOWN_PAYMENT'" class="flex justify-between pt-2 border-t border-stone-200/80">
-                        <span class="font-bold text-stone-800">Sisa Pokok yang Memerlukan Cicilan</span>
-                        <span class="font-black text-[#18221B] tabular-nums text-sm">{{ formatRupiah(simGoalResult.loanPrincipal) }}</span>
+                      <div v-if="simMode === 'DOWN_PAYMENT'" class="flex justify-between pt-2 border-t border-stone-200/80 dark:border-[#243329]">
+                        <span class="font-bold text-stone-800 dark:text-[#F0F4F1]">Sisa Pokok yang Memerlukan Cicilan</span>
+                        <span class="font-black text-[#18221B] dark:text-[#B8DF38] tabular-nums text-sm">{{ formatRupiah(simGoalResult.loanPrincipal) }}</span>
                       </div>
                     </div>
 
@@ -608,26 +608,26 @@ const continueToMortgage = (principalAmount: string) => {
                       <button
                         type="button"
                         @click="continueToMortgage(simGoalResult.loanPrincipal!)"
-                        class="tactile-btn w-full py-2.5 px-4 bg-[#183D2B] hover:bg-[#24553D] text-white rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer shadow-xs group"
+                        class="tactile-btn w-full py-2.5 px-4 bg-[#183D2B] hover:bg-[#24553D] dark:bg-[#B8DF38] dark:hover:bg-[#a3c82e] text-white dark:text-[#0E1410] rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer shadow-xs group"
                       >
                         <div class="flex items-center gap-2 text-left">
-                          <Calculator class="w-4 h-4 text-[#B8DF38]" />
+                          <Calculator class="w-4 h-4 text-[#B8DF38] dark:text-[#0E1410]" />
                           <span>Simulasikan Cicilan Sisa Pokok</span>
                         </div>
-                        <div class="flex items-center gap-1.5 text-stone-300 font-semibold tabular-nums text-[11px]">
+                        <div class="flex items-center gap-1.5 text-stone-300 dark:text-[#0E1410]/70 font-semibold tabular-nums text-[11px]">
                           <span>{{ formatRupiah(simGoalResult.loanPrincipal) }}</span>
-                          <ArrowRight class="w-3.5 h-3.5 text-[#B8DF38] group-hover:translate-x-0.5 transition-transform" />
+                          <ArrowRight class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410] group-hover:translate-x-0.5 transition-transform" />
                         </div>
                       </button>
-                      <span class="text-[10px] text-stone-400 text-center block mt-1.5">
+                      <span class="text-[10px] text-stone-400 dark:text-[#98A79D] text-center block mt-1.5">
                         Lanjut ke Tab 2 untuk menghitung tagihan per bulan ke leasing atau bank.
                       </span>
                     </div>
                   </div>
 
-                  <div v-else class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                  <div v-else class="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-900 dark:text-amber-200 space-y-1">
                     <div class="flex items-center gap-2 font-bold">
-                      <AlertCircle class="w-4 h-4 text-amber-600" />
+                      <AlertCircle class="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       <span>Tidak Tercapai dalam Batas Waktu</span>
                     </div>
                     <p class="font-normal">{{ simGoalResult.message }}</p>
@@ -635,8 +635,8 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <!-- Empty State Tab 1 -->
-                <div v-else class="p-8 border border-dashed border-stone-200 rounded-2xl text-center text-xs text-stone-400 flex flex-col items-center justify-center h-full bg-stone-50/40">
-                  <TrendingUp class="w-7 h-7 text-stone-300 mb-2" :stroke-width="1.5" />
+                <div v-else class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
+                  <TrendingUp class="w-7 h-7 text-stone-300 dark:text-stone-600 mb-2" :stroke-width="1.5" />
                   <p class="max-w-xs leading-relaxed">
                     Isi nominal target di sebelah kiri lalu klik tombol hitung untuk melihat proyeksi tabungan.
                   </p>
@@ -649,16 +649,16 @@ const continueToMortgage = (principalAmount: string) => {
           <div v-if="simActiveTab === 'mortgage'" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <!-- Kolom Kiri: Input Cicilan -->
-              <div class="space-y-3.5 p-4 sm:p-5 bg-white border border-stone-200/80 rounded-2xl shadow-2xs">
+              <div class="space-y-3.5 p-4 sm:p-5 bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#243329] rounded-2xl shadow-2xs">
                 <!-- Skema Bunga -->
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Skema Bunga / Cicilan</label>
-                  <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl text-[11px] font-bold">
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Skema Bunga / Cicilan</label>
+                  <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 dark:bg-[#0E1410] rounded-xl text-[11px] font-bold">
                     <button
                       type="button"
                       @click="simLoanType = 'ANNUITY'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
-                      :class="simLoanType === 'ANNUITY' ? 'bg-white text-[#18221B] shadow-2xs' : 'text-stone-600 hover:text-stone-900'"
+                      :class="simLoanType === 'ANNUITY' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
                       Anuitas
                     </button>
@@ -666,7 +666,7 @@ const continueToMortgage = (principalAmount: string) => {
                       type="button"
                       @click="simLoanType = 'FLAT'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
-                      :class="simLoanType === 'FLAT' ? 'bg-white text-[#18221B] shadow-2xs' : 'text-stone-600 hover:text-stone-900'"
+                      :class="simLoanType === 'FLAT' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
                       Flat
                     </button>
@@ -674,12 +674,12 @@ const continueToMortgage = (principalAmount: string) => {
                       type="button"
                       @click="simLoanType = 'STEPPED_MORTGAGE'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
-                      :class="simLoanType === 'STEPPED_MORTGAGE' ? 'bg-white text-[#18221B] shadow-2xs' : 'text-stone-600 hover:text-stone-900'"
+                      :class="simLoanType === 'STEPPED_MORTGAGE' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
                       KPR Bertahap
                     </button>
                   </div>
-                  <p class="text-[10px] text-stone-400 mt-1">
+                  <p class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-1">
                     <template v-if="simLoanType === 'ANNUITY'">Bunga efektif konstan standar bank (porsi bunga menurun tiap bulan).</template>
                     <template v-else-if="simLoanType === 'FLAT'">Bunga flat dihitung dari pokok awal (kredit motor, mobil, elektronik, KTA).</template>
                     <template v-else>KPR bank dengan suku bunga promo (Fixed) lalu mengambang (Floating).</template>
@@ -688,7 +688,7 @@ const continueToMortgage = (principalAmount: string) => {
 
                 <!-- Pokok Pinjaman -->
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] mb-1.5">Pokok Pinjaman / Hutang (Rp)</label>
+                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Pokok Pinjaman / Hutang (Rp)</label>
                   <input
                     :value="simMortgagePrincipal"
                     @input="handlePrincipalInput"
@@ -696,17 +696,17 @@ const continueToMortgage = (principalAmount: string) => {
                     type="text"
                     inputmode="numeric"
                     placeholder="0"
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm font-extrabold bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-sm font-extrabold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                   />
                   <!-- Quick Amount Pills -->
                   <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <span class="text-[10px] text-stone-400 font-semibold">Cepat:</span>
+                    <span class="text-[10px] text-stone-400 dark:text-[#98A79D] font-semibold">Cepat:</span>
                     <button
                       v-for="amt in [10000000, 50000000, 200000000, 500000000]"
                       :key="amt"
                       type="button"
                       @click="simMortgagePrincipal = Number(amt).toLocaleString('id-ID')"
-                      class="tactile-btn px-2 py-0.5 text-[10px] font-bold bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200/80 rounded-md cursor-pointer tabular-nums"
+                      class="tactile-btn px-2 py-0.5 text-[10px] font-bold bg-stone-50 dark:bg-[#0E1410] hover:bg-stone-100 dark:hover:bg-[#243329] text-stone-700 dark:text-[#98A79D] border border-stone-200/80 dark:border-[#243329] rounded-md cursor-pointer tabular-nums"
                     >
                       {{ amt >= 1000000000 ? amt / 1000000000 + ' M' : amt / 1000000 + ' Jt' }}
                     </button>
@@ -716,13 +716,13 @@ const continueToMortgage = (principalAmount: string) => {
                 <!-- Tenor -->
                 <div>
                   <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-[#18221B]">Jangka Waktu (Tenor)</label>
-                    <div class="flex items-center bg-stone-100 p-0.5 rounded-lg text-[10px] font-bold">
+                    <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Jangka Waktu (Tenor)</label>
+                    <div class="flex items-center bg-stone-100 dark:bg-[#0E1410] p-0.5 rounded-lg text-[10px] font-bold">
                       <button
                         type="button"
                         @click="simTenorUnit = 'YEARS'"
                         class="px-2 py-0.5 rounded-md transition cursor-pointer"
-                        :class="simTenorUnit === 'YEARS' ? 'bg-white text-[#18221B] shadow-2xs' : 'text-stone-500'"
+                        :class="simTenorUnit === 'YEARS' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-500 dark:text-[#98A79D]'"
                       >
                         Tahun
                       </button>
@@ -730,7 +730,7 @@ const continueToMortgage = (principalAmount: string) => {
                         type="button"
                         @click="simTenorUnit = 'MONTHS'"
                         class="px-2 py-0.5 rounded-md transition cursor-pointer"
-                        :class="simTenorUnit === 'MONTHS' ? 'bg-white text-[#18221B] shadow-2xs' : 'text-stone-500'"
+                        :class="simTenorUnit === 'MONTHS' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-500 dark:text-[#98A79D]'"
                       >
                         Bulan
                       </button>
@@ -745,14 +745,14 @@ const continueToMortgage = (principalAmount: string) => {
                       min="1"
                       :max="simTenorUnit === 'YEARS' ? 30 : 360"
                       placeholder="Contoh: 12, 24, atau 5"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] font-bold tabular-nums"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] font-bold tabular-nums"
                     />
-                    <span class="text-xs font-bold text-stone-600 shrink-0">
+                    <span class="text-xs font-bold text-stone-600 dark:text-[#98A79D] shrink-0">
                       {{ simTenorUnit === 'YEARS' ? 'Tahun' : 'Bulan' }}
                     </span>
                   </div>
-                  <span class="text-[10px] text-stone-400 mt-1 block">
-                    Total durasi: <strong class="text-stone-700 tabular-nums">{{ computedTenorMonths }} bulan</strong>
+                  <span class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-1 block">
+                    Total durasi: <strong class="text-stone-700 dark:text-[#F0F4F1] tabular-nums">{{ computedTenorMonths }} bulan</strong>
                     <span v-if="computedTenorMonths >= 12"> ({{ (computedTenorMonths / 12).toFixed(1) }} tahun)</span>
                   </span>
                 </div>
@@ -760,7 +760,7 @@ const continueToMortgage = (principalAmount: string) => {
                 <!-- Suku Bunga Form Input -->
                 <template v-if="simLoanType !== 'STEPPED_MORTGAGE'">
                   <div>
-                    <label class="block text-xs font-bold text-[#18221B] mb-1.5">
+                    <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
                       Suku Bunga (%/tahun)
                     </label>
                     <input
@@ -771,7 +771,7 @@ const continueToMortgage = (principalAmount: string) => {
                       max="100"
                       step="0.1"
                       placeholder="8.5"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs font-bold bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-bold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                     />
                   </div>
                 </template>
@@ -780,7 +780,7 @@ const continueToMortgage = (principalAmount: string) => {
                   <!-- Suku Bunga Bertahap (KPR) -->
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] mb-1">Masa Promo Fixed</label>
+                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Masa Promo Fixed</label>
                       <input
                         v-model.number="simMortgageFixedYears"
                         @keyup.enter="handleRunMortgageSim"
@@ -788,12 +788,12 @@ const continueToMortgage = (principalAmount: string) => {
                         min="0"
                         :max="Math.floor(computedTenorMonths / 12)"
                         placeholder="3"
-                        class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] font-bold"
+                        class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] font-bold"
                       />
-                      <span class="text-[10px] text-stone-400 mt-0.5 block">{{ (Number(simMortgageFixedYears) || 0) * 12 }} bulan</span>
+                      <span class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-0.5 block">{{ (Number(simMortgageFixedYears) || 0) * 12 }} bulan</span>
                     </div>
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] mb-1">Bunga Promo (%/thn)</label>
+                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Promo (%/thn)</label>
                       <input
                         v-model.number="simMortgageFixedRate"
                         @keyup.enter="handleRunMortgageSim"
@@ -802,13 +802,13 @@ const continueToMortgage = (principalAmount: string) => {
                         max="100"
                         step="0.1"
                         placeholder="5.5"
-                        class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs font-bold bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B]"
+                        class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-bold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] mb-1">Bunga Floating Pasca-Promo (%/thn)</label>
+                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Floating Pasca-Promo (%/thn)</label>
                     <input
                       v-model.number="simMortgageFloatingRate"
                       @keyup.enter="handleRunMortgageSim"
@@ -818,14 +818,14 @@ const continueToMortgage = (principalAmount: string) => {
                       step="0.1"
                       placeholder="11.0"
                       :disabled="Number(simMortgageFixedYears) * 12 >= computedTenorMonths"
-                      class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs font-bold bg-stone-50/50 text-[#18221B] disabled:bg-stone-100 disabled:text-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B]"
+                      class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-bold bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] disabled:bg-stone-100 dark:disabled:bg-[#121A15] disabled:text-stone-400 dark:disabled:text-stone-600 focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
                     />
                   </div>
                 </template>
 
                 <!-- Pemasukan Bulanan (Opsional) -->
-                <div class="pt-2 border-t border-stone-100">
-                  <label class="block text-[11px] font-bold text-[#18221B] mb-1">Pemasukan Bulanan (Rp - Opsional)</label>
+                <div class="pt-2 border-t border-stone-100 dark:border-[#243329]">
+                  <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pemasukan Bulanan (Rp - Opsional)</label>
                   <input
                     :value="simMortgageIncome"
                     @input="handleIncomeInput"
@@ -833,9 +833,9 @@ const continueToMortgage = (principalAmount: string) => {
                     type="text"
                     inputmode="numeric"
                     placeholder="Untuk analisa beban cicilan..."
-                    class="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs bg-stone-50/50 text-[#18221B] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 focus:border-[#183D2B] tabular-nums"
+                    class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
                   />
-                  <span class="text-[10px] text-stone-400 mt-1 block">
+                  <span class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-1 block">
                     Beban cicilan aman berada di bawah 30% dari total pemasukan.
                   </span>
                 </div>
@@ -845,61 +845,61 @@ const continueToMortgage = (principalAmount: string) => {
                   type="button"
                   @click="handleRunMortgageSim"
                   :disabled="simMortgageLoading"
-                  class="tactile-btn w-full py-2.5 bg-[#183D2B] hover:bg-[#24553D] text-white text-xs font-bold rounded-xl disabled:opacity-50 transition shadow-xs cursor-pointer inline-flex items-center justify-center gap-2"
+                  class="tactile-btn w-full py-2.5 bg-[#183D2B] hover:bg-[#24553D] dark:bg-[#B8DF38] dark:hover:bg-[#a3c82e] text-white dark:text-[#0E1410] text-xs font-bold rounded-xl disabled:opacity-50 transition shadow-xs cursor-pointer inline-flex items-center justify-center gap-2"
                 >
-                  <Calculator class="w-3.5 h-3.5 text-[#B8DF38]" :stroke-width="2" />
+                  <Calculator class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2" />
                   <span>{{ simMortgageLoading ? 'Menghitung...' : 'Hitung Angsuran Cicilan' }}</span>
                 </button>
               </div>
 
               <!-- Kolom Kanan: Hasil Visual Cicilan -->
               <div class="flex flex-col justify-between">
-                <div v-if="simMortgageResult" class="p-5 rounded-2xl border border-stone-200/80 bg-stone-50/70 flex flex-col justify-between space-y-4">
+                <div v-if="simMortgageResult" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4">
                   <div class="space-y-3.5">
                     <!-- Header -->
-                    <div class="flex items-center justify-between pb-3 border-b border-stone-200/70">
-                      <span class="text-xs font-black text-[#18221B] uppercase tracking-wider">Hasil Simulasi Cicilan</span>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-700 border border-stone-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-[#243329]">
+                      <span class="text-xs font-black text-[#18221B] dark:text-[#F0F4F1] uppercase tracking-wider">Hasil Simulasi Cicilan</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 dark:bg-[#243329] text-stone-700 dark:text-[#98A79D] border border-stone-200 dark:border-[#344639]">
                         {{ simMortgageResult.loanType === 'FLAT' ? 'Bunga Flat' : simMortgageResult.loanType === 'ANNUITY' ? 'Bunga Efektif' : 'KPR Bertahap' }}
                       </span>
                     </div>
 
                     <!-- SKEMA 1: CICILAN TETAP (FLAT ATAU ANUITAS) -->
-                    <div v-if="!simMortgageResult.hasFloatingPhase || simMortgageResult.loanType === 'FLAT' || simMortgageResult.loanType === 'ANNUITY'" class="p-4 bg-white rounded-xl border border-stone-200/80 shadow-2xs space-y-1">
-                      <span class="text-[11px] font-semibold text-stone-400 block">
+                    <div v-if="!simMortgageResult.hasFloatingPhase || simMortgageResult.loanType === 'FLAT' || simMortgageResult.loanType === 'ANNUITY'" class="p-4 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs space-y-1">
+                      <span class="text-[11px] font-semibold text-stone-400 dark:text-[#98A79D] block">
                         Tagihan Cicilan per Bulan
                       </span>
                       <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black text-[#18221B] tabular-nums tracking-tight">
+                        <span class="text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight">
                           {{ formatRupiah(simMortgageResult.fixedInstallment) }}
                         </span>
-                        <span class="text-xs font-semibold text-stone-500">/ bulan</span>
+                        <span class="text-xs font-semibold text-stone-500 dark:text-[#98A79D]">/ bulan</span>
                       </div>
-                      <span class="text-[11px] text-stone-500 block pt-1 font-medium">
-                        Suku bunga: <strong class="text-stone-800 tabular-nums">{{ simMortgageResult.fixedRate }}%/thn</strong> • Tenor: <strong class="text-stone-800 tabular-nums">{{ simMortgageResult.tenorMonths }} bulan</strong>
-                        <span v-if="simMortgageResult.tenorMonths >= 12" class="text-stone-400"> ({{ (simMortgageResult.tenorMonths / 12).toFixed(1) }} tahun)</span>
+                      <span class="text-[11px] text-stone-500 dark:text-[#98A79D] block pt-1 font-medium">
+                        Suku bunga: <strong class="text-stone-800 dark:text-[#F0F4F1] tabular-nums">{{ simMortgageResult.fixedRate }}%/thn</strong> • Tenor: <strong class="text-stone-800 dark:text-[#F0F4F1] tabular-nums">{{ simMortgageResult.tenorMonths }} bulan</strong>
+                        <span v-if="simMortgageResult.tenorMonths >= 12" class="text-stone-400 dark:text-stone-500"> ({{ (simMortgageResult.tenorMonths / 12).toFixed(1) }} tahun)</span>
                       </span>
                     </div>
 
                     <!-- SKEMA 2: KPR BERTAHAP (FIXED + FLOATING) -->
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                      <div v-if="simMortgageResult.hasFixedPhase" class="p-3.5 bg-white rounded-xl border border-stone-200/80 shadow-2xs">
-                        <span class="text-stone-400 text-[10px] uppercase font-bold block">
+                      <div v-if="simMortgageResult.hasFixedPhase" class="p-3.5 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs">
+                        <span class="text-stone-400 dark:text-[#98A79D] text-[10px] uppercase font-bold block">
                           Fase Promo (Thn 1 - {{ simMortgageFixedYears }})
                         </span>
-                        <div class="text-lg font-black text-[#18221B] mt-1 tabular-nums">
+                        <div class="text-lg font-black text-[#18221B] dark:text-[#F0F4F1] mt-1 tabular-nums">
                           {{ formatRupiah(simMortgageResult.fixedInstallment) }}
-                          <span class="text-[10px] font-medium text-stone-500 block">/ bulan ({{ simMortgageResult.fixedRate }}%)</span>
+                          <span class="text-[10px] font-medium text-stone-500 dark:text-[#98A79D] block">/ bulan ({{ simMortgageResult.fixedRate }}%)</span>
                         </div>
                       </div>
 
-                      <div v-if="simMortgageResult.hasFloatingPhase" class="p-3.5 bg-white rounded-xl border border-stone-200/80 shadow-2xs">
-                        <span class="text-stone-400 text-[10px] uppercase font-bold block">
+                      <div v-if="simMortgageResult.hasFloatingPhase" class="p-3.5 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs">
+                        <span class="text-stone-400 dark:text-[#98A79D] text-[10px] uppercase font-bold block">
                           Fase Floating (Bulan {{ simMortgageResult.floatingStartsAtPayment }}+)
                         </span>
-                        <div class="text-lg font-black text-rose-950 mt-1 tabular-nums">
+                        <div class="text-lg font-black text-rose-950 dark:text-rose-300 mt-1 tabular-nums">
                           {{ formatRupiah(simMortgageResult.floatingInstallment) }}
-                          <span class="text-[10px] font-medium text-stone-500 block">/ bulan ({{ simMortgageResult.floatingRate }}%)</span>
+                          <span class="text-[10px] font-medium text-stone-500 dark:text-[#98A79D] block">/ bulan ({{ simMortgageResult.floatingRate }}%)</span>
                         </div>
                       </div>
                     </div>
@@ -907,58 +907,58 @@ const continueToMortgage = (principalAmount: string) => {
                     <!-- Lonjakan Alert -->
                     <div
                       v-if="simMortgageResult.hasFloatingPhase && Number(simMortgageResult.installmentJump || 0) > 0"
-                      class="p-3 bg-rose-50/70 border border-rose-200/80 rounded-xl text-xs text-rose-900 flex items-center justify-between"
+                      class="p-3 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 rounded-xl text-xs text-rose-900 dark:text-rose-200 flex items-center justify-between"
                     >
                       <span class="font-bold flex items-center gap-1.5">
-                        <AlertCircle class="w-3.5 h-3.5 text-rose-600" />
+                        <AlertCircle class="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                         <span>Kenaikan saat Floating:</span>
                       </span>
                       <strong class="font-black tabular-nums">+{{ formatRupiah(simMortgageResult.installmentJump) }} / bln</strong>
                     </div>
 
                     <!-- Rincian Pinjaman -->
-                    <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 divide-y divide-stone-100 text-xs">
+                    <div class="bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] p-3.5 divide-y divide-stone-100 dark:divide-[#243329] text-xs">
                       <div class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Pokok Pinjaman</span>
-                        <span class="font-bold text-[#18221B] tabular-nums">{{ formatRupiah(simMortgageResult.principal) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Pokok Pinjaman</span>
+                        <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simMortgageResult.principal) }}</span>
                       </div>
                       <div v-if="simMortgageResult.hasFloatingPhase && Number(simMortgageResult.balanceBeforeFloating || 0) > 0" class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Sisa Pokok Sebelum Floating</span>
-                        <span class="font-bold text-[#18221B] tabular-nums">{{ formatRupiah(simMortgageResult.balanceBeforeFloating) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Sisa Pokok Sebelum Floating</span>
+                        <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(simMortgageResult.balanceBeforeFloating) }}</span>
                       </div>
                       <div class="flex justify-between py-1.5">
-                        <span class="text-stone-500">Total Beban Bunga</span>
-                        <span class="font-bold text-rose-700 tabular-nums">{{ formatRupiah(simMortgageResult.totalInterest) }}</span>
+                        <span class="text-stone-500 dark:text-[#98A79D]">Total Beban Bunga</span>
+                        <span class="font-bold text-rose-700 dark:text-rose-400 tabular-nums">{{ formatRupiah(simMortgageResult.totalInterest) }}</span>
                       </div>
-                      <div class="flex justify-between pt-2 border-t border-stone-200/80 font-bold">
-                        <span class="text-stone-800">Total Pengeluaran Pelunasan</span>
-                        <span class="font-black text-[#18221B] tabular-nums text-sm">{{ formatRupiah(simMortgageResult.totalLoanPayment) }}</span>
+                      <div class="flex justify-between pt-2 border-t border-stone-200/80 dark:border-[#243329] font-bold">
+                        <span class="text-stone-800 dark:text-[#F0F4F1]">Total Pengeluaran Pelunasan</span>
+                        <span class="font-black text-[#18221B] dark:text-[#B8DF38] tabular-nums text-sm">{{ formatRupiah(simMortgageResult.totalLoanPayment) }}</span>
                       </div>
                     </div>
 
                     <!-- Analisa DSR jika ada pemasukan -->
-                    <div v-if="simMortgageResult.fixedDsr" class="p-3 bg-white rounded-xl border border-stone-200/80 text-xs space-y-1.5">
-                      <span class="font-bold text-[#18221B] block">Beban Cicilan Terhadap Pemasukan:</span>
+                    <div v-if="simMortgageResult.fixedDsr" class="p-3 bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#243329] rounded-xl text-xs space-y-1.5">
+                      <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] block">Beban Cicilan Terhadap Pemasukan:</span>
                       <div class="flex justify-between items-center text-[11px]">
-                        <span class="text-stone-600">Porsi Cicilan:</span>
+                        <span class="text-stone-600 dark:text-[#98A79D]">Porsi Cicilan:</span>
                         <span
                           class="font-bold px-2 py-0.5 rounded-full tabular-nums"
-                          :class="(simMortgageResult.fixedDsr || 0) <= 30 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'"
+                          :class="(simMortgageResult.fixedDsr || 0) <= 30 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'"
                         >
                           {{ simMortgageResult.fixedDsr }}% dari Pemasukan
                         </span>
                       </div>
                     </div>
 
-                    <p class="text-[10px] text-stone-400">
+                    <p class="text-[10px] text-stone-400 dark:text-[#98A79D]">
                       *Estimasi matematis. Biaya provisi, asuransi, dan administrasi bank belum termasuk.
                     </p>
                   </div>
                 </div>
 
                 <!-- Empty State Tab 2 -->
-                <div v-else class="p-8 border border-dashed border-stone-200 rounded-2xl text-center text-xs text-stone-400 flex flex-col items-center justify-center h-full bg-stone-50/40">
-                  <Calculator class="w-7 h-7 text-stone-300 mb-2" :stroke-width="1.5" />
+                <div v-else class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
+                  <Calculator class="w-7 h-7 text-stone-300 dark:text-stone-600 mb-2" :stroke-width="1.5" />
                   <p class="max-w-xs leading-relaxed">
                     Pilih skema bunga dan jangka waktu, lalu klik tombol hitung untuk melihat rincian angsuran.
                   </p>

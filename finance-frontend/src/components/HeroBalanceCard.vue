@@ -57,11 +57,12 @@ const getWalletIcon = (type: string) => {
       <!-- Balance Info -->
       <div class="space-y-4">
         <div>
-          <div class="flex items-center gap-2 mb-1.5">
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-white/10 text-emerald-200 border border-white/10">
               <span class="w-1.5 h-1.5 rounded-full bg-[#B8DF38] animate-pulse"></span>
               Saldo Utama Aktual
             </span>
+            <span class="text-[10px] text-emerald-200/60 font-medium">= Total gabungan seluruh wadah fisik</span>
           </div>
           <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight tabular-nums">
             {{ formatRupiah(summary?.mainBalance) }}

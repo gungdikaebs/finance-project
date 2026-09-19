@@ -218,6 +218,7 @@ export interface ReportSummary {
   mainBalance: string;
   totalAllocatedSavings?: string;
   unallocatedMoney: string;
+  recommendedSavingAmount?: string;
   emergencyBalance?: string;
   emergencyMonths?: number;
   monthlyNeedsReference: string;

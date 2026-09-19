@@ -45,6 +45,21 @@ const isExporting = ref(false);
 const exportFormat = ref<string | null>(null);
 const showExportDropdown = ref(false);
 
+const monthNames = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
+
 const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
   isExporting.value = true;
   exportFormat.value = format;
@@ -111,8 +126,8 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
           @change="emit('update:currentMonth', Number(($event.target as HTMLSelectElement).value)); emit('changeFilter')"
           class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
         >
-          <option v-for="m in 12" :key="m" :value="m">
-            Bulan {{ m }}
+          <option v-for="(mName, idx) in monthNames" :key="idx + 1" :value="idx + 1">
+            {{ mName }}
           </option>
         </select>
 
@@ -226,8 +241,97 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
       </div>
     </div>
 
-    <!-- Tabel Riwayat Transaksi -->
-    <div v-if="transactions.length > 0" class="overflow-x-auto">
+    <!-- Mobile: Card List Vertikal (< sm, UX-06) -->
+    <div v-if="transactions.length > 0" class="sm:hidden divide-y divide-stone-100 dark:divide-[#243329]">
+      <div
+        v-for="trx in transactions"
+        :key="trx.id"
+        class="p-4 space-y-2.5 transition-colors"
+        :class="trx.status === 'CANCELLED' ? 'opacity-40 bg-stone-50/50 dark:bg-[#0E1410]/30 line-through' : 'hover:bg-stone-50/70 dark:hover:bg-[#0E1410]/50'"
+      >
+        <div class="flex justify-between items-start gap-2">
+          <div class="space-y-0.5 flex-1 min-w-0">
+            <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block truncate leading-tight">
+              {{ trx.note || trx.category?.name || 'Transaksi' }}
+            </span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ formatDate(trx.date) }}</span>
+              <span class="text-[10px] text-stone-300 dark:text-[#243329]">•</span>
+              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ trx.category?.name || 'Umum' }}</span>
+              <!-- Group Snapshot Badge -->
+              <span
+                v-if="trx.groupSnapshot === 'NEED'"
+                class="text-[9px] px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold border border-blue-200/60 dark:border-blue-900/50"
+              >
+                Kebutuhan
+              </span>
+              <span
+                v-else-if="trx.groupSnapshot === 'WANT'"
+                class="text-[9px] px-1.5 py-0.2 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold border border-purple-200/60 dark:border-purple-900/50"
+              >
+                Keinginan
+              </span>
+            </div>
+          </div>
+
+          <!-- Nominal -->
+          <span
+            class="font-black text-sm tabular-nums shrink-0"
+            :class="trx.typeSnapshot === 'INCOME' ? 'text-emerald-700 dark:text-[#B8DF38]' : 'text-[#18221B] dark:text-[#F0F4F1]'"
+          >
+            {{ trx.typeSnapshot === 'INCOME' ? '+' : '-' }} {{ formatRupiah(trx.amount) }}
+          </span>
+        </div>
+
+        <!-- Meta & Actions Bar -->
+        <div class="flex items-center justify-between gap-2 pt-1 border-t border-stone-100/80 dark:border-[#243329]/60">
+          <div class="text-[10px] text-stone-500 dark:text-[#98A79D] truncate">
+            <span v-if="trx.typeSnapshot === 'INCOME'" class="font-semibold text-emerald-800 dark:text-[#B8DF38]">
+              {{ trx.incomeSource?.name || 'Pemasukan Umum' }}
+            </span>
+            <span v-else>
+              <span
+                v-if="trx.sourceGoal"
+                class="inline-flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-300"
+              >
+                <Target class="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{{ trx.sourceGoal.name }}</span>
+              </span>
+              <span v-else class="text-stone-400 dark:text-[#98A79D] font-medium">Uang Belum Disisihkan</span>
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-1 shrink-0">
+            <span
+              v-if="trx.status === 'ACTIVE'"
+              class="inline-flex items-center gap-1"
+            >
+              <button
+                type="button"
+                @click="emit('openEditTransaction', trx)"
+                class="tactile-btn text-xs text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
+              >
+                <Edit3 class="w-3 h-3" />
+                <span>Koreksi</span>
+              </button>
+              <button
+                type="button"
+                @click="emit('openCancelTransaction', trx)"
+                class="tactile-btn text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 font-bold px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
+              >
+                <XCircle class="w-3 h-3" />
+                <span>Batal</span>
+              </button>
+            </span>
+            <span v-else class="text-[10px] text-stone-400 dark:text-stone-500 italic">Dibatalkan</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop: Tabel Riwayat Transaksi (>= sm) -->
+    <div v-if="transactions.length > 0" class="hidden sm:block overflow-x-auto">
       <table class="w-full text-left border-collapse text-sm">
         <thead>
           <tr class="border-b border-stone-100 dark:border-[#243329] bg-stone-50/60 dark:bg-[#0E1410] text-[11px] font-bold text-stone-500 dark:text-[#98A79D] uppercase tracking-wider">
@@ -288,7 +392,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
                   <Target class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                   <span>{{ trx.sourceGoal.name }}</span>
                 </span>
-                <span v-else class="text-stone-400 dark:text-[#98A79D] font-medium">Kas Bebas</span>
+                <span v-else class="text-stone-400 dark:text-[#98A79D] font-medium">Uang Belum Disisihkan</span>
               </span>
             </td>
 

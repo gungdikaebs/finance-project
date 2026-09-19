@@ -61,7 +61,17 @@ export class ReportsService {
       }
     }
 
-    const mainBalance = profile.initialBalance + income - expense;
+    const walletsAgg = await this.prisma.walletAccount.aggregate({
+      where: { userId, isArchived: false },
+      _sum: { balance: true },
+    });
+    const walletCount = await this.prisma.walletAccount.count({
+      where: { userId, isArchived: false },
+    });
+    const mainBalance =
+      walletCount > 0
+        ? (walletsAgg._sum.balance || BigInt(0))
+        : profile.initialBalance + income - expense;
 
     // Hitung total dana tersisih dari seluruh goal aktif
     const [inflows, outflows] = await Promise.all([
@@ -78,6 +88,54 @@ export class ReportsService {
     const totalAllocatedSavings =
       (inflows._sum.amount || BigInt(0)) - (outflows._sum.amount || BigInt(0));
     const unallocatedMoney = mainBalance - totalAllocatedSavings;
+
+    // Hitung rekomendasi tabungan (UX-03)
+    const activePolicy = await this.prisma.budgetPolicy.findFirst({
+      where: { userId, isActive: true },
+    });
+    const savingsRatioBps = activePolicy ? activePolicy.savingsRatio : 3000;
+
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentMonthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const currentMonthTrx = await this.prisma.transaction.findMany({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: currentMonthStart, lte: currentMonthEnd },
+      },
+      include: { category: true },
+    });
+
+    let currentMonthIncome = BigInt(0);
+    for (const trx of currentMonthTrx) {
+      if (trx.typeSnapshot === 'INCOME' || trx.category.type === 'income') {
+        currentMonthIncome += trx.amount;
+      }
+    }
+
+    let recommendedSavingAmount = BigInt(0);
+    if (currentMonthIncome > BigInt(0)) {
+      recommendedSavingAmount =
+        (currentMonthIncome * BigInt(savingsRatioBps)) / BigInt(10000);
+    } else if (unallocatedMoney > BigInt(0)) {
+      recommendedSavingAmount =
+        (unallocatedMoney * BigInt(savingsRatioBps)) / BigInt(10000);
+    }
+
+    if (recommendedSavingAmount > unallocatedMoney) {
+      recommendedSavingAmount =
+        unallocatedMoney > BigInt(0) ? unallocatedMoney : BigInt(0);
+    }
 
     // Hitung saldo dana darurat (EMERGENCY)
     const emergencyGoal = await this.prisma.savingsGoal.findFirst({
@@ -114,6 +172,7 @@ export class ReportsService {
       mainBalance,
       totalAllocatedSavings,
       unallocatedMoney,
+      recommendedSavingAmount,
       emergencyBalance,
       emergencyMonths: Math.round(emergencyMonths * 10) / 10,
       monthlyNeedsReference: profile.monthlyNeeds,

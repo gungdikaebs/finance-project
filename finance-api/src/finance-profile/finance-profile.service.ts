@@ -44,7 +44,7 @@ export class FinanceProfileService {
       data.monthlyNeeds = BigInt(dto.monthlyNeeds);
     }
 
-    return this.prisma.financeProfile.upsert({
+    const result = await this.prisma.financeProfile.upsert({
       where: { userId },
       update: data,
       create: {
@@ -55,6 +55,24 @@ export class FinanceProfileService {
         monthlyNeeds: dto.monthlyNeeds !== undefined ? BigInt(dto.monthlyNeeds) : BigInt(0),
       },
     });
+
+    if (dto.initialBalance !== undefined) {
+      const trxCount = await this.prisma.transaction.count({ where: { userId } });
+      if (trxCount === 0) {
+        const defaultWallet = await this.prisma.walletAccount.findFirst({
+          where: { userId, isArchived: false },
+          orderBy: { id: 'asc' },
+        });
+        if (defaultWallet) {
+          await this.prisma.walletAccount.update({
+            where: { id: defaultWallet.id },
+            data: { balance: BigInt(dto.initialBalance) },
+          });
+        }
+      }
+    }
+
+    return result;
   }
 
   async updateOnboarding(userId: number, dto: UpdateOnboardingDto) {
@@ -85,6 +103,22 @@ export class FinanceProfileService {
         onboardingStep: dto.onboardingStep ?? 1,
       },
     });
+
+    if (dto.initialBalance !== undefined) {
+      const trxCount = await this.prisma.transaction.count({ where: { userId } });
+      if (trxCount === 0) {
+        const defaultWallet = await this.prisma.walletAccount.findFirst({
+          where: { userId, isArchived: false },
+          orderBy: { id: 'asc' },
+        });
+        if (defaultWallet) {
+          await this.prisma.walletAccount.update({
+            where: { id: defaultWallet.id },
+            data: { balance: BigInt(dto.initialBalance) },
+          });
+        }
+      }
+    }
 
     // Sinkronisasi Dana Pengaman (EMERGENCY) jika emergencyMonthsTarget atau monthlyNeeds diisi
     if (dto.emergencyMonthsTarget !== undefined || dto.monthlyNeeds !== undefined) {

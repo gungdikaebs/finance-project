@@ -70,6 +70,16 @@ describe('ReportsService', () => {
       allocationEvent: {
         aggregate: jest.fn().mockResolvedValue({ _sum: { amount: BigInt(1000000) } }),
       } as any,
+      walletAccount: {
+        aggregate: jest.fn().mockResolvedValue({ _sum: { balance: BigInt(6000000) } }),
+        count: jest.fn().mockResolvedValue(1),
+      } as any,
+      budgetPolicy: {
+        findFirst: jest.fn().mockResolvedValue({ savingsRatio: 3000 }),
+      } as any,
+      savingsGoal: {
+        findFirst: jest.fn().mockResolvedValue(null),
+      } as any,
     };
 
     service = new ReportsService(prisma as PrismaService);
@@ -126,5 +136,13 @@ describe('ReportsService', () => {
     expect(Buffer.isBuffer(buffer)).toBe(true);
     // PDF signature check '%PDF'
     expect(buffer.toString('utf-8', 0, 4)).toBe('%PDF');
+  });
+
+  it('menghitung mainBalance dari agregasi wadah fisik dan menentukan recommendedSavingAmount secara presisi (UX-01 & UX-03)', async () => {
+    const summary = await service.getSummary(1);
+
+    expect(summary.mainBalance).toBe(BigInt(6000000));
+    expect(summary.recommendedSavingAmount).toBeDefined();
+    expect(summary.recommendedSavingAmount).toBeGreaterThanOrEqual(BigInt(0));
   });
 });

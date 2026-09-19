@@ -620,6 +620,7 @@ onUnmounted(() => {
     <SaveModal
       :show="showSaveModal"
       :unallocated-money="summary?.unallocatedMoney || allocationStatus?.unallocatedMoney"
+      :recommended-saving-amount="summary?.recommendedSavingAmount"
       @close="showSaveModal = false"
       @saved="loadAllData"
     />
@@ -673,14 +674,14 @@ onUnmounted(() => {
       :user-name="auth.user?.name"
       :user-email="auth.user?.email"
       @close="showMobileMenu = false"
-      @open-profile="showProfileModal = true"
-      @open-wallets="showManageWalletsModal = true"
-      @open-transfer="showTransferWalletModal = true"
-      @open-manage="showManageModal = true"
-      @open-recurring="showRecurringModal = true"
-      @open-simulator="openSimulator()"
-      @open-month-end-review="openMonthEndReview"
-      @open-analytics="mobileTab = 'analitik'"
+      @open-profile="showProfileModal = true; showMobileMenu = false"
+      @open-wallets="showManageWalletsModal = true; showMobileMenu = false"
+      @open-transfer="showTransferWalletModal = true; showMobileMenu = false"
+      @open-manage="showManageModal = true; showMobileMenu = false"
+      @open-recurring="showRecurringModal = true; showMobileMenu = false"
+      @open-simulator="openSimulator(); showMobileMenu = false"
+      @open-month-end-review="openMonthEndReview(); showMobileMenu = false"
+      @open-analytics="mobileTab = 'analitik'; showMobileMenu = false"
       @logout="handleLogout"
     />
 

@@ -317,6 +317,32 @@ Preferensi workflow berada di [RULES.md](RULES.md). Persetujuan arah produk di b
 - Alasan dan trade-off: Meningkatkan postur keamanan aplikasi secara signifikan dari ancaman otomatisasi dan password guessing tanpa mempersulit pengguna yang sah.
 - Dasar persetujuan: Dokumen IMPROVEMENT-ROADMAP.md Modul 10 dan persetujuan user atas implementation plan.
 
+### D-025 — Resolusi 7 Isu UX Kritis (Audit UX Pasca Implementasi)
+
+- Tanggal: 2026-09-19
+- Status: disetujui
+- Konteks: Pengujian langsung antarmuka live (`http://localhost:5173/dashboard`) bersama Agent Hermes mengungkap 7 isu friksi kognitif dan behavioral: disparitas saldo utama vs fisik, banner peringatan anggaran guilt-inducing, form sisihkan tabungan mengusulkan 100% uang bebas, label bulan angka robotik, inkonsistensi terminologi kas bebas, horizontal scroll tabel transaksi mobile, dan modal navigasi mobile tidak menutup otomatis.
+- Keputusan:
+  1. Sinkronisasi Saldo Utama vs Wadah Fisik (UX-01):
+     - `mainBalance` dihitung secara kanonikal dari `SUM(WalletAccount.balance WHERE isArchived = false)`.
+     - `finance-profile.service.ts` menyinkronkan saldo awal profil ke dompet default jika belum ada transaksi.
+     - `HeroBalanceCard.vue` menyertakan keterangan subjudul `= Total gabungan seluruh wadah fisik`.
+  2. Banner Anggaran Ramah & Tenang (UX-02):
+     - Mengganti alert kuning amber `AlertCircle` pada `BudgetSection.vue` menjadi panel informatif biru netral dengan ikon `Info` bertajuk *"Arus kas didukung saldo berjalan"*.
+  3. Default Sisihkan Cerdas & Pilihan Cepat (UX-03):
+     - Backend `reports.service.ts` menyediakan `recommendedSavingAmount` berdasarkan rasio tabungan kebijakan aktif dan arus kas bulan berjalan.
+     - `SaveModal.vue` mengisi input default dengan porsi rekomendasi tabungan (bukan 100% uang bebas) dan menyediakan 3 tombol pilihan cepat: `Rekomendasi`, `50% Sisa`, dan `Semua Uang Belum Disisihkan`.
+  4. Filter Bulan Bahasa Indonesia (UX-04):
+     - Mengubah dropdown bulan pada `TransactionSection.vue` dari `Bulan 1` s/d `Bulan 12` menjadi nama bulan Indonesia ("Januari" s/d "Desember").
+  5. Standarisasi Istilah Kanonikal (UX-05):
+     - Mengganti seluruh variasi istilah "Uang Bebas" dan "Kas Bebas" di `ReleaseModal.vue`, `SaveModal.vue`, dan `TransactionSection.vue` menjadi istilah kanonis tunggal: `"Uang Belum Disisihkan"`.
+  6. Ergonomi Transaksi Mobile Card List (UX-06):
+     - Pada viewport mobile (< 640px / `sm:hidden`), riwayat transaksi disajikan sebagai *Vertical Card List* yang mudah dipindai dengan tombol aksi Edit/Batal yang nyaman disentuh, sedangkan tampilan tabel tradisional dipertahankan pada desktop (`hidden sm:block`).
+  7. Auto-Close Menu Navigasi Mobile (UX-07):
+     - Menutup `MobileMenuModal` (`showMobileMenu = false`) secara otomatis pada seluruh trigger event navigasi `@open-*`.
+- Alasan dan trade-off: Mengeliminasi kebingungan mental model pengguna, mereduksi resistensi pencatatan akibat copy yang menghakimi, mencegah penguncian kas secara tidak sengaja, dan meningkatkan kenyamanan pengoperasian di smartphone.
+- Dasar persetujuan: IMPROVEMENT-ROADMAP.md Bagian 5 (Audit UX Mendalam) dan persetujuan user atas implementation plan.
+
 Catat hanya keputusan yang memengaruhi pekerjaan berikutnya: alur utama, teknologi, konvensi, atau desain lintas fitur. Keputusan lokal cukup berada di file tugas. Gunakan ID berurutan; keputusan pengganti merujuk ID lama dan menandainya sebagai digantikan.
 
 ## Format entri
