@@ -36,7 +36,20 @@ export class AllocationsService {
         expense += t.amount;
       }
     }
-    const mainBalance = initialBalance + income - expense;
+    const [walletsAgg, walletCount] = await Promise.all([
+      this.prisma.walletAccount.aggregate({
+        where: { userId, isArchived: false },
+        _sum: { balance: true },
+      }),
+      this.prisma.walletAccount.count({
+        where: { userId, isArchived: false },
+      }),
+    ]);
+
+    const mainBalance =
+      walletCount > 0
+        ? (walletsAgg._sum.balance || BigInt(0))
+        : initialBalance + income - expense;
 
     // Hitung total dana tersisih dari seluruh goal aktif
     const [inflows, outflows] = await Promise.all([

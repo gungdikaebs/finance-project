@@ -1,4 +1,5 @@
 import { IsInt, IsOptional, IsString, Matches } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateTransactionDto {
   @IsOptional()
@@ -6,6 +7,7 @@ export class UpdateTransactionDto {
   amount?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   categoryId?: number;
 
@@ -18,10 +20,12 @@ export class UpdateTransactionDto {
   note?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   incomeSourceId?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   walletAccountId?: number;
 

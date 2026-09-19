@@ -42,6 +42,11 @@ export class WalletsService {
     });
 
     if (existing) {
+      // Pastikan transaksi yang belum tertaut dompet ditautkan ke dompet aktif
+      await this.prisma.transaction.updateMany({
+        where: { userId, walletAccountId: null },
+        data: { walletAccountId: existing.id },
+      });
       return existing;
     }
 
@@ -114,6 +119,7 @@ export class WalletsService {
   }
 
   async create(userId: number, dto: CreateWalletDto) {
+    const initialBalance = dto.initialBalance ? BigInt(dto.initialBalance) : BigInt(0);
     const wallet = await this.prisma.walletAccount.create({
       data: {
         userId,
@@ -121,7 +127,7 @@ export class WalletsService {
         type: dto.type,
         accountNumber: dto.accountNumber ? dto.accountNumber.trim() : null,
         color: dto.color || '#183D2B',
-        balance: BigInt(0),
+        balance: initialBalance,
       },
     });
 

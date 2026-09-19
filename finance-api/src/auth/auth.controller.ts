@@ -37,7 +37,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('verify-password')
   verifyPassword(@Request() req, @Body() dto: VerifyPasswordDto) {
-    return this.authService.verifyPassword(req.user.id, dto.password);
+    return this.authService.verifyPassword(req.user.sub ?? req.user.id, dto.password);
   }
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { financeApi, type Category, type IncomeSource } from '../../api/services';
 import { Tag, Plus, Archive, X, ArrowDownLeft, Check, FolderTree, RotateCcw, Pencil, Trash2 } from 'lucide-vue-next';
 
@@ -16,10 +16,13 @@ const emit = defineEmits<{
 
 const newSource = ref('');
 const newCatName = ref('');
-const newCatType = ref<'income' | 'expense'>('expense');
-const newCatGroup = ref<'NEED' | 'WANT' | 'UNASSIGNED'>('NEED');
+const newCatGroup = ref<'NEED' | 'WANT'>('NEED');
 const submittingSource = ref(false);
 const submittingCat = ref(false);
+
+const expenseCategories = computed(() => {
+  return props.categories.filter((c) => c.type === 'expense');
+});
 
 // Edit state for Category
 const editingCatId = ref<number | null>(null);
@@ -183,11 +186,12 @@ const handleAddCategory = async () => {
   try {
     await financeApi.createCategory({
       name: newCatName.value.trim(),
-      type: newCatType.value,
-      group: newCatType.value === 'expense' ? newCatGroup.value : undefined,
+      type: 'expense',
+      group: newCatGroup.value,
     });
     toast.success(`Kategori "${newCatName.value.trim()}" berhasil ditambahkan`);
     newCatName.value = '';
+    newCatGroup.value = 'NEED';
     emit('refresh');
   } catch (err: any) {
     toast.error(err.response?.data?.message || 'Gagal menambahkan kategori');
@@ -375,59 +379,45 @@ const handleUnarchiveCategory = async (id: number) => {
         </div>
       </div>
 
-      <!-- Bagian Kategori Pengeluaran & Pemasukan -->
+      <!-- Bagian Kategori Pengeluaran (Pos 50/30/20) -->
       <div class="space-y-3.5 border-t border-stone-100 dark:border-[#243329] pt-5">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
             <Tag class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38]" />
-            <h4 class="text-xs font-bold uppercase tracking-wider text-[#18221B] dark:text-[#F0F4F1]">Kategori Alokasi</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#18221B] dark:text-[#F0F4F1]">Kategori Pengeluaran (Pos 50/30/20)</h4>
           </div>
           <span class="text-[11px] text-[#18221B]/50 dark:text-[#98A79D] font-medium">
-            {{ categories.filter(c => !c.isArchived).length }} Aktif
+            {{ expenseCategories.filter(c => !c.isArchived).length }} Aktif
           </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+        <form @submit.prevent="handleAddCategory" class="flex flex-col sm:flex-row gap-2">
           <input
             v-model="newCatName"
             type="text"
-            placeholder="Nama kategori (misal: Makan & Minum)"
-            class="sm:col-span-5 px-3.5 py-2.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm text-[#18221B] dark:text-[#F0F4F1] placeholder-[#18221B]/40 dark:placeholder-stone-500 focus:outline-none focus:bg-white dark:focus:bg-[#0E1410] focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition"
+            placeholder="Nama kategori pengeluaran (misal: Makan & Minum)"
+            class="flex-1 px-3.5 py-2.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm text-[#18221B] dark:text-[#F0F4F1] placeholder-[#18221B]/40 dark:placeholder-stone-500 focus:outline-none focus:bg-white dark:focus:bg-[#0E1410] focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition"
           />
           <select
-            v-model="newCatType"
-            class="sm:col-span-3 px-3 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition cursor-pointer"
-          >
-            <option value="expense">Pengeluaran</option>
-            <option value="income">Pemasukan</option>
-          </select>
-          <select
-            v-if="newCatType === 'expense'"
             v-model="newCatGroup"
-            class="sm:col-span-4 px-3 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition cursor-pointer"
+            class="w-full sm:w-auto px-3 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition cursor-pointer"
           >
             <option value="NEED">Kebutuhan (Need)</option>
             <option value="WANT">Keinginan (Want)</option>
           </select>
-          <div v-else class="sm:col-span-4 flex items-center px-3 text-xs text-[#18221B]/50 dark:text-[#98A79D] italic">
-            Pos masuk pendapatan
-          </div>
-        </div>
-
-        <div>
           <button
-            @click="handleAddCategory"
+            type="submit"
             :disabled="submittingCat || !newCatName.trim()"
-            class="tactile-btn px-4 py-2.5 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-semibold rounded-xl hover:bg-[#204e37] dark:hover:bg-[#a3c82e] disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer transition shadow-xs"
+            class="tactile-btn px-4 py-2.5 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-semibold rounded-xl hover:bg-[#204e37] dark:hover:bg-[#a3c82e] disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer transition shadow-xs shrink-0"
           >
             <Plus class="w-4 h-4" />
-            <span>{{ submittingCat ? 'Menyimpan...' : 'Tambah Kategori' }}</span>
+            <span>{{ submittingCat ? 'Menyimpan...' : 'Tambah' }}</span>
           </button>
-        </div>
+        </form>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
           <div
-            v-for="cat in categories"
+            v-for="cat in expenseCategories"
             :key="cat.id"
             class="p-3 rounded-xl border transition"
             :class="cat.isArchived ? 'bg-stone-100 dark:bg-[#0E1410] border-stone-200 dark:border-[#243329] opacity-70' : 'bg-white dark:bg-[#0E1410] border-stone-200 dark:border-[#243329] hover:border-stone-300 dark:hover:border-[#344639] shadow-2xs'"
@@ -444,12 +434,11 @@ const handleUnarchiveCategory = async (id: number) => {
                 />
                 <div class="flex items-center justify-between gap-2">
                   <select
-                    v-if="cat.type === 'expense'"
                     v-model="editingCatGroup"
                     class="px-2 py-1 border border-stone-200 dark:border-[#243329] rounded-lg text-xs bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1]"
                   >
-                    <option value="NEED">Kebutuhan (50%)</option>
-                    <option value="WANT">Keinginan (30%)</option>
+                    <option value="NEED">Kebutuhan (Need)</option>
+                    <option value="WANT">Keinginan (Want)</option>
                   </select>
                   <div class="flex items-center space-x-1 ml-auto">
                     <button
@@ -479,14 +468,13 @@ const handleUnarchiveCategory = async (id: number) => {
                 <div class="flex items-center space-x-2.5 min-w-0">
                   <span
                     class="w-2 h-2 rounded-full shrink-0"
-                    :class="cat.type === 'income' ? 'bg-emerald-500' : (cat.group === 'NEED' ? 'bg-blue-600' : 'bg-amber-500')"
+                    :class="cat.group === 'NEED' ? 'bg-blue-600 dark:bg-blue-400' : 'bg-amber-500 dark:bg-amber-400'"
                   ></span>
                   <div class="min-w-0">
                     <p class="font-semibold text-xs text-[#18221B] dark:text-[#F0F4F1] truncate">{{ cat.name }}</p>
                     <div class="flex items-center space-x-1.5 text-[10px] text-[#18221B]/55 dark:text-[#98A79D] font-medium">
-                      <span v-if="cat.type === 'income'" class="text-emerald-700 dark:text-emerald-400">Pemasukan</span>
-                      <span v-else-if="cat.group === 'NEED'" class="text-blue-700 dark:text-blue-400 font-semibold">Kebutuhan (50%)</span>
-                      <span v-else class="text-amber-700 dark:text-amber-400 font-semibold">Keinginan (30%)</span>
+                      <span v-if="cat.group === 'NEED'" class="text-blue-700 dark:text-blue-400 font-semibold">Kebutuhan (Need)</span>
+                      <span v-else class="text-amber-700 dark:text-amber-400 font-semibold">Keinginan (Want)</span>
                     </div>
                   </div>
                 </div>

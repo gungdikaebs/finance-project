@@ -91,7 +91,8 @@ export class ReportsService {
 
     // Hitung rekomendasi tabungan (UX-03)
     const activePolicy = await this.prisma.budgetPolicy.findFirst({
-      where: { userId, isActive: true },
+      where: { userId },
+      orderBy: [{ effectiveYear: 'desc' }, { effectiveMonth: 'desc' }],
     });
     const savingsRatioBps = activePolicy ? activePolicy.savingsRatio : 3000;
 

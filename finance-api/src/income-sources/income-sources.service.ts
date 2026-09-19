@@ -95,11 +95,26 @@ export class IncomeSourcesService {
 
       const txs = await prisma.transaction.findMany({
         where: { incomeSourceId: id, userId },
-        select: { id: true },
       });
       const txIds = txs.map((t) => t.id);
 
       if (txIds.length > 0) {
+        // Balikkan saldo dompet untuk transaksi yang aktif
+        for (const t of txs) {
+          if (t.walletAccountId && t.status === 'ACTIVE') {
+            if (t.typeSnapshot === 'INCOME') {
+              await prisma.walletAccount.update({
+                where: { id: t.walletAccountId },
+                data: { balance: { decrement: t.amount } },
+              });
+            } else {
+              await prisma.walletAccount.update({
+                where: { id: t.walletAccountId },
+                data: { balance: { increment: t.amount } },
+              });
+            }
+          }
+        }
         await prisma.transactionRevision.deleteMany({
           where: { transactionId: { in: txIds } },
         });
