@@ -14,6 +14,7 @@ import {
   Calendar,
   TrendingUp,
   AlertTriangle,
+  Pencil,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -28,6 +29,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'openSharesModal'): void;
   (e: 'openAddGoalModal'): void;
+  (e: 'openEditGoalModal', goal: SavingsGoal): void;
   (e: 'openReleaseModal', goalId?: number): void;
   (e: 'openSimulatorWithGoal', goal: SavingsGoal): void;
   (e: 'openSimulatorWithTopUp', payload: { goal: SavingsGoal; recommendedMonthly: string }): void;
@@ -239,7 +241,8 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                 class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-[#183D2B] dark:text-[#B8DF38] border border-[#183D2B]/20 dark:border-[#B8DF38]/30 tabular-nums"
               >
                 <Calendar class="w-3 h-3 text-[#183D2B] dark:text-[#B8DF38]" />
-                <span>~{{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
+                <span v-if="getForecast(goal.id)?.hasUserTargetMonths">Target: {{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
+                <span v-else>~{{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
               </span>
               <span
                 v-else
@@ -308,12 +311,29 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                     <template v-if="getForecast(goal.id)!.isUnachievable">
                       Nabung ekstra <strong class="tabular-nums">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk melampaui laju inflasi
                     </template>
+                    <template v-else-if="getForecast(goal.id)?.hasUserTargetMonths">
+                      Butuh <strong class="tabular-nums">{{ formatRupiah(getForecast(goal.id)!.requiredMonthlySavings || '0') }}</strong>/bln untuk capai target dalam {{ getForecast(goal.id)!.targetMonths }} bln
+                    </template>
                     <template v-else>
                       Nabung ekstra <strong class="tabular-nums">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk maju <span class="tabular-nums font-extrabold">{{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bln</span> lebih cepat ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }})
                     </template>
                   </div>
                   <p class="text-[10px] text-stone-500 dark:text-[#98A79D] font-normal mt-0.5">
-                    Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                    <template v-if="getForecast(goal.id)!.isUnachievable">
+                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                      <span class="text-rose-600 dark:text-rose-400 font-semibold">
+                        (Kalah cepat dari inflasi {{ ((goal.annualPriceIncreaseRatio ?? 500) / 100).toFixed(0) }}%/thn)
+                      </span>
+                    </template>
+                    <template v-else-if="getForecast(goal.id)?.hasUserTargetMonths">
+                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                      <span v-if="BigInt(getForecast(goal.id)!.topUpSuggestion?.extraMonthlySavings || '0') > 0n" class="text-amber-700 dark:text-amber-400 font-semibold">
+                        (Kurang {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bln<template v-if="getForecast(goal.id)?.estimatedMonthsWithCurrentSavings"> · Estimasi tabungan saat ini: ~{{ getForecast(goal.id)!.estimatedMonthsWithCurrentSavings }} bln</template>)
+                      </span>
+                    </template>
+                    <template v-else>
+                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                    </template>
                   </p>
                 </div>
               </div>
@@ -322,10 +342,12 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                 type="button"
                 @click="emit('openSimulatorWithTopUp', {
                   goal,
-                  recommendedMonthly: (BigInt(getForecast(goal.id)!.estimatedMonthlySavings) + BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings)).toString()
+                  recommendedMonthly: getForecast(goal.id)?.hasUserTargetMonths
+                    ? (getForecast(goal.id)!.requiredMonthlySavings || getForecast(goal.id)!.estimatedMonthlySavings)
+                    : (BigInt(getForecast(goal.id)!.estimatedMonthlySavings) + BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings)).toString()
                 })"
                 class="tactile-btn shrink-0 px-2.5 py-1 text-[11px] font-bold text-[#183D2B] bg-[#B8DF38] hover:bg-[#a6cd2b] rounded-lg cursor-pointer shadow-2xs whitespace-nowrap"
-                title="Uji skenario tabungan ekstra ini di simulator"
+                title="Uji skenario tabungan ini di simulator"
               >
                 Uji di Simulator
               </button>
@@ -333,14 +355,26 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
 
             <!-- Action buttons inside card -->
             <div class="pt-2.5 border-t border-stone-100 dark:border-[#243329] flex items-center justify-between text-xs">
-              <button
-                type="button"
-                @click="emit('openSimulatorWithGoal', goal)"
-                class="tactile-btn text-[#183D2B] dark:text-[#B8DF38] hover:text-emerald-950 dark:hover:text-[#a3c82e] font-bold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <Calculator class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" :stroke-width="2" />
-                <span>Simulasi Target</span>
-              </button>
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  @click="emit('openSimulatorWithGoal', goal)"
+                  class="tactile-btn text-[#183D2B] dark:text-[#B8DF38] hover:text-emerald-950 dark:hover:text-[#a3c82e] font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Calculator class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" :stroke-width="2" />
+                  <span>Simulasi Target</span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="emit('openEditGoalModal', goal)"
+                  class="tactile-btn text-stone-600 dark:text-[#98A79D] hover:text-[#183D2B] dark:hover:text-[#B8DF38] font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  title="Ubah nama, harga, atau target waktu"
+                >
+                  <Pencil class="w-3 h-3 text-stone-500 dark:text-[#98A79D]" :stroke-width="1.75" />
+                  <span>Ubah</span>
+                </button>
+              </div>
 
               <button
                 type="button"

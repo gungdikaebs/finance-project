@@ -31,6 +31,11 @@ export interface GoalForecastDto {
   targetDate: string | null;
   targetDateFormatted: string | null;
   projectedPrice: string;
+  hasUserTargetMonths: boolean;
+  userTargetMonths: number | null;
+  requiredMonthlySavings: string | null;
+  monthlyShortfall: string | null;
+  estimatedMonthsWithCurrentSavings: number | null;
   topUpSuggestion?: TopUpSuggestionDto | null;
   milestone: GoalMilestoneDto;
 }

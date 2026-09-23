@@ -131,6 +131,11 @@ export interface GoalForecast {
   targetDate: string | null;
   targetDateFormatted: string | null;
   projectedPrice: string;
+  hasUserTargetMonths?: boolean;
+  userTargetMonths?: number | null;
+  requiredMonthlySavings?: string | null;
+  monthlyShortfall?: string | null;
+  estimatedMonthsWithCurrentSavings?: number | null;
   topUpSuggestion?: TopUpSuggestion | null;
   milestone: GoalMilestone;
 }

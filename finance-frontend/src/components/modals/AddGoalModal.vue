@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { financeApi } from '../../api/services';
-import { formatNumberInput, parseCleanNumber } from '../../utils/format';
+import { formatNumberInput, parseCleanNumber, formatRupiah } from '../../utils/format';
 import { Target, X } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -24,6 +24,18 @@ import { useToast } from '../../composables/useToast';
 const toast = useToast();
 const nameError = ref('');
 const priceError = ref('');
+
+const targetMonthlyEstimate = computed(() => {
+  if (!newGoalMonths.value || newGoalMonths.value <= 0) return null;
+  const cleanPrice = parseCleanNumber(newGoalPrice.value);
+  if (!cleanPrice || cleanPrice === '0') return null;
+  const numPrice = Number(cleanPrice);
+  if (isNaN(numPrice) || numPrice <= 0) return null;
+  const iMonthly = 0.05 / 12;
+  const factor = Math.pow(1 + iMonthly, newGoalMonths.value);
+  const projectedPrice = Math.round(numPrice * factor);
+  return Math.ceil(projectedPrice / newGoalMonths.value);
+});
 
 const handlePriceInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
@@ -171,6 +183,22 @@ const handleCreateGoal = async () => {
             placeholder="Contoh: 12, 24, 36 bulan..."
             class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20"
           />
+
+          <!-- Live Preview Estimasi -->
+          <div
+            v-if="targetMonthlyEstimate && newGoalMonths"
+            class="mt-2 p-2.5 rounded-xl bg-emerald-50/90 dark:bg-[#132E21]/60 border border-emerald-200/80 dark:border-[#243329] text-[11px] text-[#183D2B] dark:text-[#B8DF38] space-y-0.5"
+          >
+            <div class="font-bold flex items-center gap-1.5">
+              <span>🎯 Target {{ newGoalMonths }} Bulan:</span>
+            </div>
+            <p class="text-stone-600 dark:text-[#98A79D] font-normal">
+              Estimasi butuh tabungan sekitar <strong class="text-[#183D2B] dark:text-[#B8DF38] font-bold tabular-nums">{{ formatRupiah(targetMonthlyEstimate) }}</strong>/bulan (asumsi inflasi ~5%/thn).
+            </p>
+          </div>
+          <p v-else class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-normal">
+            Kosongkan jika ingin target waktu dihitung otomatis berdasarkan alokasi tabungan bulanan riil Anda.
+          </p>
         </div>
       </div>
 

@@ -192,6 +192,67 @@ describe('SavingsGoalsService', () => {
       expect(forecasts[0].milestone.currentPercent).toBe(100);
       expect(forecasts[0].milestone.label).toBe('Tercapai Penuh (100%)');
     });
+
+    it('menggunakan targetMonths jika diisi pengguna dan menghitung requiredMonthlySavings & shortfall', async () => {
+      const prisma = {
+        transaction: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              amount: BigInt('10000000'), // Pemasukan Rp 10.000.000
+              typeSnapshot: 'INCOME',
+              date: new Date(),
+              category: { type: 'income' },
+            },
+          ]),
+        },
+        budgetPolicy: {
+          findFirst: jest.fn().mockResolvedValue({
+            savingsRatio: 4000, // 40% = 4.000.000. Impian 40% = 1.600.000/bln
+          }),
+        },
+        savingsGoal: {
+          findMany: jest.fn().mockResolvedValue([
+            {
+              id: 104,
+              userId: 1,
+              name: 'Motor Keeway Benda',
+              type: 'PURCHASE',
+              targetAmount: BigInt('80000000'),
+              priceReference: BigInt('80000000'),
+              targetMonths: 24, // Pengguna menginput 24 bulan
+              annualPriceIncreaseRatio: 500, // 5% inflasi tahunan
+              shares: [{ shareRatio: 10000 }], // 100% dari 1.6M = 1.6M/bln
+            },
+          ]),
+        },
+        allocationEvent: {
+          aggregate: jest
+            .fn()
+            .mockResolvedValueOnce({ _sum: { amount: BigInt('0') } })
+            .mockResolvedValueOnce({ _sum: { amount: BigInt('0') } }),
+        },
+      } as any;
+
+      const service = new SavingsGoalsService(prisma);
+      const forecasts = (await service.getForecasts(1)) as any[];
+
+      expect(forecasts).toHaveLength(1);
+      const f = forecasts[0];
+      expect(f.targetMonths).toBe(24);
+      expect(f.hasUserTargetMonths).toBe(true);
+      expect(f.userTargetMonths).toBe(24);
+      // Harga berinflasi 24 bulan ~88.384.884, dibagi 24 ~3.682.704
+      expect(Number(f.requiredMonthlySavings)).toBeGreaterThan(3600000);
+      expect(Number(f.requiredMonthlySavings)).toBeLessThan(3700000);
+      // Alokasi saat ini adalah 1.600.000
+      expect(f.estimatedMonthlySavings).toBe('1600000');
+      // Shortfall ~2.082.704
+      expect(Number(f.monthlyShortfall)).toBeGreaterThan(2000000);
+      // Kecepatan tabungan berjalan (jika hanya 1.6M/bln) adalah ~66 bulan
+      expect(f.estimatedMonthsWithCurrentSavings).toBe(66);
+      expect(f.topUpSuggestion).not.toBeNull();
+      expect(f.topUpSuggestion.newTargetMonths).toBe(24);
+    });
   });
 });
 

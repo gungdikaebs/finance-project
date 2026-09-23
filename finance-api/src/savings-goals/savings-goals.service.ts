@@ -463,6 +463,11 @@ export class SavingsGoalsService {
             targetDate: null,
             targetDateFormatted: null,
             projectedPrice: '0',
+            hasUserTargetMonths: !!(g.targetMonths && g.targetMonths > 0),
+            userTargetMonths: g.targetMonths || null,
+            requiredMonthlySavings: null,
+            monthlyShortfall: null,
+            estimatedMonthsWithCurrentSavings: null,
             topUpSuggestion: null,
             milestone,
           };
@@ -488,6 +493,11 @@ export class SavingsGoalsService {
             targetDate,
             targetDateFormatted,
             projectedPrice: targetPriceBig.toString(),
+            hasUserTargetMonths: !!(g.targetMonths && g.targetMonths > 0),
+            userTargetMonths: g.targetMonths || null,
+            requiredMonthlySavings: '0',
+            monthlyShortfall: '0',
+            estimatedMonthsWithCurrentSavings: 0,
             topUpSuggestion: null,
             milestone: {
               ...milestone,
@@ -497,7 +507,85 @@ export class SavingsGoalsService {
           };
         }
 
-        // Jika tabungan bulanan bernilai 0 (tidak ada pemasukan / share 0)
+        // SKENARIO 1: Pengguna secara eksplisit menginput target waktu (targetMonths > 0)
+        if (g.targetMonths && g.targetMonths > 0) {
+          const userTargetMonths = g.targetMonths;
+          const factorUser = Math.pow(1 + iMonthly, userTargetMonths);
+          const projectedPriceAtTarget = BigInt(
+            Math.round(targetPriceNum * factorUser),
+          );
+          const deficit =
+            projectedPriceAtTarget > balance
+              ? projectedPriceAtTarget - balance
+              : BigInt(0);
+          const reqMonthlyNum = Math.ceil(
+            Number(deficit) / userTargetMonths,
+          );
+          const requiredMonthlySavings = BigInt(reqMonthlyNum);
+
+          // Hitung juga estimasi bulan jika terus menabung sesuai alokasi riil saat ini (sMonthly)
+          let currentPaceMonths: number | null = null;
+          if (sMonthly > BigInt(0)) {
+            for (let m = 1; m <= 600; m++) {
+              const factor = Math.pow(1 + iMonthly, m);
+              const pM = BigInt(Math.round(targetPriceNum * factor));
+              const aM = balance + sMonthly * BigInt(m);
+              if (aM >= pM) {
+                currentPaceMonths = m;
+                break;
+              }
+            }
+          }
+
+          const { targetDate, targetDateFormatted } =
+            this.formatTargetMonth(userTargetMonths);
+
+          let topUpSuggestion: TopUpSuggestionDto | null = null;
+          let monthlyShortfall = '0';
+
+          if (requiredMonthlySavings > sMonthly) {
+            let deltaS = requiredMonthlySavings - sMonthly;
+            monthlyShortfall = deltaS.toString();
+            deltaS = ((deltaS + BigInt(9999)) / BigInt(10000)) * BigInt(10000);
+
+            topUpSuggestion = {
+              extraMonthlySavings: deltaS.toString(),
+              monthsSaved: currentPaceMonths
+                ? Math.max(0, currentPaceMonths - userTargetMonths)
+                : 0,
+              newTargetMonths: userTargetMonths,
+              newTargetDateFormatted: targetDateFormatted,
+            };
+          }
+
+          return {
+            goalId: g.id,
+            goalName: g.name,
+            mode: g.mode,
+            currentBalance: balance.toString(),
+            targetPrice: targetPriceBig.toString(),
+            estimatedMonthlySavings: sMonthly.toString(),
+            averageMonthlyIncome: avgMonthlyIncome.toString(),
+            savingsRatioBps,
+            shareRatioBps,
+            inflationRateBps,
+            isAchieved: false,
+            isUnachievable: false,
+            targetMonths: userTargetMonths,
+            targetDate,
+            targetDateFormatted,
+            projectedPrice: projectedPriceAtTarget.toString(),
+            hasUserTargetMonths: true,
+            userTargetMonths,
+            requiredMonthlySavings: requiredMonthlySavings.toString(),
+            monthlyShortfall,
+            estimatedMonthsWithCurrentSavings: currentPaceMonths,
+            topUpSuggestion,
+            milestone,
+          };
+        }
+
+        // SKENARIO 2: Pengguna TIDAK menginput target waktu (dihitung otomatis dari alokasi tabungan riil sMonthly)
         if (sMonthly === BigInt(0)) {
           return {
             goalId: g.id,
@@ -519,6 +607,11 @@ export class SavingsGoalsService {
             targetDate: null,
             targetDateFormatted: null,
             projectedPrice: targetPriceBig.toString(),
+            hasUserTargetMonths: false,
+            userTargetMonths: null,
+            requiredMonthlySavings: null,
+            monthlyShortfall: null,
+            estimatedMonthsWithCurrentSavings: null,
             topUpSuggestion: null,
             milestone,
           };
@@ -552,6 +645,11 @@ export class SavingsGoalsService {
             targetDate: null,
             targetDateFormatted: null,
             projectedPrice: targetPriceBig.toString(),
+            hasUserTargetMonths: false,
+            userTargetMonths: null,
+            requiredMonthlySavings: null,
+            monthlyShortfall: null,
+            estimatedMonthsWithCurrentSavings: null,
             topUpSuggestion: {
               extraMonthlySavings: cleanExtra.toString(),
               monthsSaved: 0,
@@ -579,6 +677,18 @@ export class SavingsGoalsService {
         }
 
         if (!targetM) {
+          const mHorizon = 120;
+          const factorH = Math.pow(1 + iMonthly, mHorizon);
+          const pH = BigInt(Math.round(targetPriceNum * factorH));
+          const deficitH = pH > balance ? pH - balance : BigInt(0);
+          const requiredH =
+            (deficitH + BigInt(mHorizon - 1)) / BigInt(mHorizon);
+          const extraH =
+            requiredH > sMonthly ? requiredH - sMonthly : BigInt(50000);
+          const cleanExtraH =
+            ((extraH + BigInt(9999)) / BigInt(10000)) * BigInt(10000);
+          const hFormatted = this.formatTargetMonth(mHorizon);
+
           return {
             goalId: g.id,
             goalName: g.name,
@@ -592,14 +702,24 @@ export class SavingsGoalsService {
             inflationRateBps,
             isAchieved: false,
             isUnachievable: true,
-            unachievableReason: 'HORIZON_EXCEEDED',
+            unachievableReason: 'INFLATION_OUTPACING',
             unachievableMessage:
-              'Target belum tercapai dalam simulasi 50 tahun (600 bulan).',
+              'Pertumbuhan tabungan saat ini kalah cepat dari kenaikan harga akibat inflasi tahunan.',
             targetMonths: null,
             targetDate: null,
             targetDateFormatted: null,
             projectedPrice: targetPriceBig.toString(),
-            topUpSuggestion: null,
+            hasUserTargetMonths: false,
+            userTargetMonths: null,
+            requiredMonthlySavings: requiredH.toString(),
+            monthlyShortfall: cleanExtraH.toString(),
+            estimatedMonthsWithCurrentSavings: null,
+            topUpSuggestion: {
+              extraMonthlySavings: cleanExtraH.toString(),
+              monthsSaved: 0,
+              newTargetMonths: mHorizon,
+              newTargetDateFormatted: hFormatted.targetDateFormatted,
+            },
             milestone,
           };
         }
@@ -650,6 +770,11 @@ export class SavingsGoalsService {
           targetDate,
           targetDateFormatted,
           projectedPrice: finalProjectedPrice.toString(),
+          hasUserTargetMonths: false,
+          userTargetMonths: null,
+          requiredMonthlySavings: null,
+          monthlyShortfall: null,
+          estimatedMonthsWithCurrentSavings: targetM,
           topUpSuggestion,
           milestone,
         };

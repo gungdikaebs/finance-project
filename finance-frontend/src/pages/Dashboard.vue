@@ -49,6 +49,7 @@ import MonthEndReviewModal from '../components/modals/MonthEndReviewModal.vue';
 import SaveModal from '../components/modals/SaveModal.vue';
 import ReleaseModal from '../components/modals/ReleaseModal.vue';
 import AddGoalModal from '../components/modals/AddGoalModal.vue';
+import EditGoalModal from '../components/modals/EditGoalModal.vue';
 import GoalSharesModal from '../components/modals/GoalSharesModal.vue';
 import SimulationModal from '../components/modals/SimulationModal.vue';
 import OnboardingWizardModal from '../components/modals/OnboardingWizardModal.vue';
@@ -102,6 +103,8 @@ const showSaveModal = ref(false);
 const showReleaseModal = ref(false);
 const releaseGoalId = ref<number | null>(null);
 const showAddGoalModal = ref(false);
+const showEditGoalModal = ref(false);
+const editingGoal = ref<SavingsGoal | null>(null);
 const showSharesModal = ref(false);
 const showSimModal = ref(false);
 const simInitialGoal = ref<SavingsGoal | null>(null);
@@ -234,6 +237,11 @@ const openSimulator = (goal?: SavingsGoal) => {
   simInitialGoal.value = goal || null;
   simInitialMonthly.value = null;
   showSimModal.value = true;
+};
+
+const openEditGoal = (goal: SavingsGoal) => {
+  editingGoal.value = goal;
+  showEditGoalModal.value = true;
 };
 
 const handleOpenSimulatorWithTopUp = (payload: { goal: SavingsGoal; recommendedMonthly: string }) => {
@@ -495,6 +503,7 @@ onUnmounted(() => {
             :forecasts="goalForecasts"
             @open-shares-modal="showSharesModal = true"
             @open-add-goal-modal="showAddGoalModal = true"
+            @open-edit-goal-modal="openEditGoal"
             @open-release-modal="openReleaseModal"
             @open-simulator-with-goal="openSimulator"
             @open-simulator-with-top-up="handleOpenSimulatorWithTopUp"
@@ -636,6 +645,13 @@ onUnmounted(() => {
     <AddGoalModal
       :show="showAddGoalModal"
       @close="showAddGoalModal = false"
+      @saved="loadAllData"
+    />
+
+    <EditGoalModal
+      :show="showEditGoalModal"
+      :goal="editingGoal"
+      @close="showEditGoalModal = false"
       @saved="loadAllData"
     />
 
