@@ -20,6 +20,7 @@ import {
   Pencil,
   Archive,
   Check,
+  Info,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -411,8 +412,11 @@ const handleArchive = async (wallet: WalletAccount) => {
 
         <!-- TAB 2: TAMBAH DOMPET BARU -->
         <div v-else class="space-y-4">
-          <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed">
-            💡 <strong>Catatan:</strong> Dompet baru dibuat dengan saldo <strong>Rp 0</strong>. Untuk mengisi saldo dompet baru, gunakan fitur <strong>Transfer Antar Dompet</strong> dari dompet utama yang sudah memiliki saldo, atau catat pemasukan baru ke dompet ini.
+          <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed flex items-start gap-2.5">
+            <Info class="w-4 h-4 shrink-0 mt-0.5 text-emerald-700 dark:text-emerald-400" :stroke-width="2" />
+            <div>
+              <strong>Catatan:</strong> Dompet baru dibuat dengan saldo <strong>Rp 0</strong>. Untuk mengisi saldo dompet baru, gunakan fitur <strong>Transfer Antar Dompet</strong> dari dompet utama yang sudah memiliki saldo, atau catat pemasukan baru ke dompet ini.
+            </div>
           </div>
 
           <div>

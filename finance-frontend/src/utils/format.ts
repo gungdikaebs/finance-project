@@ -8,6 +8,14 @@ export const formatRupiah = (val?: string | number | bigint | null): string => {
   return (isNeg ? '- Rp ' : 'Rp ') + clean.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
+export const formatPercentageShare = (part: string | bigint, total: bigint): string => {
+  if (total <= 0n) return '0%';
+  const tenths = (BigInt(part) * 1000n + total / 2n) / total;
+  const whole = tenths / 10n;
+  const decimal = tenths % 10n;
+  return decimal === 0n ? `${whole}%` : `${whole},${decimal}%`;
+};
+
 export const formatDate = (dateStr?: string | null): string => {
   if (!dateStr) return '-';
   const d = new Date(dateStr);

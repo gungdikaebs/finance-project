@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { formatRupiah } from '../utils/format';
 import type { ReportSummary, AllocationStatus, WalletAccount } from '../api/services';
 import {
@@ -13,13 +14,16 @@ import {
   TrendingUp,
   ArrowRightLeft,
   SlidersHorizontal,
+  ChevronDown,
 } from 'lucide-vue-next';
 
-defineProps<{
+const props = defineProps<{
   summary?: ReportSummary | null;
   allocationStatus?: AllocationStatus | null;
   wallets?: WalletAccount[];
 }>();
+
+const hasAllocationShortfall = computed(() => Number(props.summary?.unallocatedMoney ?? 0) < 0);
 
 const emit = defineEmits<{
   (e: 'openIncome'): void;
@@ -53,97 +57,77 @@ const getWalletIcon = (type: string) => {
     <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-[#B8DF38]/10 blur-3xl pointer-events-none"></div>
     <div class="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
 
-    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    <div class="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
       <!-- Balance Info -->
-      <div class="space-y-4">
+      <div class="space-y-5 min-w-0 flex-1">
         <div>
-          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-white/10 text-emerald-200 border border-white/10">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#B8DF38] animate-pulse"></span>
-              Saldo Utama Aktual
-            </span>
-            <span class="text-[10px] text-emerald-200/60 font-medium">= Total gabungan seluruh wadah fisik</span>
-          </div>
-          <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight tabular-nums">
-            {{ formatRupiah(summary?.mainBalance) }}
-          </div>
-          <p class="text-xs text-emerald-100/70 mt-1 max-w-md font-normal leading-relaxed">
-            Total uang riil aktual tanpa memandang lokasi fisik rekening atau dompet tunai.
+          <h2 class="text-sm font-semibold text-emerald-100">{{ hasAllocationShortfall ? 'Alokasi melebihi saldo' : 'Uang yang bisa dipakai' }}</h2>
+          <p class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight tabular-nums mt-1" :class="hasAllocationShortfall ? 'text-amber-200' : 'text-[#B8DF38]'">
+            {{ formatRupiah(summary?.unallocatedMoney) }}
+          </p>
+          <p class="text-xs text-emerald-100/80 mt-2 max-w-md leading-relaxed">
+            {{ hasAllocationShortfall ? 'Dana yang disisihkan lebih besar dari saldo total. Tinjau kembali alokasi tabungan Anda.' : 'Bagian saldo yang belum disisihkan untuk tabungan atau tujuan lain.' }}
           </p>
         </div>
 
-        <!-- 3-Metric Distribution Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-white/15 max-w-xl">
-          <div class="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <span class="text-[11px] font-medium text-emerald-200/80 block">Uang Belum Disisihkan</span>
-            <span class="text-base sm:text-lg font-black text-[#B8DF38] tabular-nums block mt-0.5">
-              {{ formatRupiah(summary?.unallocatedMoney) }}
-            </span>
-            <span class="text-[10px] text-emerald-100/60 font-medium">Bebas digunakan</span>
-          </div>
-
-          <div class="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <span class="text-[11px] font-medium text-emerald-200/80 block">Dana Tersisih (Tabungan)</span>
-            <span class="text-base sm:text-lg font-black text-white tabular-nums block mt-0.5">
-              {{ formatRupiah(summary?.totalAllocatedSavings || allocationStatus?.totalAllocated) }}
-            </span>
-            <span class="text-[10px] text-emerald-100/60 font-medium">Darurat + impian</span>
-          </div>
-
-          <div class="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <span class="text-[11px] font-medium text-emerald-200/80 block">Saldo Awal Terdaftar</span>
-            <span class="text-base sm:text-lg font-bold text-stone-200 tabular-nums block mt-0.5">
-              {{ formatRupiah(summary?.initialBalance) }}
-            </span>
-            <span class="text-[10px] text-emerald-100/60 font-medium">Basis modal awal</span>
-          </div>
-        </div>
-
-        <!-- Physical Wallets Breakdown Strip (Modul 6) -->
-        <div v-if="wallets && wallets.length > 0" class="pt-3 border-t border-white/10 max-w-xl">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-[11px] font-bold text-emerald-200/90 flex items-center gap-1.5">
-              <Wallet class="w-3.5 h-3.5 text-[#B8DF38]" />
-              Wadah Fisik ({{ wallets.length }})
-            </span>
-
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                @click="emit('openTransfer')"
-                class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer"
-              >
-                <ArrowRightLeft class="w-3 h-3 text-[#B8DF38]" />
-                <span>Pindah Dana</span>
-              </button>
-
-              <button
-                type="button"
-                @click="emit('openWallets')"
-                class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer"
-              >
-                <SlidersHorizontal class="w-3 h-3 text-emerald-300" />
-                <span>Kelola</span>
-              </button>
+        <div class="max-w-xl border-t border-white/15 pt-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <span class="text-[11px] text-emerald-100/75 block">Saldo total rekening & dompet</span>
+              <span class="text-base sm:text-lg font-bold text-white tabular-nums block mt-0.5">
+                {{ formatRupiah(summary?.mainBalance) }}
+              </span>
+            </div>
+            <div>
+              <span class="text-[11px] text-emerald-100/75 block">Disisihkan untuk tabungan</span>
+              <span class="text-base sm:text-lg font-bold text-white tabular-nums block mt-0.5">
+                {{ formatRupiah(summary?.totalAllocatedSavings ?? allocationStatus?.totalAllocated) }}
+              </span>
             </div>
           </div>
+          <p class="text-xs text-emerald-100/85 leading-relaxed mt-3">
+            Saldo total dikurangi dana yang disisihkan = {{ hasAllocationShortfall ? 'selisih alokasi yang perlu diperbaiki' : 'uang yang bisa dipakai' }}. Menyisihkan hanya menandai tujuan uang; uangnya tetap di rekening atau dompet semula.
+          </p>
+        </div>
 
-          <!-- Horizontal Scrollable Wallet Badges -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-1">
-            <div
-              v-for="w in wallets"
-              :key="w.id"
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 shrink-0 hover:bg-white/10 transition-colors"
-            >
-              <component
-                :is="getWalletIcon(w.type)"
-                class="w-3.5 h-3.5 text-[#B8DF38]"
-              />
-              <span class="text-xs font-semibold text-stone-200">{{ w.name }}</span>
-              <span class="text-xs font-black text-white tabular-nums">{{ formatRupiah(w.balance) }}</span>
+        <details class="group max-w-xl border-t border-white/15 pt-3">
+          <summary class="flex items-center justify-between gap-2 text-xs font-semibold text-emerald-100 cursor-pointer list-none rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8DF38]">
+            <span>Rincian rekening dan saldo awal</span>
+            <ChevronDown class="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div class="pt-4 space-y-4">
+            <div>
+              <span class="text-[11px] text-emerald-100/75 block">Saldo saat mulai menggunakan aplikasi</span>
+              <span class="text-sm font-semibold text-white tabular-nums block mt-0.5">{{ formatRupiah(summary?.initialBalance) }}</span>
+              <p class="text-[11px] text-emerald-100/70 mt-1">Angka awal ini sudah termasuk dalam saldo total, bukan uang tambahan.</p>
+            </div>
+            <div v-if="wallets && wallets.length > 0" class="border-t border-white/10 pt-3">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-[11px] font-bold text-emerald-100 flex items-center gap-1.5">
+                  <Wallet class="w-3.5 h-3.5 text-[#B8DF38]" />
+                  Rekening & dompet ({{ wallets.length }})
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" @click="emit('openTransfer')" class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer">
+                    <ArrowRightLeft class="w-3 h-3 text-[#B8DF38]" />
+                    <span>Pindah Dana</span>
+                  </button>
+                  <button type="button" @click="emit('openWallets')" class="tactile-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-emerald-100 border border-white/15 cursor-pointer">
+                    <SlidersHorizontal class="w-3 h-3 text-emerald-300" />
+                    <span>Kelola</span>
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                <div v-for="w in wallets" :key="w.id" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 shrink-0">
+                  <component :is="getWalletIcon(w.type)" class="w-3.5 h-3.5 text-[#B8DF38]" />
+                  <span class="text-xs font-semibold text-stone-200">{{ w.name }}</span>
+                  <span class="text-xs font-black text-white tabular-nums">{{ formatRupiah(w.balance) }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <!-- Quick Action Buttons -->

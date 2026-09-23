@@ -227,8 +227,8 @@ const { isDark, toggleTheme } = useTheme();
             {{ (userName || userEmail || 'U').charAt(0).toUpperCase() }}
           </div>
           <div class="min-w-0">
-            <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] truncate">{{ userName || 'Pengguna' }}</p>
-            <p class="text-[10px] text-[#18221B]/50 dark:text-[#98A79D] truncate">{{ userEmail || 'Fintech User' }}</p>
+            <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] truncate">{{ userName || 'Memuat akun…' }}</p>
+            <p v-if="userEmail" class="text-[10px] text-[#18221B]/50 dark:text-[#98A79D] truncate">{{ userEmail }}</p>
           </div>
         </div>
 

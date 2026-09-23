@@ -125,7 +125,7 @@ const handleSave = async () => {
             <h3 id="budget-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
               Kebijakan Anggaran ({{ currentMonth }}/{{ currentYear }})
             </h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Pengaturan rasio 50/30/20 & override per sumber</span>
+            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Atur porsi kebutuhan, tabungan, dan keinginan</span>
           </div>
         </div>
 

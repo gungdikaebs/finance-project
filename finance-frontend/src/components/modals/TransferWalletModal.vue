@@ -16,6 +16,7 @@ import {
   ArrowRightLeft,
   Check,
   AlertCircle,
+  Info,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -203,7 +204,7 @@ const handleTransfer = async () => {
       <div class="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
         <!-- Callout Penjelasan Finansial D-003 -->
         <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed flex items-start gap-2.5">
-          <span class="text-base leading-none">💡</span>
+          <Info class="w-4 h-4 shrink-0 mt-0.5 text-emerald-700 dark:text-emerald-400" :stroke-width="2" />
           <div>
             Pemindahan ini <strong>murni memindahkan saldo fisik</strong> antar rekening atau e-wallet. Tindakan ini <strong>TIDAK</strong> dihitung sebagai pengeluaran maupun pemasukan, serta <strong>Total Saldo Utama tetap utuh</strong>.
           </div>
@@ -219,14 +220,14 @@ const handleTransfer = async () => {
               </label>
               <span
                 v-if="selectedSourceWallet"
-                class="text-xs font-bold text-[#183D2B] tabular-nums"
+                class="text-xs font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums"
               >
                 Sisa: {{ formatRupiah(selectedSourceWallet.balance) }}
               </span>
             </div>
             <select
               v-model="sourceWalletId"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.source }"
             >
               <option :value="null" disabled>Pilih dompet asal pemindahan...</option>
@@ -238,7 +239,7 @@ const handleTransfer = async () => {
                 {{ w.name }} ({{ formatRupiah(w.balance) }})
               </option>
             </select>
-            <p v-if="fieldErrors.source" class="text-xs text-rose-600 mt-1 font-semibold">
+            <p v-if="fieldErrors.source" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
               {{ fieldErrors.source }}
             </p>
           </div>
@@ -249,7 +250,7 @@ const handleTransfer = async () => {
               type="button"
               @click="handleSwap"
               title="Tukar posisi asal dan tujuan"
-              class="w-8 h-8 rounded-full bg-white border border-stone-300 shadow-xs flex items-center justify-center text-stone-600 hover:text-[#183D2B] hover:border-[#183D2B] tactile-btn transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-full bg-white dark:bg-[#16201A] border border-stone-300 dark:border-[#243329] shadow-xs flex items-center justify-center text-stone-600 dark:text-[#98A79D] hover:text-[#183D2B] dark:hover:text-[#B8DF38] hover:border-[#183D2B] dark:hover:border-[#B8DF38] tactile-btn transition-colors cursor-pointer"
             >
               <ArrowRightLeft class="w-3.5 h-3.5 rotate-90 sm:rotate-0" />
             </button>
@@ -258,19 +259,19 @@ const handleTransfer = async () => {
           <!-- Dompet Tujuan -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs font-bold text-[#18221B]">
+              <label class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
                 Ke Dompet (Tujuan) <span class="text-rose-500">*</span>
               </label>
               <span
                 v-if="selectedTargetWallet"
-                class="text-xs font-bold text-stone-600 tabular-nums"
+                class="text-xs font-bold text-stone-600 dark:text-[#98A79D] tabular-nums"
               >
                 Saldo saat ini: {{ formatRupiah(selectedTargetWallet.balance) }}
               </span>
             </div>
             <select
               v-model="targetWalletId"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-[#183D2B]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.target }"
             >
               <option :value="null" disabled>Pilih dompet tujuan...</option>
@@ -282,7 +283,7 @@ const handleTransfer = async () => {
                 {{ w.name }} ({{ formatRupiah(w.balance) }})
               </option>
             </select>
-            <p v-if="fieldErrors.target" class="text-xs text-rose-600 mt-1 font-semibold">
+            <p v-if="fieldErrors.target" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
               {{ fieldErrors.target }}
             </p>
           </div>
@@ -290,11 +291,11 @@ const handleTransfer = async () => {
 
         <!-- Nominal Transfer -->
         <div>
-          <label class="block text-xs font-bold text-[#18221B] mb-1.5">
+          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
             Nominal Pindah Dana (Rp) <span class="text-rose-500">*</span>
           </label>
           <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-extrabold text-sm text-stone-400">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-extrabold text-sm text-stone-400 dark:text-[#98A79D]">
               Rp
             </span>
             <input
@@ -302,17 +303,17 @@ const handleTransfer = async () => {
               :value="amount"
               @input="handleAmountInput"
               placeholder="0"
-              class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-stone-300 text-base font-extrabold text-[#18221B] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#183D2B] focus:border-transparent transition-all"
+              class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] bg-white dark:bg-[#0E1410] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] transition-all"
               :class="{
                 'border-rose-400 focus:ring-rose-200': fieldErrors.amount || isSourceBalanceInsufficient,
               }"
             />
           </div>
-          <p v-if="isSourceBalanceInsufficient" class="text-xs text-rose-600 mt-1 font-semibold flex items-center gap-1">
+          <p v-if="isSourceBalanceInsufficient" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold flex items-center gap-1">
             <AlertCircle class="w-3.5 h-3.5" />
             <span>Nominal melebihi saldo dompet asal ({{ formatRupiah(selectedSourceWallet?.balance) }})</span>
           </p>
-          <p v-else-if="fieldErrors.amount" class="text-xs text-rose-600 mt-1 font-semibold">
+          <p v-else-if="fieldErrors.amount" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
             {{ fieldErrors.amount }}
           </p>
         </div>
@@ -320,25 +321,25 @@ const handleTransfer = async () => {
         <!-- Tanggal & Catatan -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-[#18221B] mb-1.5">
+            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
               Tanggal Transfer
             </label>
             <input
               type="date"
               v-model="date"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#183D2B]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-[#18221B] mb-1.5">
+            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
               Catatan / Keterangan (Opsional)
             </label>
             <input
               type="text"
               v-model="note"
               placeholder="misal: Top up GoPay jajan"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#183D2B]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-medium bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] placeholder:text-stone-400 dark:placeholder:text-[#5E6961] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
             />
           </div>
         </div>
@@ -346,12 +347,12 @@ const handleTransfer = async () => {
 
       <!-- Modal Footer (shrink-0) -->
       <div
-        class="shrink-0 p-4 border-t border-stone-100 bg-stone-50/80 flex items-center justify-end gap-2.5"
+        class="shrink-0 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#16201A] flex items-center justify-end gap-2.5"
       >
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-200/70 transition-colors cursor-pointer"
+          class="tactile-btn px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 dark:text-[#98A79D] hover:bg-stone-200/70 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] transition-colors cursor-pointer"
         >
           Batal
         </button>
@@ -360,9 +361,9 @@ const handleTransfer = async () => {
           type="button"
           :disabled="isSubmitting || isSourceBalanceInsufficient || !amount || amount === '0'"
           @click="handleTransfer"
-          class="tactile-btn inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#183D2B] text-white hover:bg-[#122e20] shadow-sm transition-all cursor-pointer disabled:opacity-50"
+          class="tactile-btn inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-[#122e20] dark:hover:bg-[#a3c82e] shadow-sm transition-all cursor-pointer disabled:opacity-50"
         >
-          <Check class="w-4 h-4 text-[#B8DF38]" :stroke-width="2.5" />
+          <Check class="w-4 h-4 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2.5" />
           <span>{{ isSubmitting ? 'Memproses...' : 'Proses Pindah Dana' }}</span>
         </button>
       </div>

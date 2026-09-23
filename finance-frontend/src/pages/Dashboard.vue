@@ -332,6 +332,16 @@ onMounted(() => {
     router.push('/');
     return;
   }
+  if (!auth.user) {
+    auth.fetchUser().catch((err) => {
+      if (err.response?.status === 401) {
+        auth.logout();
+        router.push('/');
+      } else {
+        toast.error('Identitas akun belum dapat dimuat. Coba buka ulang halaman.');
+      }
+    });
+  }
   loadAllData();
 
   // Scroll spy setup
@@ -417,17 +427,13 @@ onUnmounted(() => {
         <div class="bg-[#183D2B] rounded-2xl p-6 sm:p-8 shadow-sm">
           <div class="h-4 w-36 bg-white/20 rounded mb-4"></div>
           <div class="h-10 w-64 bg-white/30 rounded mb-6"></div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
+          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
             <div class="space-y-2">
-              <div class="h-3 w-20 bg-white/20 rounded"></div>
-              <div class="h-5 w-28 bg-[#B8DF38]/40 rounded"></div>
+              <div class="h-3 w-28 bg-white/20 rounded"></div>
+              <div class="h-5 w-24 bg-white/20 rounded"></div>
             </div>
             <div class="space-y-2">
-              <div class="h-3 w-20 bg-white/20 rounded"></div>
-              <div class="h-5 w-28 bg-white/20 rounded"></div>
-            </div>
-            <div class="space-y-2">
-              <div class="h-3 w-20 bg-white/20 rounded"></div>
+              <div class="h-3 w-28 bg-white/20 rounded"></div>
               <div class="h-5 w-28 bg-white/20 rounded"></div>
             </div>
           </div>
@@ -518,6 +524,7 @@ onUnmounted(() => {
           <BudgetSection
             :monthly-report="monthlyReport"
             :active-policy="activePolicy"
+            :allocated-savings-this-month="analytics?.budgetVsActual.savings.allocated"
             :current-month="currentMonth"
             :current-year="currentYear"
             :progress-needs="progressNeeds"

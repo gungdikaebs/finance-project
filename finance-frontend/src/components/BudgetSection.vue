@@ -1,16 +1,45 @@
 <script setup lang="ts">
-import { formatRupiah } from '../utils/format';
+import { computed } from 'vue';
+import { formatPercentageShare, formatRupiah } from '../utils/format';
 import type { MonthlyReport, BudgetPolicy } from '../api/services';
 import { SlidersHorizontal, Info, PieChart, ShieldCheck } from 'lucide-vue-next';
 
-defineProps<{
+const props = defineProps<{
   monthlyReport?: MonthlyReport | null;
   activePolicy?: BudgetPolicy | null;
+  allocatedSavingsThisMonth?: string | null;
   currentMonth: number;
   currentYear: number;
   progressNeeds: number;
   progressWants: number;
 }>();
+
+const savingsTarget = computed(() => BigInt(props.monthlyReport?.budgetSavings || '0'));
+const savingsAllocated = computed(() => BigInt(props.allocatedSavingsThisMonth || '0'));
+const savingsRemaining = computed(() =>
+  savingsTarget.value > savingsAllocated.value
+    ? savingsTarget.value - savingsAllocated.value
+    : 0n
+);
+const monthlyBudgetTotal = computed(() =>
+  BigInt(props.monthlyReport?.budgetNeeds || '0') +
+  BigInt(props.monthlyReport?.budgetSavings || '0') +
+  BigInt(props.monthlyReport?.budgetWants || '0')
+);
+const budgetShares = computed(() => {
+  if (monthlyBudgetTotal.value > 0n) {
+    return {
+      needs: formatPercentageShare(props.monthlyReport?.budgetNeeds || '0', monthlyBudgetTotal.value),
+      savings: formatPercentageShare(props.monthlyReport?.budgetSavings || '0', monthlyBudgetTotal.value),
+      wants: formatPercentageShare(props.monthlyReport?.budgetWants || '0', monthlyBudgetTotal.value),
+    };
+  }
+  return {
+    needs: `${(props.activePolicy?.needsRatio ?? 5000) / 100}%`,
+    savings: `${(props.activePolicy?.savingsRatio ?? 3000) / 100}%`,
+    wants: `${(props.activePolicy?.wantsRatio ?? 2000) / 100}%`,
+  };
+});
 
 const emit = defineEmits<{
   (e: 'openBudgetPolicyModal'): void;
@@ -29,11 +58,10 @@ const emit = defineEmits<{
           <h2 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] tracking-tight">Alokasi Anggaran Bulanan</h2>
         </div>
         <p class="text-xs text-stone-500 dark:text-[#98A79D] mt-1 font-normal">
-          Distribusi pengeluaran berdasarkan aturan
+          {{ monthlyBudgetTotal > 0n ? 'Porsi anggaran dari pemasukan bulan ini:' : 'Rasio umum:' }}
           <span class="font-bold text-[#183D2B] dark:text-[#B8DF38]">
-            {{ ((activePolicy?.needsRatio || 5000) / 100).toFixed(0) }}/{{ ((activePolicy?.wantsRatio || 3000) / 100).toFixed(0) }}/{{ ((activePolicy?.savingsRatio || 2000) / 100).toFixed(0) }}
+            {{ budgetShares.needs }} Kebutuhan · {{ budgetShares.savings }} Tabungan · {{ budgetShares.wants }} Keinginan
           </span>
-          untuk bulan terpilih.
         </p>
       </div>
 
@@ -66,7 +94,7 @@ const emit = defineEmits<{
     </div>
 
     <!-- 3-Column Budget Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3.5 pt-1">
       <!-- Kebutuhan (Need) -->
       <div class="p-4 rounded-xl border border-stone-200/70 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] space-y-3">
         <div class="flex items-center justify-between">
@@ -137,26 +165,38 @@ const emit = defineEmits<{
         <p class="text-[10px] text-stone-500 dark:text-[#98A79D] text-right font-semibold tabular-nums">{{ progressWants }}% terpakai</p>
       </div>
 
-      <!-- Tabungan Terbentuk (Savings) -->
+      <!-- Target dan realisasi tabungan bulan ini -->
       <div class="p-4 rounded-xl border border-emerald-900/10 dark:border-[#243329] bg-[#183D2B]/5 dark:bg-[#132E21]/30 space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-[#183D2B] dark:text-[#B8DF38] flex items-center gap-1">
             <ShieldCheck class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" :stroke-width="2" />
-            <span>Tabungan Terbentuk</span>
+            <span>Tabungan Bulan Ini</span>
           </span>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#183D2B]/10 dark:bg-[#B8DF38]/15 text-[#183D2B] dark:text-[#B8DF38]">
-            Otomatis
+            Rencana
           </span>
         </div>
 
-        <div class="flex items-baseline justify-between">
+        <div>
+          <p class="text-[11px] text-[#5E6961] dark:text-[#98A79D]">Target dari pemasukan bulan ini</p>
           <span class="font-black text-[#183D2B] dark:text-[#B8DF38] text-base sm:text-lg tabular-nums">
-            {{ formatRupiah(monthlyReport?.budgetSavings) }}
+            {{ formatRupiah(savingsTarget) }}
           </span>
+        </div>
+
+        <div class="border-t border-emerald-900/10 dark:border-[#243329] pt-2 space-y-1 text-[11px]">
+          <div class="flex items-baseline justify-between gap-2">
+            <span class="text-[#5E6961] dark:text-[#98A79D]">Sudah disisihkan bulan ini</span>
+            <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(savingsAllocated) }}</span>
+          </div>
+          <div v-if="savingsTarget > 0n" class="flex items-baseline justify-between gap-2">
+            <span class="text-[#5E6961] dark:text-[#98A79D]">{{ savingsRemaining > 0n ? 'Masih perlu disisihkan' : 'Target bulan ini tercapai' }}</span>
+            <span v-if="savingsRemaining > 0n" class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(savingsRemaining) }}</span>
+          </div>
         </div>
 
         <p class="text-[11px] text-[#5E6961] dark:text-[#98A79D] leading-relaxed font-normal">
-          Porsi tabungan dari pemasukan yang siap disisihkan ke Dana Pengaman dan Target Impian.
+          Penyisihan perlu dilakukan lewat “Sisihkan ke Tabungan”. Realisasi sudah dikurangi dana yang dilepas bulan ini.
         </p>
       </div>
     </div>

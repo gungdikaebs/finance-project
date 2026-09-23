@@ -31,7 +31,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Request() req) {
-    return req.user;
+    return this.authService.getCurrentUser(req.user.sub ?? req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -40,4 +40,3 @@ export class AuthController {
     return this.authService.verifyPassword(req.user.sub ?? req.user.id, dto.password);
   }
 }
-

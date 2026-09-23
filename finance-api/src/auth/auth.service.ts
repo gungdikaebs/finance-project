@@ -188,6 +188,19 @@ export class AuthService {
         return { token };
     }
 
+    async getCurrentUser(userId: number) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, name: true, email: true },
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Pengguna tidak ditemukan');
+        }
+
+        return user;
+    }
+
     async verifyPassword(userId: number, passwordInput: string) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
@@ -205,4 +218,3 @@ export class AuthService {
         return { valid: true };
     }
 }
-

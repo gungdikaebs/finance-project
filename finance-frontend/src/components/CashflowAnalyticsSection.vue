@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { formatRupiah } from '../utils/format';
+import { formatPercentageShare, formatRupiah } from '../utils/format';
 import type { MonthlyAnalyticsData } from '../api/services';
 import { useTheme } from '../composables/useTheme';
 import {
@@ -226,6 +226,17 @@ const doughnutChartOptions = computed(() => ({
 
 // Budget vs Actual helper
 const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
+const budgetShares = computed(() => {
+  const budgets = budgetVsActual.value;
+  if (!budgets) return null;
+  const total = BigInt(budgets.needs.budget) + BigInt(budgets.savings.target) + BigInt(budgets.wants.budget);
+  if (total === 0n) return null;
+  return {
+    needs: formatPercentageShare(budgets.needs.budget, total),
+    savings: formatPercentageShare(budgets.savings.target, total),
+    wants: formatPercentageShare(budgets.wants.budget, total),
+  };
+});
 </script>
 
 <template>
@@ -254,8 +265,8 @@ const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
       </div>
     </div>
 
-    <!-- 3 Kartu Realisasi Anggaran 50/30/20 -->
-    <div v-if="budgetVsActual" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- 3 Kartu Realisasi Anggaran -->
+    <div v-if="budgetVsActual" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- 1. Kebutuhan (Needs) -->
       <div class="fintech-card p-4 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs space-y-3">
         <div class="flex items-center justify-between">
@@ -265,7 +276,7 @@ const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
             </div>
             <div>
               <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Kebutuhan (Need)</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">Alokasi Standar 50%</span>
+              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.needs}` : 'Belum ada anggaran' }}</span>
             </div>
           </div>
           <span
@@ -329,7 +340,7 @@ const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
             </div>
             <div>
               <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Keinginan (Want)</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">Alokasi Standar 30%</span>
+              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.wants}` : 'Belum ada anggaran' }}</span>
             </div>
           </div>
           <span
@@ -393,7 +404,7 @@ const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
             </div>
             <div>
               <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Tabungan & Investasi</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">Target Standar 20%</span>
+              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.savings}` : 'Belum ada anggaran' }}</span>
             </div>
           </div>
           <span

@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -102,5 +103,29 @@ describe('AuthService', () => {
       await expect(service.verifyPassword(1, 'SalahPassword')).rejects.toThrow('Kata sandi yang dimasukkan tidak sesuai');
     });
   });
-});
 
+  describe('getCurrentUser', () => {
+    it('mengembalikan hanya identitas akun yang sedang masuk', async () => {
+      const currentUser = { id: 1, name: 'Dika', email: 'dika@example.com' };
+      const prisma = {
+        user: { findUnique: jest.fn().mockResolvedValue(currentUser) },
+      } as any;
+      const service = new AuthService(prisma, {} as any);
+
+      await expect(service.getCurrentUser(1)).resolves.toEqual(currentUser);
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+        select: { id: true, name: true, email: true },
+      });
+    });
+
+    it('menolak token ketika akun tidak lagi ditemukan', async () => {
+      const prisma = {
+        user: { findUnique: jest.fn().mockResolvedValue(null) },
+      } as any;
+      const service = new AuthService(prisma, {} as any);
+
+      await expect(service.getCurrentUser(1)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+});

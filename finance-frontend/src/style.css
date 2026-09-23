@@ -134,6 +134,11 @@ html.dark option {
   color: #F0F4F1;
 }
 
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+}
+
 /* Dark mode scrollbars */
 html.dark ::-webkit-scrollbar {
   width: 6px;

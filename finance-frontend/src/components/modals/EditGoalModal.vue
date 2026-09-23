@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { financeApi, type SavingsGoal } from '../../api/services';
 import { formatNumberInput, parseCleanNumber, formatRupiah } from '../../utils/format';
-import { X, Pencil } from 'lucide-vue-next';
+import { X, Pencil, Target, Info } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 
 const props = defineProps<{
@@ -192,14 +192,16 @@ const handleUpdateGoal = async () => {
               class="mt-2 p-2.5 rounded-xl bg-emerald-50/90 dark:bg-[#132E21]/60 border border-emerald-200/80 dark:border-[#243329] text-[11px] text-[#183D2B] dark:text-[#B8DF38] space-y-0.5"
             >
               <div class="font-bold flex items-center gap-1.5">
-                <span>🎯 Target {{ editMonths }} Bulan:</span>
+                <Target class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38] shrink-0" :stroke-width="2.25" />
+                <span>Target {{ editMonths }} Bulan</span>
               </div>
-              <p class="text-stone-600 dark:text-[#98A79D] font-normal">
+              <p class="text-stone-600 dark:text-[#98A79D] font-normal leading-relaxed">
                 Estimasi butuh tabungan sekitar <strong class="text-[#183D2B] dark:text-[#B8DF38] font-bold tabular-nums">{{ formatRupiah(targetMonthlyEstimate) }}</strong>/bulan (asumsi inflasi ~5%/thn).
               </p>
             </div>
-            <p v-else class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-normal">
-              Kosongkan jika ingin waktu target dihitung otomatis berdasarkan alokasi tabungan bulanan riil Anda.
+            <p v-else class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1.5 font-normal flex items-start gap-1.5">
+              <Info class="w-3.5 h-3.5 text-stone-400 dark:text-stone-500 shrink-0 mt-0.5" :stroke-width="1.75" />
+              <span>Kosongkan jika ingin waktu target dihitung otomatis berdasarkan alokasi tabungan bulanan riil Anda.</span>
             </p>
           </div>
         </div>

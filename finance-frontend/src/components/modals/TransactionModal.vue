@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { financeApi, type Category, type IncomeSource, type SavingsGoal, type WalletAccount } from '../../api/services';
 import { formatRupiah, formatNumberInput, parseCleanNumber } from '../../utils/format';
+import { useToast } from '../../composables/useToast';
 import { X, ArrowDownLeft, ArrowUpRight } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -24,6 +25,7 @@ const date = ref(new Date().toISOString().slice(0, 10));
 const note = ref('');
 const incomeSourceId = ref<number | null>(null);
 const sourceGoalId = ref<number | null>(null);
+const useSavingsForExpense = ref(false);
 const walletAccountId = ref<number | null>(null);
 const submitting = ref(false);
 
@@ -32,8 +34,12 @@ const todayDateString = computed(() => new Date().toISOString().slice(0, 10));
 const filteredCategories = computed(() => {
   return props.categories.filter((c) => c.type === 'expense' && !c.isArchived);
 });
-
-import { useToast } from '../../composables/useToast';
+const fundedSavingsGoals = computed(() => props.savingsGoals.filter(
+  (goal) => !goal.isArchived && BigInt(goal.currentBalance ?? 0) > 0n
+));
+const activeWallets = computed(() => props.wallets?.filter((wallet) => !wallet.isArchived) ?? []);
+const selectedGoal = computed(() => fundedSavingsGoals.value.find((goal) => goal.id === sourceGoalId.value));
+const selectedWallet = computed(() => activeWallets.value.find((wallet) => wallet.id === walletAccountId.value));
 
 const toast = useToast();
 const fieldErrors = ref<{
@@ -41,6 +47,8 @@ const fieldErrors = ref<{
   date?: string;
   category?: string;
   incomeSource?: string;
+  sourceGoal?: string;
+  wallet?: string;
 }>({});
 
 const handleAmountInput = (e: Event) => {
@@ -48,6 +56,9 @@ const handleAmountInput = (e: Event) => {
   amount.value = formatNumberInput(target.value);
   if (fieldErrors.value.amount) {
     delete fieldErrors.value.amount;
+  }
+  if (fieldErrors.value.sourceGoal) {
+    delete fieldErrors.value.sourceGoal;
   }
 };
 
@@ -60,15 +71,17 @@ watch(
       date.value = new Date().toISOString().slice(0, 10);
       note.value = '';
       sourceGoalId.value = null;
+      useSavingsForExpense.value = false;
 
-      const defaultCat = filteredCategories.value[0];
-      categoryId.value = defaultCat ? defaultCat.id : null;
+      categoryId.value = null;
 
       const defaultSrc = props.incomeSources.find((s) => !s.isArchived);
       incomeSourceId.value = defaultSrc ? defaultSrc.id : null;
 
-      const defaultWallet = props.wallets?.find((w) => !w.isArchived);
-      walletAccountId.value = defaultWallet ? defaultWallet.id : null;
+      const defaultWallet = activeWallets.value[0];
+      walletAccountId.value = props.type === 'expense' && activeWallets.value.length > 1
+        ? null
+        : (defaultWallet?.id ?? null);
     }
   }
 );
@@ -102,6 +115,24 @@ const handleSave = async () => {
     hasError = true;
   }
 
+  if (props.type === 'expense' && activeWallets.value.length > 1 && !walletAccountId.value) {
+    fieldErrors.value.wallet = 'Pilih rekening atau dompet untuk membayar';
+    if (!hasError) toast.error(fieldErrors.value.wallet);
+    hasError = true;
+  }
+
+  if (props.type === 'expense' && useSavingsForExpense.value) {
+    if (!selectedGoal.value) {
+      fieldErrors.value.sourceGoal = 'Pilih tabungan yang akan digunakan';
+      if (!hasError) toast.error('Pilih tabungan yang akan digunakan');
+      hasError = true;
+    } else if (cleanAmount && BigInt(cleanAmount) > BigInt(selectedGoal.value.currentBalance ?? 0)) {
+      fieldErrors.value.sourceGoal = `Dana di tabungan ini hanya ${formatRupiah(selectedGoal.value.currentBalance)}`;
+      if (!hasError) toast.error(fieldErrors.value.sourceGoal);
+      hasError = true;
+    }
+  }
+
   if (hasError) return;
 
   submitting.value = true;
@@ -116,7 +147,7 @@ const handleSave = async () => {
       note: note.value || undefined,
       incomeSourceId: props.type === 'income' ? (incomeSourceId.value || undefined) : undefined,
       walletAccountId: walletAccountId.value || undefined,
-      sourceGoalId: props.type === 'expense' && sourceGoalId.value ? sourceGoalId.value : undefined,
+      sourceGoalId: props.type === 'expense' && useSavingsForExpense.value && sourceGoalId.value ? sourceGoalId.value : undefined,
     });
     toast.success(
       props.type === 'income'
@@ -197,12 +228,14 @@ const handleSave = async () => {
 
         <!-- Expense: Pilih Kategori -->
         <div v-if="type === 'expense'">
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kategori Pengeluaran</label>
+          <label for="expense-category" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pengeluaran untuk apa?</label>
           <select
+            id="expense-category"
             v-model="categoryId"
             class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 cursor-pointer"
             :class="fieldErrors.category ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
           >
+            <option :value="null" disabled>Pilih kategori</option>
             <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
               {{ cat.name }} ({{ cat.group === 'NEED' ? 'Kebutuhan' : 'Keinginan' }})
             </option>
@@ -235,48 +268,72 @@ const handleSave = async () => {
           </div>
         </div>
 
-        <!-- Expense: Sumber Dana Tersisih (Opsional) -->
-        <div v-if="type === 'expense'">
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pos / Sumber Dana (Opsional)</label>
-          <select
-            v-model="sourceGoalId"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-          >
-            <option :value="null">Uang Belum Disisihkan / Bebas (Default)</option>
-            <option
-              v-for="goal in savingsGoals.filter(g => !g.isArchived)"
-              :key="goal.id"
-              :value="goal.id"
+        <!-- Rekening fisik: tampilkan pilihan hanya bila ada lebih dari satu. -->
+        <div v-if="activeWallets.length > 0">
+          <template v-if="type === 'expense' && activeWallets.length === 1">
+            <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Dibayar lewat</p>
+            <p class="text-xs text-stone-600 dark:text-[#98A79D] mt-1">{{ selectedWallet?.name }}. Saldo rekening/dompet ini akan berkurang.</p>
+          </template>
+          <template v-else>
+            <label for="transaction-wallet" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+              {{ type === 'income' ? 'Masuk ke rekening/dompet mana?' : 'Dibayar lewat rekening/dompet mana?' }}
+            </label>
+            <select
+              id="transaction-wallet"
+              v-model="walletAccountId"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+              :class="fieldErrors.wallet ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              @change="fieldErrors.wallet = undefined"
             >
-              [{{ goal.type === 'EMERGENCY' ? 'Darurat' : 'Target' }}] {{ goal.name }} (Saldo: {{ formatRupiah(goal.currentBalance) }})
-            </option>
-          </select>
-          <span class="text-[10px] text-stone-500 dark:text-[#98A79D] mt-1 block">
-            Pilih jika biaya ini diambil dari dana darurat atau target impian yang telah disisihkan.
-          </span>
+              <option v-if="type === 'expense'" :value="null" disabled>Pilih rekening/dompet</option>
+              <option v-for="wallet in activeWallets" :key="wallet.id" :value="wallet.id">
+                {{ wallet.name }} (Saldo: {{ formatRupiah(wallet.balance) }})
+              </option>
+            </select>
+            <p v-if="fieldErrors.wallet" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">{{ fieldErrors.wallet }}</p>
+            <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1">
+              {{ type === 'income' ? 'Saldo rekening/dompet ini akan bertambah.' : 'Saldo rekening/dompet ini akan berkurang.' }}
+            </p>
+          </template>
         </div>
 
-        <!-- Pilihan Dompet / Rekening Fisik (Modul 6) -->
-        <div v-if="wallets && wallets.length > 0">
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
-            {{ type === 'income' ? 'Simpan ke Dompet / Rekening' : 'Bayar dari Dompet / Rekening' }}
+        <!-- Pengeluaran biasa memakai uang yang belum disisihkan. Dana tabungan adalah pilihan lanjutan. -->
+        <div v-if="type === 'expense' && fundedSavingsGoals.length > 0" class="border-t border-stone-200 dark:border-[#243329] pt-4">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input
+              v-model="useSavingsForExpense"
+              type="checkbox"
+              class="w-4 h-4 mt-0.5 accent-[#183D2B] dark:accent-[#B8DF38] shrink-0"
+              @change="sourceGoalId = null; fieldErrors.sourceGoal = undefined"
+            />
+            <span>
+              <span class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Gunakan dana yang sudah disisihkan</span>
+              <span class="block text-[11px] text-stone-500 dark:text-[#98A79D] mt-1">Aktifkan hanya jika pengeluaran ini memakai dana tabungan atau dana darurat.</span>
+            </span>
           </label>
-          <select
-            v-model="walletAccountId"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-          >
-            <option
-              v-for="w in wallets.filter(w => !w.isArchived)"
-              :key="w.id"
-              :value="w.id"
+          <div v-if="useSavingsForExpense" class="mt-3 pl-7">
+            <label for="expense-savings-goal" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Dana mana yang digunakan?</label>
+            <select
+              id="expense-savings-goal"
+              v-model="sourceGoalId"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+              :class="fieldErrors.sourceGoal ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              @change="fieldErrors.sourceGoal = undefined"
             >
-              {{ w.name }} (Saldo: {{ formatRupiah(w.balance) }})
-            </option>
-          </select>
-          <span class="text-[10px] text-stone-500 dark:text-[#98A79D] mt-1 block">
-            Saldo dompet fisik yang dipilih akan otomatis disesuaikan.
-          </span>
+              <option :value="null" disabled>Pilih tabungan</option>
+              <option v-for="goal in fundedSavingsGoals" :key="goal.id" :value="goal.id">
+                {{ goal.name }} (Tersedia: {{ formatRupiah(goal.currentBalance) }})
+              </option>
+            </select>
+            <p v-if="fieldErrors.sourceGoal" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">{{ fieldErrors.sourceGoal }}</p>
+          </div>
         </div>
+
+        <p v-if="type === 'expense'" class="text-[11px] leading-relaxed text-stone-600 dark:text-[#98A79D] bg-stone-50 dark:bg-[#0E1410] rounded-xl px-3 py-2.5">
+          <template v-if="useSavingsForExpense && selectedGoal">Setelah dicatat, saldo rekening/dompet dan dana {{ selectedGoal.name }} berkurang. Uang yang bisa dipakai tetap.</template>
+          <template v-else-if="useSavingsForExpense">Pilih dana tabungan terlebih dahulu untuk melihat dampaknya.</template>
+          <template v-else>Setelah dicatat, saldo rekening/dompet dan uang yang bisa dipakai berkurang.</template>
+        </p>
 
         <div>
           <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
