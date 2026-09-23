@@ -120,6 +120,8 @@ export interface GoalForecast {
   targetPrice: string;
   estimatedMonthlySavings: string;
   averageMonthlyIncome: string;
+  incomeBasis: 'RECENT_6_MONTHS' | 'ALL_RECORDED' | 'PROFILE_ESTIMATE' | 'NO_DATA';
+  incomeMonths: number;
   savingsRatioBps: number;
   shareRatioBps: number;
   inflationRateBps: number;
@@ -627,4 +629,3 @@ export interface UpdateRecurringDto {
   note?: string;
   isActive?: boolean;
 }
-

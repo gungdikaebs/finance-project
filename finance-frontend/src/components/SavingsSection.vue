@@ -15,6 +15,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Pencil,
+  ChevronDown,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -77,6 +78,23 @@ const getGoalProgress = (goal: SavingsGoal): number => {
 
 const getForecast = (goalId: number): GoalForecast | undefined => {
   return props.forecasts ? props.forecasts[goalId] : undefined;
+};
+
+const formatRatio = (basisPoints: number): string => {
+  return `${(basisPoints / 100).toLocaleString('id-ID', { maximumFractionDigits: 2 })}%`;
+};
+
+const incomeBasisDescription = (forecast: GoalForecast): string => {
+  switch (forecast.incomeBasis) {
+    case 'RECENT_6_MONTHS':
+      return `Rata-rata dari ${forecast.incomeMonths} bulan yang memiliki pemasukan dalam 6 bulan terakhir.`;
+    case 'ALL_RECORDED':
+      return `Belum ada pemasukan baru; rata-rata memakai ${forecast.incomeMonths} bulan berpemasukan yang pernah dicatat.`;
+    case 'PROFILE_ESTIMATE':
+      return 'Belum ada pemasukan tercatat; perkiraan awal memakai dua kali kebutuhan bulanan pada profil.';
+    default:
+      return 'Belum ada pemasukan acuan yang tercatat.';
+  }
 };
 </script>
 
@@ -305,7 +323,7 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                     v-if="getForecast(goal.id)?.projectedPrice && !getForecast(goal.id)?.isAchieved && !getForecast(goal.id)?.isUnachievable"
                     class="text-stone-500 dark:text-[#98A79D]"
                   >
-                    Est. Masa Depan: <strong class="text-stone-700 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}</strong>
+                    Perkiraan harga: <strong class="text-stone-700 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}</strong>
                   </span>
                   <span v-else class="text-[10px] text-stone-400 dark:text-[#98A79D]">
                     Acuan: {{ formatDate(goal.referenceDate) }}
@@ -339,30 +357,30 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                       : 'text-[#183D2B] dark:text-[#B8DF38]'"
                   >
                     <template v-if="getForecast(goal.id)!.isUnachievable">
-                      Nabung ekstra <strong class="tabular-nums underline decoration-amber-400">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk melampaui laju inflasi
+                      Perkiraan tambahan <strong class="tabular-nums underline decoration-amber-400">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bulan agar tabungan mengejar kenaikan harga
                     </template>
                     <template v-else-if="getForecast(goal.id)?.hasUserTargetMonths">
-                      Butuh <strong class="tabular-nums underline decoration-emerald-400">{{ formatRupiah(getForecast(goal.id)!.requiredMonthlySavings || '0') }}</strong>/bln untuk capai target dalam {{ getForecast(goal.id)!.targetMonths }} bln
+                      Agar target {{ getForecast(goal.id)!.targetMonths }} bulan tercapai, perkiraan perlu <strong class="tabular-nums underline decoration-emerald-400">{{ formatRupiah(getForecast(goal.id)!.requiredMonthlySavings || '0') }}</strong>/bulan
                     </template>
                     <template v-else>
-                      Nabung ekstra <strong class="tabular-nums underline decoration-[#B8DF38]">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bln untuk maju <span class="tabular-nums font-extrabold">{{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bln</span> lebih cepat ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }})
+                      Jika menambah sekitar <strong class="tabular-nums underline decoration-[#B8DF38]">{{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}</strong>/bulan, target diperkirakan <span class="tabular-nums font-extrabold">{{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bulan</span> lebih cepat ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }})
                     </template>
                   </div>
                   <p class="text-[10px] text-stone-500 dark:text-[#98A79D] font-normal mt-0.5">
                     <template v-if="getForecast(goal.id)!.isUnachievable">
-                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                      Rencana dari pembagian anggaran: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan (bukan setoran otomatis).
                       <span class="text-amber-700 dark:text-amber-400 font-semibold">
-                        (Inflasi {{ ((goal.annualPriceIncreaseRatio ?? 500) / 100).toFixed(0) }}%/thn lebih cepat dari tabungan)
+                        Asumsi kenaikan harga {{ formatRatio(getForecast(goal.id)!.inflationRateBps) }}/tahun.
                       </span>
                     </template>
                     <template v-else-if="getForecast(goal.id)?.hasUserTargetMonths">
-                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                      Rencana dari pembagian anggaran: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan (bukan setoran otomatis).
                       <span v-if="BigInt(getForecast(goal.id)!.topUpSuggestion?.extraMonthlySavings || '0') > 0n" class="text-amber-700 dark:text-amber-400 font-semibold">
-                        (Kurang {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bln<template v-if="getForecast(goal.id)?.estimatedMonthsWithCurrentSavings"> · Estimasi tabungan saat ini: ~{{ getForecast(goal.id)!.estimatedMonthsWithCurrentSavings }} bln</template>)
+                        Tambahan sekitar {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan. <template v-if="getForecast(goal.id)?.estimatedMonthsWithCurrentSavings">Jika rutin menyisihkan sesuai rencana ini, perkiraan tercapai sekitar {{ getForecast(goal.id)!.estimatedMonthsWithCurrentSavings }} bulan.</template>
                       </span>
                     </template>
                     <template v-else>
-                      Alokasi saat ini: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bln
+                      Rencana dari pembagian anggaran: {{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan (bukan setoran otomatis).
                     </template>
                   </p>
                 </div>
@@ -385,6 +403,22 @@ const getForecast = (goalId: number): GoalForecast | undefined => {
                 Uji di Simulator
               </button>
             </div>
+
+            <details v-if="getForecast(goal.id)" class="group border-t border-stone-100 dark:border-[#243329] pt-3">
+              <summary class="flex items-center justify-between gap-2 text-[11px] font-semibold text-[#183D2B] dark:text-[#B8DF38] cursor-pointer list-none rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38]">
+                <span>Ini proyeksi, bukan tabungan otomatis</span>
+                <span class="inline-flex items-center gap-1 shrink-0">Dasar hitung <ChevronDown class="w-3.5 h-3.5 transition-transform group-open:rotate-180" aria-hidden="true" /></span>
+              </summary>
+              <div class="mt-3 space-y-2 text-[11px] leading-relaxed text-stone-600 dark:text-[#98A79D]">
+                <p>Sudah terkumpul: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(goal.currentBalance) }}</strong>. Angka ini berasal dari uang yang benar-benar disisihkan.</p>
+                <p>Pemasukan acuan: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }}/bulan</strong>. {{ incomeBasisDescription(getForecast(goal.id)!) }}</p>
+                <p>Potensi untuk target ini: {{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }} × {{ formatRatio(getForecast(goal.id)!.savingsRatioBps) }} porsi tabungan × 40% porsi impian × {{ formatRatio(getForecast(goal.id)!.shareRatioBps) }} bagian target = <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan</strong>.</p>
+                <p v-if="BigInt(getForecast(goal.id)!.targetPrice || '0') > 0n">Harga acuan {{ formatRupiah(getForecast(goal.id)!.targetPrice) }} diasumsikan naik {{ formatRatio(getForecast(goal.id)!.inflationRateBps) }} per tahun.</p>
+                <p v-else>Harga target belum diisi, sehingga perkiraan waktu tercapai belum dapat dihitung.</p>
+                <p v-if="getForecast(goal.id)!.targetMonths !== null && BigInt(getForecast(goal.id)!.projectedPrice || '0') > 0n">Perkiraan harga pada waktu proyeksi: {{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}.</p>
+                <p>Proyeksi menganggap jumlah yang disisihkan setiap bulan dan laju kenaikan harga tetap sesuai asumsi. Hasil bisa berubah. Untuk menambah jumlah yang terkumpul, pilih “Sisihkan ke Tabungan” di Ringkasan; uang tidak tersisih otomatis.</p>
+              </div>
+            </details>
 
             <!-- Action buttons inside card -->
             <div class="pt-3 border-t border-stone-100 dark:border-[#243329] flex items-center justify-between text-xs">

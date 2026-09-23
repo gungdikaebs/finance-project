@@ -20,7 +20,7 @@ Urutan ini berdasarkan risiko salah memahami kondisi keuangan dan hambatan bagi 
 | 3 | UX-03 | High | Identitas akun di menu tidak sesuai dengan akun yang didaftarkan | Selesai (23 Sep 2026) |
 | 4 | UX-04 | High | Hubungan saldo utama, uang tersedia, tabungan, dan dompet sulit dipahami | Selesai (23 Sep 2026) |
 | 5 | UX-05 | Medium | Form pengeluaran membebani pengguna dengan pilihan yang tampak mirip | Selesai (23 Sep 2026) |
-| 6 | UX-06 | Medium | Asal angka dan status proyeksi target tidak jelas | Belum dikerjakan |
+| 6 | UX-06 | Medium | Asal angka dan status proyeksi target tidak jelas | Selesai (23 Sep 2026) |
 | 7 | UX-07 | Medium | Istilah teknis/internal muncul di alur pengguna | Belum dikerjakan |
 | 8 | UX-08 | Medium | Kartu target terlalu padat, terutama pada lebar menengah dan ponsel | Belum dikerjakan |
 | 9 | UX-09 | Medium | Hasil simulator tidak langsung terlihat setelah dihitung | Belum dikerjakan |
@@ -87,6 +87,8 @@ Urutan ini berdasarkan risiko salah memahami kondisi keuangan dan hambatan bagi 
 **Hasil yang diharapkan:** UI memperlihatkan dasar perhitungan, asumsi yang digunakan, dan perbedaan antara proyeksi/rencana bulanan dengan dana yang sudah terkumpul. Perkiraan tidak tampil seolah-olah merupakan kepastian.
 
 **Verifikasi UI:** Setelah satu pemasukan dan setelah perubahan rasio atau target, pengguna dapat mengetahui mengapa proyeksi berubah dan apakah perlu melakukan aksi penyisihan sendiri.
+
+**Catatan penyelesaian (23 Sep 2026):** Kartu target kini membedakan dana yang benar-benar terkumpul dari rencana penyisihan per bulan, menandai estimasi sebagai proyeksi (bukan setoran otomatis), serta menyediakan “Dasar hitung” yang dapat dibuka. Penjelasan ini menunjukkan sumber rata-rata pemasukan, rasio tabungan, porsi impian, bagian target, asumsi kenaikan harga, dan aksi penyisihan manual. API mengirim metadata sumber pemasukan agar penjelasan mengikuti kondisi data pengguna. Pada akun uji, perubahan rasio tabungan 30% menjadi 40% mengubah potensi Rp360.000 menjadi Rp480.000 per bulan dan estimasi sekitar 39 menjadi 28 bulan; rasio lalu dikembalikan ke 30% dan proyeksi kembali ke nilai awal. Kepadatan kartu dan layout responsif tetap dicatat terpisah di UX-08.
 
 ### UX-07 — Ganti istilah teknis pada alur utama
 

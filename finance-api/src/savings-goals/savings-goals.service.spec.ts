@@ -92,6 +92,8 @@ describe('SavingsGoalsService', () => {
       expect(f.currentBalance).toBe('3000000');
       expect(f.targetPrice).toBe('15000000');
       expect(f.estimatedMonthlySavings).toBe('1200000');
+      expect(f.incomeBasis).toBe('RECENT_6_MONTHS');
+      expect(f.incomeMonths).toBe(1);
       expect(f.isAchieved).toBe(false);
       expect(f.isUnachievable).toBe(false);
       // Saldo awal 3M, target 15M berinflasi 5%. Tabungan 1.2M/bln.
@@ -191,6 +193,43 @@ describe('SavingsGoalsService', () => {
       expect(forecasts[0].targetMonths).toBe(0);
       expect(forecasts[0].milestone.currentPercent).toBe(100);
       expect(forecasts[0].milestone.label).toBe('Tercapai Penuh (100%)');
+      expect(forecasts[0].incomeBasis).toBe('PROFILE_ESTIMATE');
+      expect(forecasts[0].incomeMonths).toBe(0);
+      expect(forecasts[0].averageMonthlyIncome).toBe('6000000');
+    });
+
+    it('menandai pemasukan historis ketika tidak ada pemasukan enam bulan terakhir', async () => {
+      const prisma = {
+        transaction: {
+          findMany: jest.fn()
+            .mockResolvedValueOnce([])
+            .mockResolvedValueOnce([{
+              amount: BigInt('4000000'),
+              typeSnapshot: 'INCOME',
+              date: new Date('2025-01-01'),
+              category: { type: 'income' },
+            }]),
+        },
+        budgetPolicy: { findFirst: jest.fn().mockResolvedValue(null) },
+        savingsGoal: {
+          findMany: jest.fn().mockResolvedValue([{
+            id: 105,
+            userId: 1,
+            name: 'Target Baru',
+            type: 'PURCHASE',
+            targetAmount: BigInt(0),
+            shares: [{ shareRatio: 10000 }],
+          }]),
+        },
+        allocationEvent: { aggregate: jest.fn().mockResolvedValue({ _sum: { amount: BigInt(0) } }) },
+      } as any;
+
+      const service = new SavingsGoalsService(prisma);
+      const forecasts = (await service.getForecasts(1)) as any[];
+
+      expect(forecasts[0].incomeBasis).toBe('ALL_RECORDED');
+      expect(forecasts[0].incomeMonths).toBe(1);
+      expect(forecasts[0].averageMonthlyIncome).toBe('4000000');
     });
 
     it('menggunakan targetMonths jika diisi pengguna dan menghitung requiredMonthlySavings & shortfall', async () => {
@@ -255,4 +294,3 @@ describe('SavingsGoalsService', () => {
     });
   });
 });
-

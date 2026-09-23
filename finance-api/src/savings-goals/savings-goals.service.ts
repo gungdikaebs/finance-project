@@ -335,8 +335,12 @@ export class SavingsGoalsService {
     }
 
     let avgMonthlyIncome = BigInt(0);
+    let incomeBasis: GoalForecastDto['incomeBasis'] = 'NO_DATA';
+    let incomeMonths = 0;
     if (distinctMonths.size > 0) {
       avgMonthlyIncome = totalIncome / BigInt(distinctMonths.size);
+      incomeBasis = 'RECENT_6_MONTHS';
+      incomeMonths = distinctMonths.size;
     } else {
       const allIncomeTrx = await this.prisma.transaction.findMany({
         where: { userId, status: 'ACTIVE' },
@@ -354,12 +358,15 @@ export class SavingsGoalsService {
       }
       if (allMonths.size > 0) {
         avgMonthlyIncome = allIncome / BigInt(allMonths.size);
+        incomeBasis = 'ALL_RECORDED';
+        incomeMonths = allMonths.size;
       } else {
         const profile = await this.prisma.financeProfile.findUnique({
           where: { userId },
         });
         if (profile && profile.monthlyNeeds > BigInt(0)) {
           avgMonthlyIncome = profile.monthlyNeeds * BigInt(2);
+          incomeBasis = 'PROFILE_ESTIMATE';
         }
       }
     }
@@ -454,6 +461,8 @@ export class SavingsGoalsService {
             targetPrice: '0',
             estimatedMonthlySavings: sMonthly.toString(),
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -484,6 +493,8 @@ export class SavingsGoalsService {
             targetPrice: targetPriceBig.toString(),
             estimatedMonthlySavings: sMonthly.toString(),
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -566,6 +577,8 @@ export class SavingsGoalsService {
             targetPrice: targetPriceBig.toString(),
             estimatedMonthlySavings: sMonthly.toString(),
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -595,6 +608,8 @@ export class SavingsGoalsService {
             targetPrice: targetPriceBig.toString(),
             estimatedMonthlySavings: '0',
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -633,6 +648,8 @@ export class SavingsGoalsService {
             targetPrice: targetPriceBig.toString(),
             estimatedMonthlySavings: sMonthly.toString(),
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -697,6 +714,8 @@ export class SavingsGoalsService {
             targetPrice: targetPriceBig.toString(),
             estimatedMonthlySavings: sMonthly.toString(),
             averageMonthlyIncome: avgMonthlyIncome.toString(),
+            incomeBasis,
+            incomeMonths,
             savingsRatioBps,
             shareRatioBps,
             inflationRateBps,
@@ -761,6 +780,8 @@ export class SavingsGoalsService {
           targetPrice: targetPriceBig.toString(),
           estimatedMonthlySavings: sMonthly.toString(),
           averageMonthlyIncome: avgMonthlyIncome.toString(),
+          incomeBasis,
+          incomeMonths,
           savingsRatioBps,
           shareRatioBps,
           inflationRateBps,
@@ -787,4 +808,3 @@ export class SavingsGoalsService {
     return forecasts;
   }
 }
-
