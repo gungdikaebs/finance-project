@@ -202,6 +202,9 @@ const handleArchive = async (wallet: WalletAccount) => {
   <div
     v-if="show"
     class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="manage-wallets-title"
     @click.self="emit('close')"
   >
     <div
@@ -218,7 +221,7 @@ const handleArchive = async (wallet: WalletAccount) => {
             <Wallet class="w-5 h-5" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 id="manage-wallets-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">
               Dompet & Rekening Fisik
             </h3>
             <p class="text-xs text-stone-500 dark:text-[#98A79D] font-medium">
@@ -229,6 +232,7 @@ const handleArchive = async (wallet: WalletAccount) => {
         <button
           type="button"
           @click="emit('close')"
+          aria-label="Tutup dialog dompet dan rekening"
           class="w-10 h-10 rounded-xl flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] tactile-btn transition-colors cursor-pointer"
         >
           <X class="w-5 h-5" />
@@ -353,6 +357,7 @@ const handleArchive = async (wallet: WalletAccount) => {
                     Nama Dompet
                   </label>
                   <input
+                    aria-label="Ubah nama dompet"
                     type="text"
                     v-model="editName"
                     class="w-full px-3 py-2 text-xs font-semibold rounded-lg border border-stone-300 dark:border-[#243329] dark:bg-[#0E1410] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B] dark:focus:ring-[#B8DF38]"
@@ -365,6 +370,7 @@ const handleArchive = async (wallet: WalletAccount) => {
                     Tipe Wadah
                   </label>
                   <select
+                    aria-label="Ubah tipe wadah dompet"
                     v-model="editType"
                     class="w-full px-3 py-2 text-xs font-semibold rounded-lg border border-stone-300 dark:border-[#243329] dark:bg-[#0E1410] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B] dark:focus:ring-[#B8DF38]"
                   >
@@ -381,6 +387,7 @@ const handleArchive = async (wallet: WalletAccount) => {
                   Nomor Rekening / Akun (Opsional)
                 </label>
                 <input
+                  aria-label="Ubah nomor rekening atau akun dompet"
                   type="text"
                   v-model="editAccountNumber"
                   class="w-full px-3 py-2 text-xs font-medium rounded-lg border border-stone-300 dark:border-[#243329] dark:bg-[#0E1410] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B] dark:focus:ring-[#B8DF38]"
@@ -424,6 +431,7 @@ const handleArchive = async (wallet: WalletAccount) => {
               Nama Dompet / Rekening <span class="text-rose-500">*</span>
             </label>
             <input
+              aria-label="Nama dompet atau rekening baru"
               type="text"
               v-model="newName"
               placeholder="misal: BCA Utama, Dompet Saku, atau GoPay"
@@ -467,6 +475,7 @@ const handleArchive = async (wallet: WalletAccount) => {
               Nomor Rekening / No. HP E-Wallet (Opsional)
             </label>
             <input
+              aria-label="Nomor rekening atau HP e-wallet baru"
               type="text"
               v-model="newAccountNumber"
               placeholder="misal: 8820192301 atau 081299998888"

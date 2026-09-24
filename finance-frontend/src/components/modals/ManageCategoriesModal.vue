@@ -279,6 +279,7 @@ const handleUnarchiveCategory = async (id: number) => {
 
         <div class="flex gap-2">
           <input
+            aria-label="Nama sumber pemasukan baru"
             v-model="newSource"
             type="text"
             placeholder="Nama sumber baru (misal: Gaji Kantor, Freelance, Dividen)"
@@ -304,6 +305,7 @@ const handleUnarchiveCategory = async (id: number) => {
             <!-- Inline Edit Form for Source -->
             <template v-if="editingSourceId === src.id">
               <input
+                :aria-label="`Ubah nama sumber ${src.name}`"
                 v-model="editingSourceName"
                 type="text"
                 class="px-2 py-0.5 border border-emerald-500 dark:border-[#B8DF38] rounded bg-white dark:bg-[#0E1410] text-xs text-[#18221B] dark:text-[#F0F4F1] focus:outline-none"
@@ -393,12 +395,14 @@ const handleUnarchiveCategory = async (id: number) => {
 
         <form @submit.prevent="handleAddCategory" class="flex flex-col sm:flex-row gap-2">
           <input
+            aria-label="Nama kategori pengeluaran baru"
             v-model="newCatName"
             type="text"
             placeholder="Nama kategori pengeluaran (misal: Makan & Minum)"
             class="flex-1 px-3.5 py-2.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm text-[#18221B] dark:text-[#F0F4F1] placeholder-[#18221B]/40 dark:placeholder-stone-500 focus:outline-none focus:bg-white dark:focus:bg-[#0E1410] focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition"
           />
           <select
+            aria-label="Kelompok kategori pengeluaran baru"
             v-model="newCatGroup"
             class="w-full sm:w-auto px-3 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition cursor-pointer"
           >
@@ -426,6 +430,7 @@ const handleUnarchiveCategory = async (id: number) => {
             <template v-if="editingCatId === cat.id">
               <div class="space-y-2">
                 <input
+                  :aria-label="`Ubah nama kategori ${cat.name}`"
                   v-model="editingCatName"
                   type="text"
                   placeholder="Nama kategori"
@@ -434,6 +439,7 @@ const handleUnarchiveCategory = async (id: number) => {
                 />
                 <div class="flex items-center justify-between gap-2">
                   <select
+                    :aria-label="`Kelompok kategori ${cat.name}`"
                     v-model="editingCatGroup"
                     class="px-2 py-1 border border-stone-200 dark:border-[#243329] rounded-lg text-xs bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1]"
                   >
@@ -540,4 +546,3 @@ const handleUnarchiveCategory = async (id: number) => {
     </div>
   </div>
 </template>
-

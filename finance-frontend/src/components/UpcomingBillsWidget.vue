@@ -124,8 +124,9 @@ const getRelativeDays = (dateStr: string): string => {
       <div class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-[#0E1410] text-emerald-700 dark:text-[#B8DF38] flex items-center justify-center shrink-0 border border-emerald-100 dark:border-[#243329]">
         <CheckCircle2 class="w-3.5 h-3.5" />
       </div>
-      <span class="truncate font-medium">
-        Tidak ada tagihan rutin yang jatuh tempo dalam 7 hari ke depan.
+      <span class="font-medium">
+        <span class="sm:hidden">Tidak ada tagihan 7 hari ke depan.</span>
+        <span class="hidden sm:inline">Tidak ada tagihan rutin yang jatuh tempo dalam 7 hari ke depan.</span>
       </span>
     </div>
 
@@ -135,7 +136,8 @@ const getRelativeDays = (dateStr: string): string => {
       class="tactile-btn shrink-0 inline-flex items-center gap-1 font-bold text-[#183D2B] dark:text-[#B8DF38] hover:underline cursor-pointer text-xs"
     >
       <Repeat class="w-3 h-3" />
-      <span>Atur Transaksi Berulang</span>
+      <span class="sm:hidden">Atur Jadwal</span>
+      <span class="hidden sm:inline">Atur Transaksi Berulang</span>
     </button>
   </div>
 </template>

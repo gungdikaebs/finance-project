@@ -15,6 +15,7 @@ import { SavingsGoalsService } from './savings-goals.service';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
 import { UpdateSavingsGoalDto } from './dto/update-savings-goal.dto';
 import { UpdateGoalSharesDto } from './dto/update-goal-shares.dto';
+import { CompleteSavingsGoalDto } from './dto/complete-savings-goal.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('savings-goals')
@@ -63,5 +64,19 @@ export class SavingsGoalsController {
   @Patch(':id/archive')
   archive(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.service.archive(req.user.sub, id);
+  }
+
+  @Post(':id/complete')
+  complete(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CompleteSavingsGoalDto,
+  ) {
+    return this.service.completeGoal(req.user.sub, id, dto);
+  }
+
+  @Post(':id/reopen')
+  reopen(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.service.reopenGoal(req.user.sub, id);
   }
 }

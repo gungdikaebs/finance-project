@@ -96,7 +96,7 @@ const handleUpdate = async () => {
           </div>
           <div>
             <h3 id="edit-trx-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Koreksi Transaksi</h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Revisi nilai dengan jejak audit D-004</span>
+            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Saldo diperbarui dan perubahan tercatat di riwayat</span>
           </div>
         </div>
 
@@ -113,12 +113,13 @@ const handleUpdate = async () => {
       <!-- Form Inputs (flex-1 overscroll-contain) -->
       <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <p class="text-xs text-stone-500 dark:text-[#98A79D] leading-relaxed font-normal">
-          Perubahan nilai atau tanggal akan dicatat sebagai riwayat revisi dan saldo utama akan dihitung ulang secara otomatis.
+          Koreksi mengganti data transaksi ini, bukan menambah transaksi aktif baru. Saldo akan diperbarui sesuai perubahan nominal, dan riwayat koreksi tetap tersimpan.
         </p>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal Baru (Rp)</label>
+          <label for="edit-transaction-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal Baru (Rp)</label>
           <input
+            id="edit-transaction-amount"
             :value="editAmount"
             @input="handleAmountInput"
             type="text"
@@ -133,8 +134,9 @@ const handleUpdate = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kategori</label>
+          <label for="edit-transaction-category" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kategori</label>
           <select
+            id="edit-transaction-category"
             v-model="editCategoryId"
             class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
           >
@@ -149,8 +151,9 @@ const handleUpdate = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
+          <label for="edit-transaction-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
           <input
+            id="edit-transaction-date"
             v-model="editDate"
             type="date"
             :max="todayDateString"
@@ -159,8 +162,9 @@ const handleUpdate = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Alasan Koreksi</label>
+          <label for="edit-transaction-reason" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Alasan Koreksi</label>
           <input
+            id="edit-transaction-reason"
             v-model="editReason"
             type="text"
             placeholder="Contoh: Salah ketik nominal kasir"

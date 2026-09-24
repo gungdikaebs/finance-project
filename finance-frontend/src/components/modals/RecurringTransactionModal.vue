@@ -259,6 +259,7 @@ const getRelativeDays = (dateStr: string): string => {
     class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 glass-modal-backdrop overflow-y-auto"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="recurring-modal-title"
   >
     <div
       class="bg-white dark:bg-[#16201A] rounded-2xl border border-stone-200/90 dark:border-[#243329] shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden text-[#18221B] dark:text-[#F0F4F1] animate-in fade-in zoom-in-95 duration-150"
@@ -270,7 +271,7 @@ const getRelativeDays = (dateStr: string): string => {
             <Clock class="w-4 h-4" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Transaksi Berulang & Tagihan Rutin</h3>
+            <h3 id="recurring-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Transaksi Berulang & Tagihan Rutin</h3>
             <p class="text-xs text-stone-500 dark:text-[#98A79D] font-normal">
               Otomatisasi pengeluaran dan pemasukan rutin dengan pengingat jatuh tempo
             </p>
@@ -280,6 +281,7 @@ const getRelativeDays = (dateStr: string): string => {
         <button
           type="button"
           @click="emit('close')"
+          aria-label="Tutup dialog transaksi berulang"
           class="tactile-btn p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] transition cursor-pointer"
           title="Tutup dialog"
         >

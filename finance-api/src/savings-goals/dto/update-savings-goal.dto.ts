@@ -44,4 +44,8 @@ export class UpdateSavingsGoalDto {
   @IsOptional()
   @IsBoolean()
   isArchived?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isCompleted?: boolean;
 }

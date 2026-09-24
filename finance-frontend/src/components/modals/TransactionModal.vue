@@ -210,8 +210,9 @@ const handleSave = async () => {
       <!-- Form Inputs (flex-1 overscroll-contain) -->
       <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal (Rp)</label>
+          <label for="transaction-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal (Rp)</label>
           <input
+            id="transaction-amount"
             :value="amount"
             @input="handleAmountInput"
             type="text"
@@ -250,8 +251,9 @@ const handleSave = async () => {
 
         <!-- Income: Sumber Dana / Pemasukan -->
         <div v-if="type === 'income'">
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Sumber Pemasukan</label>
+          <label for="transaction-income-source" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Sumber Pemasukan</label>
           <select
+            id="transaction-income-source"
             v-model="incomeSourceId"
             class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 cursor-pointer"
             :class="fieldErrors.incomeSource ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
@@ -336,8 +338,9 @@ const handleSave = async () => {
         </p>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
+          <label for="transaction-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
           <input
+            id="transaction-date"
             v-model="date"
             type="date"
             :max="todayDateString"
@@ -347,8 +350,9 @@ const handleSave = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Catatan Tambahan (Opsional)</label>
+          <label for="transaction-note" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Catatan Tambahan (Opsional)</label>
           <input
+            id="transaction-note"
             v-model="note"
             type="text"
             placeholder="Keterangan singkat..."

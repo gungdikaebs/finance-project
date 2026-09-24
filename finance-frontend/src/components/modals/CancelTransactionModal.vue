@@ -54,7 +54,7 @@ const handleCancel = async () => {
           </div>
           <div>
             <h3 id="cancel-trx-title" class="text-base font-extrabold text-rose-950 dark:text-rose-300 leading-tight">Batalkan Transaksi?</h3>
-            <span class="text-[11px] text-rose-700 dark:text-rose-400 font-medium">Pembatalan lunak berjejak audit (D-004)</span>
+            <span class="text-[11px] text-rose-700 dark:text-rose-400 font-medium">Transaksi dibatalkan dan tercatat dalam riwayat perubahan</span>
           </div>
         </div>
 
@@ -71,12 +71,13 @@ const handleCancel = async () => {
       <!-- Body (scrollable) -->
       <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed font-normal">
-          Transaksi senilai <strong class="font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(transaction.amount) }}</strong> pada tanggal {{ formatDate(transaction.date) }} akan ditandai sebagai transaksi dibatalkan dan tidak lagi memengaruhi Saldo utama.
+          Transaksi senilai <strong class="font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(transaction.amount) }}</strong> pada tanggal {{ formatDate(transaction.date) }} akan berstatus Dibatalkan dan tetap terlihat di riwayat. Pengaruhnya pada saldo akan dibalik: {{ transaction.typeSnapshot === 'INCOME' ? 'pemasukan ini dikurangi kembali dari saldo' : 'pengeluaran ini dikembalikan ke saldo' }}.
         </p>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Alasan Pembatalan (Opsional)</label>
+          <label for="cancel-transaction-reason" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Alasan Pembatalan (Opsional)</label>
           <input
+            id="cancel-transaction-reason"
             v-model="cancelReason"
             type="text"
             placeholder="Contoh: Transaksi salah / dibatalkan toko"
@@ -90,6 +91,7 @@ const handleCancel = async () => {
         <button
           type="button"
           @click="emit('close')"
+          data-initial-focus
           class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329]"
         >
           Kembali

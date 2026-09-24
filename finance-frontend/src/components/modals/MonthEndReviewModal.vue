@@ -75,21 +75,21 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <!-- Tawaran Penyisihan Tambahan (D-006) -->
+        <!-- Tawaran Tabungan Ekstra -->
         <div class="p-4 bg-[#183D2B]/5 dark:bg-[#0E1410] border border-[#183D2B]/15 dark:border-[#243329] rounded-xl space-y-2">
           <div class="flex items-center gap-1.5">
             <Sparkles class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" />
-            <h4 class="text-xs font-bold text-[#183D2B] dark:text-[#B8DF38] uppercase tracking-wider">Rekomendasi Penyisihan Tambahan (D-006)</h4>
+            <h4 class="text-xs font-bold text-[#183D2B] dark:text-[#B8DF38] uppercase tracking-wider">Saran Menabung dari Sisa Anggaran</h4>
           </div>
           <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed font-normal">
-            Uang belum disisihkan saat ini adalah <strong class="font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(review.unallocatedMoney) }}</strong>.
-            Saran nominal tabungan ekstra dari efisiensi bulan lalu:
+            Dana yang belum dialokasikan ke tabungan saat ini adalah <strong class="font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(review.unallocatedMoney) }}</strong>.
+            Saran nominal tabungan ekstra dari sisa anggaran bulan lalu:
           </p>
           <div class="text-2xl font-black text-[#183D2B] dark:text-[#B8DF38] tabular-nums">
             {{ formatRupiah(review.suggestedSavings) }}
           </div>
           <p class="text-[11px] text-stone-500 dark:text-[#98A79D] leading-relaxed font-normal">
-            Catatan: Uang yang tidak disisihkan tetap aman di Saldo utama dan terbawa ke bulan berjalan tanpa menjadi pemasukan baru.
+            Catatan: Uang yang belum ditabung tetap aman di Saldo utama dan terbawa ke bulan berjalan tanpa dihitung sebagai pemasukan baru.
           </p>
         </div>
       </div>

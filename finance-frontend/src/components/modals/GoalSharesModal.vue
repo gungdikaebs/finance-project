@@ -42,7 +42,7 @@ const toast = useToast();
 
 const handleSaveShares = async () => {
   if (totalShares.value !== 100) {
-    toast.error('Total bobot alokasi target harus tepat 100%');
+    toast.error('Total pembagian porsi target harus tepat 100%');
     return;
   }
 
@@ -54,11 +54,11 @@ const handleSaveShares = async () => {
         shareRatio: s.sharePercent * 100,
       }))
     );
-    toast.success('Bobot alokasi target berhasil diperbarui!');
+    toast.success('Pembagian porsi target berhasil diperbarui!');
     emit('saved');
     emit('close');
   } catch (err: any) {
-    toast.error(err.response?.data?.message || 'Gagal menyimpan bobot target');
+    toast.error(err.response?.data?.message || 'Gagal menyimpan pembagian target');
   } finally {
     submitting.value = false;
   }
@@ -82,8 +82,8 @@ const handleSaveShares = async () => {
             <SlidersHorizontal class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="shares-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Atur Bobot Target Impian</h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Pembagian kuota tabungan impian (Total tepat 100%)</span>
+            <h3 id="shares-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Atur Pembagian Target Impian</h3>
+            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Tentukan persentase tabungan untuk tiap target impian (Total 100%)</span>
           </div>
         </div>
 
@@ -109,6 +109,7 @@ const handleSaveShares = async () => {
           <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">{{ share.name }}</span>
           <div class="flex items-center gap-1.5">
             <input
+              :aria-label="`Porsi ${share.name} dalam persen`"
               v-model.number="share.sharePercent"
               type="number"
               min="0"
@@ -120,7 +121,7 @@ const handleSaveShares = async () => {
         </div>
 
         <div class="flex justify-between items-center p-3.5 bg-stone-100/90 dark:bg-[#0E1410] rounded-xl text-xs font-bold border border-stone-200/80 dark:border-[#243329]">
-          <span class="text-stone-700 dark:text-[#98A79D]">Total Akumulasi Bobot:</span>
+          <span class="text-stone-700 dark:text-[#98A79D]">Total Pembagian Porsi:</span>
           <span
             :class="totalShares === 100 ? 'text-emerald-800 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'"
             class="tabular-nums font-black"
@@ -148,7 +149,7 @@ const handleSaveShares = async () => {
           :disabled="submitting || totalShares !== 100"
           class="tactile-btn min-h-[44px] px-5 py-2 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-bold rounded-xl hover:bg-[#24553d] dark:hover:bg-[#a3c82e] disabled:opacity-50 cursor-pointer transition shadow-sm"
         >
-          {{ submitting ? 'Menyimpan...' : 'Simpan Bobot' }}
+          {{ submitting ? 'Menyimpan...' : 'Simpan Pembagian' }}
         </button>
       </div>
     </div>

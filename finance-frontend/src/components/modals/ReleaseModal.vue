@@ -64,11 +64,11 @@ const handleExecuteRelease = async () => {
       date: new Date().toISOString().slice(0, 10),
       note: releaseNoteInput.value || undefined,
     });
-    toast.success('Alokasi dana berhasil dilepas kembali ke saldo bebas');
+    toast.success('Dana tabungan berhasil ditarik ke saldo siap pakai');
     emit('saved');
     emit('close');
   } catch (err: any) {
-    toast.error(err.response?.data?.message || 'Gagal melepas alokasi');
+    toast.error(err.response?.data?.message || 'Gagal menarik dana tabungan');
   } finally {
     submitting.value = false;
   }
@@ -92,8 +92,8 @@ const handleExecuteRelease = async () => {
             <Unlock class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="release-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Lepas Alokasi Dana</h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Kembalikan dana tersisih ke Uang Belum Disisihkan</span>
+            <h3 id="release-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Tarik Dana dari Tabungan</h3>
+            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Kembalikan dana dari pos tabungan ke Uang Siap Pakai</span>
           </div>
         </div>
 
@@ -112,8 +112,9 @@ const handleExecuteRelease = async () => {
 
       <div class="space-y-3.5">
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Target Sumber Dana</label>
+          <label for="release-goal" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Ambil dari Pos Tabungan</label>
           <select
+            id="release-goal"
             v-model="releaseSourceGoalId"
             class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
           >
@@ -129,8 +130,9 @@ const handleExecuteRelease = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal Dilepas (Rp)</label>
+          <label for="release-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal yang Ditarik (Rp)</label>
           <input
+            id="release-amount"
             :value="releaseAmountInput"
             @input="handleReleaseAmountInput"
             type="text"
@@ -145,8 +147,9 @@ const handleExecuteRelease = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Catatan / Alasan Pelepasan</label>
+          <label for="release-note" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Catatan / Alasan Penarikan</label>
           <input
+            id="release-note"
             v-model="releaseNoteInput"
             type="text"
             placeholder="Contoh: Kebutuhan mendesak, relokasi pos..."
@@ -172,7 +175,7 @@ const handleExecuteRelease = async () => {
           :disabled="submitting"
           class="tactile-btn min-h-[44px] px-5 py-2 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl disabled:opacity-50 cursor-pointer transition shadow-sm"
         >
-          {{ submitting ? 'Memproses...' : 'Lepas Alokasi Dana' }}
+          {{ submitting ? 'Memproses...' : 'Tarik ke Saldo Siap Pakai' }}
         </button>
       </div>
     </div>

@@ -79,7 +79,7 @@ export class AllocationsService {
     const emergencyGoal = goals.find((g) => g.type === 'EMERGENCY');
     const unassignedGoal = goals.find((g) => g.type === 'UNASSIGNED');
     const purchaseGoals = goals.filter(
-      (g) => g.type === 'PURCHASE' && !g.isArchived,
+      (g) => g.type === 'PURCHASE' && !g.isArchived && !g.isCompleted,
     );
 
     const { unallocatedMoney } = await this.getUnallocatedStatus(userId);
@@ -91,9 +91,50 @@ export class AllocationsService {
       amount = unallocatedMoney > BigInt(0) ? unallocatedMoney : BigInt(0);
     }
 
-    // Default D-005: 60% Dana Pengaman, 40% Impian
-    const emergencyPart = (amount * BigInt(6000)) / BigInt(10000);
-    const impianPart = amount - emergencyPart;
+    const profile = await this.prisma.financeProfile.findUnique({
+      where: { userId },
+    });
+    const targetMonths = BigInt(emergencyGoal?.targetMonths || 6);
+    const monthlyNeeds = BigInt(profile?.monthlyNeeds || 0);
+    const emergencyTargetNominal = targetMonths * monthlyNeeds;
+    const emergencyCurrentBalance = emergencyGoal
+      ? await this.goalsService.getGoalBalance(emergencyGoal.id)
+      : BigInt(0);
+    const emergencyRemainingNeeded =
+      emergencyTargetNominal > emergencyCurrentBalance
+        ? emergencyTargetNominal - emergencyCurrentBalance
+        : BigInt(0);
+
+    const baseEmergencyPart = (amount * BigInt(6000)) / BigInt(10000);
+    const baseImpianPart = amount - baseEmergencyPart;
+
+    let emergencyPart = BigInt(0);
+    let overflowToImpian = BigInt(0);
+    let ruleExplanation = 'Rasio Otomatis: 60% Dana Pengaman & 40% Target Impian';
+
+    if (emergencyTargetNominal > BigInt(0)) {
+      if (emergencyRemainingNeeded <= BigInt(0)) {
+        // Dana pengaman sudah penuh 100%
+        emergencyPart = BigInt(0);
+        overflowToImpian = baseEmergencyPart;
+        ruleExplanation =
+          'Dana Pengaman sudah penuh 100% (target tercapai). Seluruh 100% tabungan dialihkan ke Target Impian.';
+      } else if (baseEmergencyPart > emergencyRemainingNeeded) {
+        // Melintasi batas target penuh
+        emergencyPart = emergencyRemainingNeeded;
+        overflowToImpian = baseEmergencyPart - emergencyRemainingNeeded;
+        ruleExplanation = `Dana Pengaman diisi Rp ${emergencyPart.toLocaleString('id-ID')} hingga penuh (100%). Sisa porsi pengaman Rp ${overflowToImpian.toLocaleString('id-ID')} dialihkan ke Target Impian.`;
+      } else {
+        // Normal 60:40
+        emergencyPart = baseEmergencyPart;
+        overflowToImpian = BigInt(0);
+      }
+    } else {
+      emergencyPart = baseEmergencyPart;
+      overflowToImpian = BigInt(0);
+    }
+
+    const impianPart = baseImpianPart + overflowToImpian;
 
     const items: {
       targetGoalId: number;
@@ -102,7 +143,7 @@ export class AllocationsService {
       type: string;
     }[] = [];
 
-    if (emergencyGoal) {
+    if (emergencyGoal && emergencyPart > BigInt(0)) {
       items.push({
         targetGoalId: emergencyGoal.id,
         name: emergencyGoal.name,
@@ -114,24 +155,28 @@ export class AllocationsService {
     if (purchaseGoals.length > 0) {
       // Bagi antar target impian sesuai shareRatio
       let allocatedImpian = BigInt(0);
+      const totalShareRatio =
+        purchaseGoals.reduce((sum, p) => sum + (p.shareRatio || 0), 0) || 10000;
       for (let i = 0; i < purchaseGoals.length; i++) {
         const p = purchaseGoals[i];
         let pAmount = BigInt(0);
         if (i === purchaseGoals.length - 1) {
           pAmount = impianPart - allocatedImpian;
         } else {
-          pAmount = (impianPart * BigInt(p.shareRatio || 0)) / BigInt(10000);
+          pAmount = (impianPart * BigInt(p.shareRatio || 0)) / BigInt(totalShareRatio);
           allocatedImpian += pAmount;
         }
 
-        items.push({
-          targetGoalId: p.id,
-          name: p.name,
-          amount: pAmount,
-          type: 'PURCHASE',
-        });
+        if (pAmount > BigInt(0)) {
+          items.push({
+            targetGoalId: p.id,
+            name: p.name,
+            amount: pAmount,
+            type: 'PURCHASE',
+          });
+        }
       }
-    } else if (unassignedGoal) {
+    } else if (unassignedGoal && impianPart > BigInt(0)) {
       items.push({
         targetGoalId: unassignedGoal.id,
         name: unassignedGoal.name,
@@ -144,6 +189,17 @@ export class AllocationsService {
       totalAmount: amount,
       unallocatedMoney,
       previewItems: items,
+      emergencyDetails: {
+        currentBalance: emergencyCurrentBalance,
+        targetNominal: emergencyTargetNominal,
+        remainingNeeded: emergencyRemainingNeeded,
+        isFull:
+          emergencyTargetNominal > BigInt(0) &&
+          emergencyRemainingNeeded <= BigInt(0),
+        allocatedAmount: emergencyPart,
+        overflowAmount: overflowToImpian,
+      },
+      ruleExplanation,
     };
   }
 

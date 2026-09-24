@@ -134,8 +134,9 @@ const handleCreateGoal = async () => {
 
       <div class="space-y-3.5">
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nama Target</label>
+          <label for="add-goal-name" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nama Target</label>
           <input
+            id="add-goal-name"
             v-model="newGoalName"
             type="text"
             placeholder="Contoh: Beli Rumah Pertama, Mobil, Laptop..."
@@ -148,8 +149,9 @@ const handleCreateGoal = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Harga Acuan / Target Dana (Rp)</label>
+          <label for="add-goal-price" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Harga Acuan / Target Dana (Rp)</label>
           <input
+            id="add-goal-price"
             :value="newGoalPrice"
             @input="handlePriceInput"
             type="text"
@@ -164,8 +166,9 @@ const handleCreateGoal = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Skema Pembelian</label>
+          <label for="add-goal-mode" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Skema Pembelian</label>
           <select
+            id="add-goal-mode"
             v-model="newGoalMode"
             class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
           >
@@ -175,8 +178,9 @@ const handleCreateGoal = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Target Waktu (Bulan - Opsional)</label>
+          <label for="add-goal-months" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Target Waktu (Bulan - Opsional)</label>
           <input
+            id="add-goal-months"
             v-model.number="newGoalMonths"
             type="number"
             min="1"

@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
 import { UpdateSavingsGoalDto } from './dto/update-savings-goal.dto';
 import { UpdateGoalSharesDto } from './dto/update-goal-shares.dto';
+import { CompleteSavingsGoalDto } from './dto/complete-savings-goal.dto';
 import {
   GoalForecastDto,
   TopUpSuggestionDto,
@@ -135,37 +136,44 @@ export class SavingsGoalsService {
 
     // Otomatis atur share jika target pembelian (PURCHASE)
     if (dto.type === 'PURCHASE') {
-      const allPurchases = await this.prisma.savingsGoal.findMany({
-        where: { userId, type: 'PURCHASE', isArchived: false },
-      });
-
-      if (allPurchases.length === 1) {
-        // Target pembelian pertama: 100% share
-        await this.prisma.goalShare.create({
-          data: {
-            userId,
-            goalId: goal.id,
-            shareRatio: 10000,
-          },
-        });
-      } else {
-        // Bagi rata sementara
-        const equalShare = Math.floor(10000 / allPurchases.length);
-        const remainder = 10000 - equalShare * allPurchases.length;
-        for (let i = 0; i < allPurchases.length; i++) {
-          const p = allPurchases[i];
-          const finalShare =
-            equalShare + (i === allPurchases.length - 1 ? remainder : 0);
-          await this.prisma.goalShare.upsert({
-            where: { userId_goalId: { userId, goalId: p.id } },
-            update: { shareRatio: finalShare },
-            create: { userId, goalId: p.id, shareRatio: finalShare },
-          });
-        }
-      }
+      await this.rebalanceActiveShares(userId);
     }
 
     return this.findOne(userId, goal.id);
+  }
+
+  async rebalanceActiveShares(userId: number, prismaClient?: any) {
+    const prisma = prismaClient || this.prisma;
+    const activePurchases = await prisma.savingsGoal.findMany({
+      where: { userId, type: 'PURCHASE', isArchived: false, isCompleted: false },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (activePurchases.length === 0) {
+      return;
+    }
+
+    if (activePurchases.length === 1) {
+      await prisma.goalShare.upsert({
+        where: { userId_goalId: { userId, goalId: activePurchases[0].id } },
+        update: { shareRatio: 10000 },
+        create: { userId, goalId: activePurchases[0].id, shareRatio: 10000 },
+      });
+      return;
+    }
+
+    const equalShare = Math.floor(10000 / activePurchases.length);
+    const remainder = 10000 - equalShare * activePurchases.length;
+    for (let i = 0; i < activePurchases.length; i++) {
+      const p = activePurchases[i];
+      const finalShare =
+        equalShare + (i === activePurchases.length - 1 ? remainder : 0);
+      await prisma.goalShare.upsert({
+        where: { userId_goalId: { userId, goalId: p.id } },
+        update: { shareRatio: finalShare },
+        create: { userId, goalId: p.id, shareRatio: finalShare },
+      });
+    }
   }
 
   async update(userId: number, id: number, dto: UpdateSavingsGoalDto) {
@@ -206,10 +214,212 @@ export class SavingsGoalsService {
           ? { annualPriceIncreaseRatio: dto.annualPriceIncreaseRatio }
           : {}),
         ...(dto.isArchived !== undefined ? { isArchived: dto.isArchived } : {}),
+        ...(dto.isCompleted !== undefined
+          ? {
+              isCompleted: dto.isCompleted,
+              completedAt: dto.isCompleted ? new Date() : null,
+            }
+          : {}),
       },
     });
 
     return this.findOne(userId, id);
+  }
+
+  async completeGoal(userId: number, id: number, dto: CompleteSavingsGoalDto) {
+    const goal = await this.prisma.savingsGoal.findFirst({
+      where: { id, userId },
+    });
+
+    if (!goal) {
+      throw new NotFoundException('Target tabungan tidak ditemukan');
+    }
+
+    if (goal.type !== 'PURCHASE') {
+      throw new BadRequestException('Hanya target impian yang dapat diselesaikan');
+    }
+
+    if (goal.isCompleted) {
+      throw new BadRequestException('Target ini sudah berstatus selesai');
+    }
+
+    const currentBalance = await this.getGoalBalance(goal.id);
+    const txDate = dto.date ? new Date(dto.date) : new Date();
+
+    return this.prisma.$transaction(async (prisma) => {
+      if (dto.action === 'SPEND') {
+        if (!dto.amount) {
+          throw new BadRequestException(
+            'Nominal pengeluaran wajib diisi untuk aksi realisasi pembelian',
+          );
+        }
+        const spendAmount = BigInt(dto.amount);
+        if (spendAmount <= BigInt(0)) {
+          throw new BadRequestException(
+            'Nominal pengeluaran harus lebih besar dari 0',
+          );
+        }
+        if (spendAmount > currentBalance) {
+          throw new BadRequestException(
+            `Nominal pengeluaran (${spendAmount}) melebihi saldo tabungan target (${currentBalance})`,
+          );
+        }
+
+        let category: any = null;
+        if (dto.categoryId) {
+          category = await prisma.category.findFirst({
+            where: { id: dto.categoryId, userId, type: 'expense' },
+          });
+          if (!category) {
+            throw new NotFoundException('Kategori pengeluaran tidak ditemukan');
+          }
+        } else {
+          category = await prisma.category.findFirst({
+            where: { userId, type: 'expense', isArchived: false },
+          });
+          if (!category) {
+            category = await prisma.category.create({
+              data: {
+                name: 'Belanja Target Impian',
+                type: 'expense',
+                group: 'WANT',
+                userId,
+              },
+            });
+          }
+        }
+
+        let targetWallet: any = null;
+        if (dto.walletAccountId) {
+          targetWallet = await prisma.walletAccount.findFirst({
+            where: { id: dto.walletAccountId, userId, isArchived: false },
+          });
+          if (!targetWallet) {
+            throw new NotFoundException(
+              'Akun dompet / rekening pembayaran tidak ditemukan',
+            );
+          }
+        } else {
+          targetWallet = await prisma.walletAccount.findFirst({
+            where: { userId, isArchived: false },
+            orderBy: { id: 'asc' },
+          });
+        }
+
+        if (targetWallet) {
+          await prisma.walletAccount.update({
+            where: { id: targetWallet.id },
+            data: { balance: { decrement: spendAmount } },
+          });
+        }
+
+        const trx = await prisma.transaction.create({
+          data: {
+            amount: spendAmount,
+            date: txDate,
+            note: dto.note || `Realisasi target impian: ${goal.name}`,
+            typeSnapshot: 'EXPENSE',
+            groupSnapshot: category.group,
+            status: 'ACTIVE',
+            userId,
+            categoryId: category.id,
+            walletAccountId: targetWallet ? targetWallet.id : null,
+            sourceGoalId: goal.id,
+          },
+        });
+
+        await prisma.allocationEvent.create({
+          data: {
+            userId,
+            transactionId: trx.id,
+            sourceGoalId: goal.id,
+            targetGoalId: null,
+            amount: spendAmount,
+            date: txDate,
+            type: 'SPEND',
+            note: `Realisasi target impian: ${goal.name}`,
+          },
+        });
+
+        const excess = currentBalance - spendAmount;
+        if (excess > BigInt(0) && dto.excessAction !== 'KEEP_IN_GOAL') {
+          await prisma.allocationEvent.create({
+            data: {
+              userId,
+              sourceGoalId: goal.id,
+              targetGoalId: null,
+              amount: excess,
+              date: txDate,
+              type: 'RELEASE',
+              note: `Pengembalian sisa dana realisasi target: ${goal.name}`,
+            },
+          });
+        }
+      } else if (dto.action === 'MARK_ONLY') {
+        if (currentBalance > BigInt(0) && dto.excessAction !== 'KEEP_IN_GOAL') {
+          await prisma.allocationEvent.create({
+            data: {
+              userId,
+              sourceGoalId: goal.id,
+              targetGoalId: null,
+              amount: currentBalance,
+              date: txDate,
+              type: 'RELEASE',
+              note: `Pelepasan dana saat target ditandai selesai: ${goal.name}`,
+            },
+          });
+        }
+      }
+
+      await prisma.savingsGoal.update({
+        where: { id: goal.id },
+        data: {
+          isCompleted: true,
+          completedAt: txDate,
+        },
+      });
+
+      // Hapus share ratio target yang selesai
+      await prisma.goalShare.deleteMany({
+        where: { userId, goalId: goal.id },
+      });
+
+      await this.rebalanceActiveShares(userId, prisma);
+
+      return this.findOne(userId, goal.id);
+    });
+  }
+
+  async reopenGoal(userId: number, id: number) {
+    const goal = await this.prisma.savingsGoal.findFirst({
+      where: { id, userId },
+    });
+
+    if (!goal) {
+      throw new NotFoundException('Target tabungan tidak ditemukan');
+    }
+
+    if (goal.type !== 'PURCHASE') {
+      throw new BadRequestException('Hanya target impian yang dapat dibuka kembali');
+    }
+
+    if (!goal.isCompleted) {
+      throw new BadRequestException('Target ini belum berstatus selesai');
+    }
+
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.savingsGoal.update({
+        where: { id: goal.id },
+        data: {
+          isCompleted: false,
+          completedAt: null,
+        },
+      });
+
+      await this.rebalanceActiveShares(userId, prisma);
+    });
+
+    return this.findOne(userId, goal.id);
   }
 
   async archive(userId: number, id: number) {
@@ -230,7 +440,7 @@ export class SavingsGoalsService {
 
   async updateShares(userId: number, dto: UpdateGoalSharesDto) {
     const activeGoals = await this.prisma.savingsGoal.findMany({
-      where: { userId, type: 'PURCHASE', isArchived: false },
+      where: { userId, type: 'PURCHASE', isArchived: false, isCompleted: false },
       select: { id: true },
     });
     const activeIds = new Set(activeGoals.map((goal) => goal.id));
@@ -392,6 +602,7 @@ export class SavingsGoalsService {
         userId,
         type: 'PURCHASE',
         isArchived: false,
+        isCompleted: false,
         ...(goalId ? { id: goalId } : {}),
       },
       include: {

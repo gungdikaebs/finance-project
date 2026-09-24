@@ -73,7 +73,7 @@ const handleSave = async () => {
   }
   for (const ov of overrides.value) {
     if (ov.needs + ov.savings + ov.wants !== 100) {
-      toast.error('Total rasio setiap override sumber harus tepat 100%');
+      toast.error('Total persentase aturan khusus tiap sumber pemasukan harus tepat 100%');
       return;
     }
   }
@@ -159,8 +159,9 @@ const handleSave = async () => {
 
         <div class="grid grid-cols-3 gap-2.5">
           <div>
-            <label class="block text-[11px] font-bold text-blue-900 dark:text-blue-300 mb-1">Kebutuhan (%)</label>
+            <label for="budget-needs" class="block text-[11px] font-bold text-blue-900 dark:text-blue-300 mb-1">Kebutuhan (%)</label>
             <input
+              id="budget-needs"
               v-model.number="needsPercent"
               type="number"
               min="0"
@@ -169,8 +170,9 @@ const handleSave = async () => {
             />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-emerald-900 dark:text-emerald-300 mb-1">Tabungan (%)</label>
+            <label for="budget-savings" class="block text-[11px] font-bold text-emerald-900 dark:text-emerald-300 mb-1">Tabungan (%)</label>
             <input
+              id="budget-savings"
               v-model.number="savingsPercent"
               type="number"
               min="0"
@@ -179,8 +181,9 @@ const handleSave = async () => {
             />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-purple-900 dark:text-purple-300 mb-1">Keinginan (%)</label>
+            <label for="budget-wants" class="block text-[11px] font-bold text-purple-900 dark:text-purple-300 mb-1">Keinginan (%)</label>
             <input
+              id="budget-wants"
               v-model.number="wantsPercent"
               type="number"
               min="0"
@@ -191,10 +194,10 @@ const handleSave = async () => {
         </div>
       </div>
 
-      <!-- Override per Sumber Pemasukan -->
+      <!-- Aturan Khusus per Sumber Pemasukan -->
       <div class="space-y-3 pt-1">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] uppercase tracking-wider">Override Khusus per Sumber</span>
+          <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] uppercase tracking-wider">Aturan Khusus per Sumber Pemasukan</span>
         </div>
 
         <div v-if="overrides.length > 0" class="space-y-2">
@@ -218,16 +221,16 @@ const handleSave = async () => {
             </div>
             <div class="grid grid-cols-3 gap-2">
               <div>
-                <label class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Need (%)</label>
-                <input v-model.number="ov.needs" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
+                <label :for="`budget-needs-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Kebutuhan (%)</label>
+                <input :id="`budget-needs-${ov.incomeSourceId}`" v-model.number="ov.needs" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
               </div>
               <div>
-                <label class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Save (%)</label>
-                <input v-model.number="ov.savings" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
+                <label :for="`budget-savings-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Tabungan (%)</label>
+                <input :id="`budget-savings-${ov.incomeSourceId}`" v-model.number="ov.savings" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
               </div>
               <div>
-                <label class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Want (%)</label>
-                <input v-model.number="ov.wants" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
+                <label :for="`budget-wants-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Keinginan (%)</label>
+                <input :id="`budget-wants-${ov.incomeSourceId}`" v-model.number="ov.wants" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
               </div>
             </div>
           </div>
@@ -236,10 +239,11 @@ const handleSave = async () => {
         <!-- Tambah Override Dropdown -->
         <div class="flex items-center gap-2">
           <select
+            aria-label="Tambah aturan khusus untuk sumber pemasukan"
             v-model="selectedOverrideSourceId"
             class="flex-1 text-xs border border-stone-200 dark:border-[#243329] rounded-xl px-3 py-2 bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer font-medium"
           >
-            <option :value="null">-- Pilih Sumber Pemasukan untuk Override --</option>
+            <option :value="null">-- Tambah Aturan Khusus untuk Sumber Pemasukan --</option>
             <option
               v-for="src in incomeSources.filter(s => !s.isArchived && !overrides.some(o => o.incomeSourceId === s.id))"
               :key="src.id"

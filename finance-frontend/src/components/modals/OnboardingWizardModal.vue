@@ -166,6 +166,9 @@ const finishOnboarding = async () => {
   <div
     v-if="show"
     class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="onboarding-title"
   >
     <!-- Locked Frosted Backdrop -->
     <div class="fixed inset-0 bg-[#0E1410]/70 backdrop-blur-md transition-opacity"></div>
@@ -188,7 +191,7 @@ const finishOnboarding = async () => {
               <span class="text-xs font-semibold uppercase tracking-wider text-[#183D2B]/70 dark:text-[#98A79D]">
                 Panduan Pengguna Baru
               </span>
-              <h2 class="text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
+              <h2 id="onboarding-title" class="text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
                 Setup Awal Keuangan Anda
               </h2>
             </div>
@@ -271,7 +274,7 @@ const finishOnboarding = async () => {
           </div>
 
           <div class="space-y-2">
-            <label class="block text-xs font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider">
+            <label for="onboarding-balance" class="block text-xs font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider">
               Total Saldo Awal Riil
             </label>
             <div class="relative">
@@ -279,6 +282,7 @@ const finishOnboarding = async () => {
                 Rp
               </span>
               <input
+                id="onboarding-balance"
                 type="text"
                 :value="initialBalanceInput"
                 @input="onBalanceInput"
@@ -309,7 +313,7 @@ const finishOnboarding = async () => {
           </div>
 
           <div class="space-y-2">
-            <label class="block text-xs font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider">
+            <label for="onboarding-essentials" class="block text-xs font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider">
               Kebutuhan Pokok per Bulan
             </label>
             <div class="relative">
@@ -317,6 +321,7 @@ const finishOnboarding = async () => {
                 Rp
               </span>
               <input
+                id="onboarding-essentials"
                 type="text"
                 :value="monthlyNeedsInput"
                 @input="onNeedsInput"

@@ -47,8 +47,20 @@ export interface SavingsGoal {
   mode?: 'FULL' | 'DOWN_PAYMENT';
   annualPriceIncreaseRatio?: number;
   isArchived: boolean;
+  isCompleted?: boolean;
+  completedAt?: string;
   currentBalance?: string;
   shareRatio?: number;
+}
+
+export interface CompleteGoalPayload {
+  action: 'SPEND' | 'MARK_ONLY';
+  amount?: string;
+  categoryId?: number;
+  walletAccountId?: number;
+  note?: string;
+  date?: string;
+  excessAction?: 'RELEASE_TO_UNALLOCATED' | 'KEEP_IN_GOAL';
 }
 
 export interface AllocationEvent {
@@ -78,10 +90,21 @@ export interface SavePreviewItem {
   type: string;
 }
 
+export interface EmergencyDetails {
+  currentBalance: string;
+  targetNominal: string;
+  remainingNeeded: string;
+  isFull: boolean;
+  allocatedAmount: string;
+  overflowAmount: string;
+}
+
 export interface SavePreview {
   totalAmount: string;
   unallocatedMoney: string;
   previewItems: SavePreviewItem[];
+  emergencyDetails?: EmergencyDetails;
+  ruleExplanation?: string;
 }
 
 export interface GoalSimulationParams {
@@ -432,6 +455,10 @@ export const financeApi = {
     api.patch<{ data: SavingsGoal }>(`/savings-goals/${id}`, data),
   archiveSavingsGoal: (id: number) =>
     api.patch<{ data: SavingsGoal }>(`/savings-goals/${id}/archive`),
+  completeSavingsGoal: (id: number, data: CompleteGoalPayload) =>
+    api.post<{ data: SavingsGoal }>(`/savings-goals/${id}/complete`, data),
+  reopenSavingsGoal: (id: number) =>
+    api.post<{ data: SavingsGoal }>(`/savings-goals/${id}/reopen`),
   updateGoalShares: (shares: { goalId: number; shareRatio: number }[]) =>
     api.patch<{ data: any }>('/savings-goals/shares', { shares }),
   getGoalForecasts: () =>

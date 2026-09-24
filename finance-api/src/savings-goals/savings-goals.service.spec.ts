@@ -293,4 +293,143 @@ describe('SavingsGoalsService', () => {
       expect(f.topUpSuggestion.newTargetMonths).toBe(24);
     });
   });
+
+  describe('completeGoal & reopenGoal (UX-13)', () => {
+    it('berhasil menyelesaikan target dengan aksi SPEND, mencatat transaksi dan pelepasan sisa dana', async () => {
+      const mockGoal = {
+        id: 101,
+        userId: 1,
+        name: 'Laptop Kerja',
+        type: 'PURCHASE',
+        isCompleted: false,
+      };
+
+      const prismaMock = {
+        savingsGoal: {
+          findFirst: jest.fn().mockResolvedValue(mockGoal),
+          update: jest.fn().mockResolvedValue({ ...mockGoal, isCompleted: true }),
+          findMany: jest.fn().mockResolvedValue([]),
+        },
+        allocationEvent: {
+          aggregate: jest
+            .fn()
+            .mockResolvedValueOnce({ _sum: { amount: BigInt('12500000') } }) // Inflow Rp 12.5M
+            .mockResolvedValueOnce({ _sum: { amount: BigInt('0') } }), // Outflow Rp 0
+          create: jest.fn().mockResolvedValue({ id: 99 }),
+        },
+        category: {
+          findFirst: jest.fn().mockResolvedValue({ id: 5, name: 'Elektronik', group: 'WANT' }),
+        },
+        walletAccount: {
+          findFirst: jest.fn().mockResolvedValue({ id: 2, name: 'BCA Utama' }),
+          update: jest.fn().mockResolvedValue({ id: 2 }),
+        },
+        transaction: {
+          create: jest.fn().mockResolvedValue({ id: 501, amount: BigInt('12000000') }),
+        },
+        goalShare: {
+          deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+          upsert: jest.fn(),
+        },
+        $transaction: jest.fn(async (cb) => cb(prismaMock)),
+      } as any;
+
+      const service = new SavingsGoalsService(prismaMock);
+      // Spy on findOne to return completed goal
+      jest.spyOn(service, 'findOne').mockResolvedValue({
+        ...mockGoal,
+        isCompleted: true,
+        currentBalance: BigInt(0),
+      } as any);
+
+      const result = await service.completeGoal(1, 101, {
+        action: 'SPEND',
+        amount: '12000000', // Beli Rp 12.000.000 dari saldo 12.500.000
+        categoryId: 5,
+        walletAccountId: 2,
+        note: 'Beli laptop kerja baru',
+        excessAction: 'RELEASE_TO_UNALLOCATED',
+      });
+
+      expect(result.isCompleted).toBe(true);
+      // Verifikasi transaksi dibuat dengan SPEND
+      expect(prismaMock.transaction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            amount: BigInt('12000000'),
+            sourceGoalId: 101,
+            walletAccountId: 2,
+            typeSnapshot: 'EXPENSE',
+          }),
+        }),
+      );
+      // Verifikasi event SPEND dibuat
+      expect(prismaMock.allocationEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'SPEND',
+            amount: BigInt('12000000'),
+            sourceGoalId: 101,
+          }),
+        }),
+      );
+      // Verifikasi sisa Rp 500.000 dilepas (RELEASE)
+      expect(prismaMock.allocationEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'RELEASE',
+            amount: BigInt('500000'),
+            sourceGoalId: 101,
+          }),
+        }),
+      );
+      // Verifikasi target diupdate menjadi isCompleted: true
+      expect(prismaMock.savingsGoal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 101 },
+          data: expect.objectContaining({ isCompleted: true }),
+        }),
+      );
+    });
+
+    it('berhasil membuka kembali target yang sudah selesai via reopenGoal', async () => {
+      const mockGoal = {
+        id: 101,
+        userId: 1,
+        name: 'Laptop Kerja',
+        type: 'PURCHASE',
+        isCompleted: true,
+      };
+
+      const prismaMock = {
+        savingsGoal: {
+          findFirst: jest.fn().mockResolvedValue(mockGoal),
+          update: jest.fn().mockResolvedValue({ ...mockGoal, isCompleted: false, completedAt: null }),
+          findMany: jest.fn().mockResolvedValue([
+            { id: 101, userId: 1, type: 'PURCHASE', isArchived: false, isCompleted: false },
+          ]),
+        },
+        goalShare: {
+          upsert: jest.fn(),
+        },
+        $transaction: jest.fn(async (cb) => cb(prismaMock)),
+      } as any;
+
+      const service = new SavingsGoalsService(prismaMock);
+      jest.spyOn(service, 'findOne').mockResolvedValue({
+        ...mockGoal,
+        isCompleted: false,
+        currentBalance: BigInt(0),
+      } as any);
+
+      const result = await service.reopenGoal(1, 101);
+      expect(result.isCompleted).toBe(false);
+      expect(prismaMock.savingsGoal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 101 },
+          data: expect.objectContaining({ isCompleted: false, completedAt: null }),
+        }),
+      );
+    });
+  });
 });

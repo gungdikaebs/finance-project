@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import {
   financeApi,
   type SavingsGoal,
@@ -18,7 +18,6 @@ import {
   Info,
   ChevronDown,
 } from 'lucide-vue-next';
-import { useToast } from '../../composables/useToast';
 
 const props = defineProps<{
   show: boolean;
@@ -30,8 +29,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void;
 }>();
-
-const toast = useToast();
 
 const simActiveTab = ref<'goal' | 'mortgage'>('goal');
 
@@ -49,6 +46,10 @@ const simTargetMonths = ref<number | string>(24);
 const simMonthlySavings = ref('');
 const simGoalLoading = ref(false);
 const simGoalResult = ref<GoalSimulationResult | null>(null);
+const simGoalError = ref('');
+const simGoalPriceInput = ref<HTMLInputElement | null>(null);
+const simGoalResultPanel = ref<HTMLElement | null>(null);
+const simGoalErrorMessage = ref<HTMLElement | null>(null);
 
 const isSavingsSufficient = computed(() => {
   if (!simGoalResult.value) return false;
@@ -69,6 +70,17 @@ const simMortgageFloatingRate = ref<number | string>(11.0);
 const simMortgageIncome = ref('');
 const simMortgageLoading = ref(false);
 const simMortgageResult = ref<MortgageSimulationResult | null>(null);
+const simMortgageError = ref('');
+const simMortgagePrincipalInput = ref<HTMLInputElement | null>(null);
+const simMortgageTenorInput = ref<HTMLInputElement | null>(null);
+const simMortgageResultPanel = ref<HTMLElement | null>(null);
+const simMortgageErrorMessage = ref<HTMLElement | null>(null);
+
+const revealFeedback = async (element: HTMLElement | null) => {
+  await nextTick();
+  element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  element?.focus({ preventScroll: true });
+};
 
 const computedTenorMonths = computed(() => {
   const val = Number(simMortgageTenorValue.value) || 1;
@@ -144,6 +156,8 @@ watch(
       simActiveTab.value = props.initialTab || 'goal';
       simGoalResult.value = null;
       simMortgageResult.value = null;
+      simGoalError.value = '';
+      simMortgageError.value = '';
 
       if (props.initialGoal) {
         simGoalName.value = props.initialGoal.name;
@@ -176,13 +190,18 @@ watch(
 );
 
 const handleRunGoalSim = async () => {
+  if (simGoalLoading.value) return;
+  simGoalError.value = '';
   const cleanPrice = simPrice.value.replace(/[^0-9]/g, '');
   if (!cleanPrice || cleanPrice === '0') {
-    toast.error('Harga acuan harus lebih besar dari Rp 0');
+    simGoalError.value = 'Isi harga acuan lebih besar dari Rp 0 untuk menghitung rencana.';
+    await nextTick();
+    simGoalPriceInput.value?.focus();
     return;
   }
 
   simGoalLoading.value = true;
+  simGoalResult.value = null;
   try {
     const cleanSavings = simCurrentSavings.value.replace(/[^0-9]/g, '') || '0';
     const cleanFees = simInitialFees.value.replace(/[^0-9]/g, '') || '0';
@@ -201,27 +220,39 @@ const handleRunGoalSim = async () => {
       monthlySavings: cleanMonthly,
     });
     simGoalResult.value = res.data.data;
+    await nextTick();
+    await revealFeedback(simGoalResultPanel.value);
   } catch (err: any) {
-    toast.error(err?.response?.data?.message || 'Gagal menghitung simulasi target');
+    simGoalError.value = err?.response?.data?.message || 'Rencana belum bisa dihitung. Periksa isian lalu coba lagi.';
+    await nextTick();
+    await revealFeedback(simGoalErrorMessage.value);
   } finally {
     simGoalLoading.value = false;
   }
 };
 
 const handleRunMortgageSim = async () => {
+  if (simMortgageLoading.value) return;
+  simMortgageError.value = '';
   const cleanPrincipal = simMortgagePrincipal.value.replace(/[^0-9]/g, '');
   if (!cleanPrincipal || cleanPrincipal === '0') {
-    toast.error('Pokok pinjaman harus lebih besar dari Rp 0');
+    simMortgageError.value = 'Isi pokok pinjaman lebih besar dari Rp 0 untuk menghitung cicilan.';
+    await nextTick();
+    simMortgagePrincipalInput.value?.focus();
     return;
   }
 
+  const tenorValue = Number(simMortgageTenorValue.value);
   const tenorMonths = computedTenorMonths.value;
-  if (tenorMonths < 1 || tenorMonths > 360) {
-    toast.error('Tenor pinjaman harus antara 1 sampai 360 bulan (30 tahun)');
+  if (!Number.isFinite(tenorValue) || tenorValue < 1 || tenorValue > (simTenorUnit.value === 'YEARS' ? 30 : 360)) {
+    simMortgageError.value = 'Isi jangka waktu antara 1 sampai 30 tahun atau 1 sampai 360 bulan.';
+    await nextTick();
+    simMortgageTenorInput.value?.focus();
     return;
   }
 
   simMortgageLoading.value = true;
+  simMortgageResult.value = null;
   try {
     const cleanIncome = simMortgageIncome.value.replace(/[^0-9]/g, '') || undefined;
     const rate = simMortgageFixedRate.value !== '' ? Number(simMortgageFixedRate.value) : 0;
@@ -242,8 +273,12 @@ const handleRunMortgageSim = async () => {
       monthlyIncome: cleanIncome,
     });
     simMortgageResult.value = res.data.data;
+    await nextTick();
+    await revealFeedback(simMortgageResultPanel.value);
   } catch (err: any) {
-    toast.error(err?.response?.data?.message || 'Gagal menghitung simulasi cicilan');
+    simMortgageError.value = err?.response?.data?.message || 'Cicilan belum bisa dihitung. Periksa isian lalu coba lagi.';
+    await nextTick();
+    await revealFeedback(simMortgageErrorMessage.value);
   } finally {
     simMortgageLoading.value = false;
   }
@@ -321,6 +356,7 @@ const continueToMortgage = (principalAmount: string) => {
           <button
             type="button"
             @click="simActiveTab = 'goal'"
+            :aria-pressed="simActiveTab === 'goal'"
             class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition select-none cursor-pointer"
             :class="simActiveTab === 'goal' ? 'bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
           >
@@ -330,6 +366,7 @@ const continueToMortgage = (principalAmount: string) => {
           <button
             type="button"
             @click="simActiveTab = 'mortgage'"
+            :aria-pressed="simActiveTab === 'mortgage'"
             class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition select-none cursor-pointer"
             :class="simActiveTab === 'mortgage' ? 'bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1] shadow-xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
           >
@@ -348,8 +385,9 @@ const continueToMortgage = (principalAmount: string) => {
               <!-- Kolom Kiri: Form Input Parameter -->
               <div class="space-y-3.5 p-4 sm:p-5 bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#243329] rounded-2xl shadow-2xs">
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Nama Target (Opsional)</label>
+                  <label for="sim-goal-name" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Nama Target (Opsional)</label>
                   <input
+                    id="sim-goal-name"
                     v-model="simGoalName"
                     type="text"
                     placeholder="Contoh: Rumah Impian, Mobil, Laptop..."
@@ -358,8 +396,9 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tujuan Menabung</label>
+                  <label for="sim-goal-mode" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tujuan Menabung</label>
                   <select
+                    id="sim-goal-mode"
                     v-model="simMode"
                     class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/50 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/15 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] cursor-pointer font-bold"
                   >
@@ -369,11 +408,14 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Harga Acuan Saat Ini (Rp)</label>
+                  <label for="sim-goal-price" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Harga Acuan Saat Ini (Rp)</label>
                   <input
+                    id="sim-goal-price"
+                    ref="simGoalPriceInput"
                     :value="simPrice"
                     @input="handlePriceInput"
                     @keyup.enter="handleRunGoalSim"
+                    :aria-invalid="!!simGoalError && (!simPrice || simPrice === '0')"
                     type="text"
                     inputmode="numeric"
                     placeholder="0"
@@ -382,8 +424,9 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tanggal Harga Acuan</label>
+                  <label for="sim-goal-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Tanggal Harga Acuan</label>
                   <input
+                    id="sim-goal-date"
                     v-model="simReferenceDate"
                     type="date"
                     :max="new Date().toISOString().slice(0, 10)"
@@ -396,8 +439,9 @@ const continueToMortgage = (principalAmount: string) => {
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Inflasi Tahunan (%)</label>
+                    <label for="sim-goal-inflation" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Inflasi Tahunan (%)</label>
                     <input
+                      id="sim-goal-inflation"
                       v-model.number="simInflation"
                       @keyup.enter="handleRunGoalSim"
                       type="number"
@@ -409,8 +453,9 @@ const continueToMortgage = (principalAmount: string) => {
                     />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tabungan Dimiliki (Rp)</label>
+                    <label for="sim-goal-savings" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tabungan Dimiliki (Rp)</label>
                     <input
+                      id="sim-goal-savings"
                       :value="simCurrentSavings"
                       @input="handleSavingsInput"
                       @keyup.enter="handleRunGoalSim"
@@ -439,9 +484,10 @@ const continueToMortgage = (principalAmount: string) => {
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Porsi DP (%)</label>
+                      <label for="sim-goal-dp" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Porsi DP (%)</label>
                       <div class="relative">
                         <input
+                          id="sim-goal-dp"
                           v-model.number="simDpPercent"
                           @keyup.enter="handleRunGoalSim"
                           type="number"
@@ -455,8 +501,9 @@ const continueToMortgage = (principalAmount: string) => {
                     </div>
 
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Biaya Legalitas / Pajak (Rp)</label>
+                      <label for="sim-goal-fees" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Biaya Legalitas / Pajak (Rp)</label>
                       <input
+                        id="sim-goal-fees"
                         :value="simInitialFees"
                         @input="handleInitialFeesInput"
                         @keyup.enter="handleRunGoalSim"
@@ -484,8 +531,9 @@ const continueToMortgage = (principalAmount: string) => {
                   </div>
 
                   <div v-if="simCalcMode === 'MONTHLY_SAVINGS'" class="pt-1.5">
-                    <label class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Target Waktu (Bulan)</label>
+                    <label for="sim-goal-months" class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Target Waktu (Bulan)</label>
                     <input
+                      id="sim-goal-months"
                       v-model.number="simTargetMonths"
                       @keyup.enter="handleRunGoalSim"
                       type="number"
@@ -496,8 +544,9 @@ const continueToMortgage = (principalAmount: string) => {
                   </div>
 
                   <div v-if="simCalcMode === 'TARGET_DATE'" class="pt-1.5">
-                    <label class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Setoran Tabungan per Bulan (Rp)</label>
+                    <label for="sim-goal-monthly" class="block text-[11px] font-bold text-stone-600 dark:text-[#98A79D] mb-1">Setoran Tabungan per Bulan (Rp)</label>
                     <input
+                      id="sim-goal-monthly"
                       :value="simMonthlySavings"
                       @input="handleMonthlySavingsInput"
                       @keyup.enter="handleRunGoalSim"
@@ -518,11 +567,14 @@ const continueToMortgage = (principalAmount: string) => {
                   <TrendingUp class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2.5" />
                   <span>{{ simGoalLoading ? 'Menghitung...' : (simMode === 'DOWN_PAYMENT' ? 'Hitung Rencana DP' : 'Hitung Rencana Tabungan') }}</span>
                 </button>
+                <p v-if="simGoalError" ref="simGoalErrorMessage" tabindex="-1" role="alert" class="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
+                  {{ simGoalError }}
+                </p>
               </div>
 
               <!-- Kolom Kanan: Hasil Visual / Ringkasan Ledger -->
               <div class="flex flex-col justify-between">
-                <div v-if="simGoalResult" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4">
+                <div v-if="simGoalResult" ref="simGoalResultPanel" tabindex="-1" aria-label="Hasil rencana tabungan" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#183D2B] dark:focus-visible:ring-[#B8DF38]">
                   <div v-if="simGoalResult.isAchievable" class="space-y-3.5">
                     <!-- Header Ringkasan -->
                     <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-[#243329]">
@@ -559,8 +611,8 @@ const continueToMortgage = (principalAmount: string) => {
                     <!-- KONDISI B: MASIH PERLU MENABUNG BULANAN -->
                     <div v-else class="p-4 bg-white dark:bg-[#16201A] rounded-xl border border-stone-200/80 dark:border-[#243329] shadow-2xs space-y-1">
                       <span class="text-[11px] font-semibold text-stone-400 dark:text-[#98A79D] block">Setoran Tabungan Bulanan</span>
-                      <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight">
+                      <div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-1.5">
+                        <span class="text-xl sm:text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight whitespace-nowrap">
                           {{ formatRupiah(simGoalResult.monthlySavings) }}
                         </span>
                         <span class="text-xs font-semibold text-stone-500 dark:text-[#98A79D]">/ bulan</span>
@@ -635,10 +687,10 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <!-- Empty State Tab 1 -->
-                <div v-else class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
+                <div v-else role="status" class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
                   <TrendingUp class="w-7 h-7 text-stone-300 dark:text-stone-600 mb-2" :stroke-width="1.5" />
                   <p class="max-w-xs leading-relaxed">
-                    Isi nominal target di sebelah kiri lalu klik tombol hitung untuk melihat proyeksi tabungan.
+                    {{ simGoalLoading ? 'Sedang menghitung rencana tabungan...' : 'Isi nominal target di sebelah kiri lalu klik tombol hitung untuk melihat proyeksi tabungan.' }}
                   </p>
                 </div>
               </div>
@@ -657,6 +709,7 @@ const continueToMortgage = (principalAmount: string) => {
                     <button
                       type="button"
                       @click="simLoanType = 'ANNUITY'"
+                      :aria-pressed="simLoanType === 'ANNUITY'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
                       :class="simLoanType === 'ANNUITY' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
@@ -665,6 +718,7 @@ const continueToMortgage = (principalAmount: string) => {
                     <button
                       type="button"
                       @click="simLoanType = 'FLAT'"
+                      :aria-pressed="simLoanType === 'FLAT'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
                       :class="simLoanType === 'FLAT' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
@@ -673,6 +727,7 @@ const continueToMortgage = (principalAmount: string) => {
                     <button
                       type="button"
                       @click="simLoanType = 'STEPPED_MORTGAGE'"
+                      :aria-pressed="simLoanType === 'STEPPED_MORTGAGE'"
                       class="tactile-btn py-1.5 px-2 rounded-lg text-center transition cursor-pointer"
                       :class="simLoanType === 'STEPPED_MORTGAGE' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-[#F0F4F1]'"
                     >
@@ -688,11 +743,14 @@ const continueToMortgage = (principalAmount: string) => {
 
                 <!-- Pokok Pinjaman -->
                 <div>
-                  <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Pokok Pinjaman / Hutang (Rp)</label>
+                  <label for="sim-loan-principal" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">Pokok Pinjaman / Hutang (Rp)</label>
                   <input
+                    id="sim-loan-principal"
+                    ref="simMortgagePrincipalInput"
                     :value="simMortgagePrincipal"
                     @input="handlePrincipalInput"
                     @keyup.enter="handleRunMortgageSim"
+                    :aria-invalid="!!simMortgageError && (!simMortgagePrincipal || simMortgagePrincipal === '0')"
                     type="text"
                     inputmode="numeric"
                     placeholder="0"
@@ -716,11 +774,12 @@ const continueToMortgage = (principalAmount: string) => {
                 <!-- Tenor -->
                 <div>
                   <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Jangka Waktu (Tenor)</label>
+                    <label for="sim-loan-tenor" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Jangka Waktu (Tenor)</label>
                     <div class="flex items-center bg-stone-100 dark:bg-[#0E1410] p-0.5 rounded-lg text-[10px] font-bold">
                       <button
                         type="button"
                         @click="simTenorUnit = 'YEARS'"
+                        :aria-pressed="simTenorUnit === 'YEARS'"
                         class="px-2 py-0.5 rounded-md transition cursor-pointer"
                         :class="simTenorUnit === 'YEARS' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-500 dark:text-[#98A79D]'"
                       >
@@ -729,6 +788,7 @@ const continueToMortgage = (principalAmount: string) => {
                       <button
                         type="button"
                         @click="simTenorUnit = 'MONTHS'"
+                        :aria-pressed="simTenorUnit === 'MONTHS'"
                         class="px-2 py-0.5 rounded-md transition cursor-pointer"
                         :class="simTenorUnit === 'MONTHS' ? 'bg-white dark:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] shadow-2xs' : 'text-stone-500 dark:text-[#98A79D]'"
                       >
@@ -739,8 +799,11 @@ const continueToMortgage = (principalAmount: string) => {
 
                   <div class="flex items-center gap-2">
                     <input
+                      id="sim-loan-tenor"
+                      ref="simMortgageTenorInput"
                       v-model.number="simMortgageTenorValue"
                       @keyup.enter="handleRunMortgageSim"
+                      :aria-invalid="!!simMortgageError && (!simMortgageTenorValue || Number(simMortgageTenorValue) < 1)"
                       type="number"
                       min="1"
                       :max="simTenorUnit === 'YEARS' ? 30 : 360"
@@ -760,10 +823,11 @@ const continueToMortgage = (principalAmount: string) => {
                 <!-- Suku Bunga Form Input -->
                 <template v-if="simLoanType !== 'STEPPED_MORTGAGE'">
                   <div>
-                    <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
+                    <label for="sim-loan-rate" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
                       Suku Bunga (%/tahun)
                     </label>
                     <input
+                      id="sim-loan-rate"
                       v-model.number="simMortgageFixedRate"
                       @keyup.enter="handleRunMortgageSim"
                       type="number"
@@ -780,8 +844,9 @@ const continueToMortgage = (principalAmount: string) => {
                   <!-- Suku Bunga Bertahap (KPR) -->
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Masa Promo Fixed</label>
+                      <label for="sim-loan-fixed-years" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Masa Promo Fixed</label>
                       <input
+                        id="sim-loan-fixed-years"
                         v-model.number="simMortgageFixedYears"
                         @keyup.enter="handleRunMortgageSim"
                         type="number"
@@ -793,8 +858,9 @@ const continueToMortgage = (principalAmount: string) => {
                       <span class="text-[10px] text-stone-400 dark:text-[#98A79D] mt-0.5 block">{{ (Number(simMortgageFixedYears) || 0) * 12 }} bulan</span>
                     </div>
                     <div>
-                      <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Promo (%/thn)</label>
+                      <label for="sim-loan-fixed-rate" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Promo (%/thn)</label>
                       <input
+                        id="sim-loan-fixed-rate"
                         v-model.number="simMortgageFixedRate"
                         @keyup.enter="handleRunMortgageSim"
                         type="number"
@@ -808,8 +874,9 @@ const continueToMortgage = (principalAmount: string) => {
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Floating Pasca-Promo (%/thn)</label>
+                    <label for="sim-loan-floating-rate" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Bunga Floating Pasca-Promo (%/thn)</label>
                     <input
+                      id="sim-loan-floating-rate"
                       v-model.number="simMortgageFloatingRate"
                       @keyup.enter="handleRunMortgageSim"
                       type="number"
@@ -825,8 +892,9 @@ const continueToMortgage = (principalAmount: string) => {
 
                 <!-- Pemasukan Bulanan (Opsional) -->
                 <div class="pt-2 border-t border-stone-100 dark:border-[#243329]">
-                  <label class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pemasukan Bulanan (Rp - Opsional)</label>
+                  <label for="sim-loan-income" class="block text-[11px] font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pemasukan Bulanan (Rp - Opsional)</label>
                   <input
+                    id="sim-loan-income"
                     :value="simMortgageIncome"
                     @input="handleIncomeInput"
                     @keyup.enter="handleRunMortgageSim"
@@ -850,11 +918,14 @@ const continueToMortgage = (principalAmount: string) => {
                   <Calculator class="w-3.5 h-3.5 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2" />
                   <span>{{ simMortgageLoading ? 'Menghitung...' : 'Hitung Angsuran Cicilan' }}</span>
                 </button>
+                <p v-if="simMortgageError" ref="simMortgageErrorMessage" tabindex="-1" role="alert" class="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
+                  {{ simMortgageError }}
+                </p>
               </div>
 
               <!-- Kolom Kanan: Hasil Visual Cicilan -->
               <div class="flex flex-col justify-between">
-                <div v-if="simMortgageResult" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4">
+                <div v-if="simMortgageResult" ref="simMortgageResultPanel" tabindex="-1" aria-label="Hasil simulasi cicilan" class="p-5 rounded-2xl border border-stone-200/80 dark:border-[#243329] bg-stone-50/70 dark:bg-[#0E1410] flex flex-col justify-between space-y-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#183D2B] dark:focus-visible:ring-[#B8DF38]">
                   <div class="space-y-3.5">
                     <!-- Header -->
                     <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-[#243329]">
@@ -869,8 +940,8 @@ const continueToMortgage = (principalAmount: string) => {
                       <span class="text-[11px] font-semibold text-stone-400 dark:text-[#98A79D] block">
                         Tagihan Cicilan per Bulan
                       </span>
-                      <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight">
+                      <div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-1.5">
+                        <span class="text-xl sm:text-3xl font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums tracking-tight whitespace-nowrap">
                           {{ formatRupiah(simMortgageResult.fixedInstallment) }}
                         </span>
                         <span class="text-xs font-semibold text-stone-500 dark:text-[#98A79D]">/ bulan</span>
@@ -957,10 +1028,10 @@ const continueToMortgage = (principalAmount: string) => {
                 </div>
 
                 <!-- Empty State Tab 2 -->
-                <div v-else class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
+                <div v-else role="status" class="p-8 border border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center text-xs text-stone-400 dark:text-[#98A79D] flex flex-col items-center justify-center h-full bg-stone-50/40 dark:bg-[#0E1410]/50">
                   <Calculator class="w-7 h-7 text-stone-300 dark:text-stone-600 mb-2" :stroke-width="1.5" />
                   <p class="max-w-xs leading-relaxed">
-                    Pilih skema bunga dan jangka waktu, lalu klik tombol hitung untuk melihat rincian angsuran.
+                    {{ simMortgageLoading ? 'Sedang menghitung cicilan...' : 'Pilih skema bunga dan jangka waktu, lalu klik tombol hitung untuk melihat rincian angsuran.' }}
                   </p>
                 </div>
               </div>

@@ -18,6 +18,7 @@ import {
   Loader2,
 } from 'lucide-vue-next';
 import { useToast } from '../composables/useToast';
+import TransactionRevisionHistory from './TransactionRevisionHistory.vue';
 
 const toast = useToast();
 
@@ -107,10 +108,10 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
           <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-[#0E1410] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center border border-emerald-100 dark:border-[#243329]">
             <ReceiptText class="w-4 h-4" :stroke-width="2" />
           </div>
-          <h2 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Riwayat Transaksi</h2>
+          <h2 tabindex="-1" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Riwayat Transaksi</h2>
         </div>
         <p class="text-xs text-[#5E6961] dark:text-[#98A79D] mt-1 font-normal">
-          Catatan arus uang aktual dengan dukungan koreksi dan pembatalan berjejak audit.
+          Catatan arus uang masuk dan keluar dengan riwayat perubahan yang tersimpan rapi.
         </p>
       </div>
 
@@ -122,6 +123,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
         </div>
 
         <select
+          aria-label="Bulan transaksi"
           :value="currentMonth"
           @change="emit('update:currentMonth', Number(($event.target as HTMLSelectElement).value)); emit('changeFilter')"
           class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
@@ -132,6 +134,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
         </select>
 
         <select
+          aria-label="Tahun transaksi"
           :value="currentYear"
           @change="emit('update:currentYear', Number(($event.target as HTMLSelectElement).value)); emit('changeFilter')"
           class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
@@ -142,6 +145,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
         </select>
 
         <select
+          aria-label="Filter jenis transaksi"
           :value="filterType"
           @change="emit('update:filterType', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
           class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
@@ -152,6 +156,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
         </select>
 
         <select
+          aria-label="Filter status transaksi"
           :value="filterStatus"
           @change="emit('update:filterStatus', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
           class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
@@ -241,13 +246,13 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
       </div>
     </div>
 
-    <!-- Mobile: Card List Vertikal (< sm, UX-06) -->
-    <div v-if="transactions.length > 0" class="sm:hidden divide-y divide-stone-100 dark:divide-[#243329]">
+    <!-- Kartu hingga lebar menengah agar aksi tidak tersembunyi di balik scroll tabel. -->
+    <div v-if="transactions.length > 0" class="lg:hidden divide-y divide-stone-100 dark:divide-[#243329]">
       <div
         v-for="trx in transactions"
         :key="trx.id"
         class="p-4 space-y-2.5 transition-colors"
-        :class="trx.status === 'CANCELLED' ? 'opacity-40 bg-stone-50/50 dark:bg-[#0E1410]/30 line-through' : 'hover:bg-stone-50/70 dark:hover:bg-[#0E1410]/50'"
+        :class="trx.status === 'CANCELLED' ? 'bg-stone-50/70 dark:bg-[#0E1410]/40' : 'hover:bg-stone-50/70 dark:hover:bg-[#0E1410]/50'"
       >
         <div class="flex justify-between items-start gap-2">
           <div class="space-y-0.5 flex-1 min-w-0">
@@ -310,6 +315,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
               <button
                 type="button"
                 @click="emit('openEditTransaction', trx)"
+                :data-focus-return="`edit-${trx.id}`"
                 class="tactile-btn text-xs text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
               >
                 <Edit3 class="w-3 h-3" />
@@ -318,20 +324,22 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
               <button
                 type="button"
                 @click="emit('openCancelTransaction', trx)"
+                :data-focus-return="`cancel-${trx.id}`"
                 class="tactile-btn text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 font-bold px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
               >
                 <XCircle class="w-3 h-3" />
                 <span>Batal</span>
               </button>
             </span>
-            <span v-else class="text-[10px] text-stone-400 dark:text-stone-500 italic">Dibatalkan</span>
+            <span v-else class="text-[10px] font-bold text-stone-600 dark:text-[#98A79D]">Dibatalkan</span>
           </div>
         </div>
+        <TransactionRevisionHistory v-if="trx.revisions?.length" :revisions="trx.revisions" />
       </div>
     </div>
 
-    <!-- Desktop: Tabel Riwayat Transaksi (>= sm) -->
-    <div v-if="transactions.length > 0" class="hidden sm:block overflow-x-auto">
+    <!-- Tabel hanya pada layar yang cukup lebar untuk seluruh kolom dan aksi. -->
+    <div v-if="transactions.length > 0" class="hidden lg:block overflow-x-auto">
       <table class="w-full text-left border-collapse text-sm">
         <thead>
           <tr class="border-b border-stone-100 dark:border-[#243329] bg-stone-50/60 dark:bg-[#0E1410] text-[11px] font-bold text-stone-500 dark:text-[#98A79D] uppercase tracking-wider">
@@ -347,7 +355,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
           <tr
             v-for="trx in transactions"
             :key="trx.id"
-            :class="trx.status === 'CANCELLED' ? 'opacity-40 bg-stone-50/50 dark:bg-[#0E1410]/30 line-through' : 'hover:bg-stone-50/70 dark:hover:bg-[#0E1410]/50'"
+            :class="trx.status === 'CANCELLED' ? 'bg-stone-50/70 dark:bg-[#0E1410]/40' : 'hover:bg-stone-50/70 dark:hover:bg-[#0E1410]/50'"
             class="transition-colors"
           >
             <!-- Tanggal -->
@@ -376,6 +384,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
                   Keinginan
                 </span>
               </div>
+              <TransactionRevisionHistory v-if="trx.revisions?.length" :revisions="trx.revisions" class="mt-2" />
             </td>
 
             <!-- Sumber / Pos Dana -->
@@ -429,6 +438,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
                 <button
                   type="button"
                   @click="emit('openEditTransaction', trx)"
+                  :data-focus-return="`edit-${trx.id}`"
                   class="tactile-btn text-xs text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer inline-flex items-center gap-1"
                   title="Koreksi Transaksi"
                 >
@@ -438,6 +448,7 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
                 <button
                   type="button"
                   @click="emit('openCancelTransaction', trx)"
+                  :data-focus-return="`cancel-${trx.id}`"
                   class="tactile-btn text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 font-bold px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer inline-flex items-center gap-1"
                   title="Batalkan Transaksi"
                 >

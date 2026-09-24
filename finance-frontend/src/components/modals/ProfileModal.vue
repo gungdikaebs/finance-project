@@ -104,8 +104,9 @@ const handleSave = async () => {
 
       <div class="space-y-3.5 pt-1">
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Saldo Awal (Rp)</label>
+          <label for="profile-initial-balance" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Saldo Awal (Rp)</label>
           <input
+            id="profile-initial-balance"
             :value="initialBalance"
             @input="handleInitialBalanceInput"
             type="text"
@@ -116,8 +117,9 @@ const handleSave = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kebutuhan Pokok Bulanan (Rp)</label>
+          <label for="profile-essentials" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kebutuhan Pokok Bulanan (Rp)</label>
           <input
+            id="profile-essentials"
             :value="monthlyNeeds"
             @input="handleMonthlyNeedsInput"
             type="text"
@@ -131,8 +133,9 @@ const handleSave = async () => {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Zona Waktu IANA</label>
+          <label for="profile-timezone" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Zona Waktu Wilayah</label>
           <select
+            id="profile-timezone"
             v-model="timezone"
             class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
           >

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.store';
 import {
@@ -50,6 +50,7 @@ import SaveModal from '../components/modals/SaveModal.vue';
 import ReleaseModal from '../components/modals/ReleaseModal.vue';
 import AddGoalModal from '../components/modals/AddGoalModal.vue';
 import EditGoalModal from '../components/modals/EditGoalModal.vue';
+import CompleteGoalModal from '../components/modals/CompleteGoalModal.vue';
 import GoalSharesModal from '../components/modals/GoalSharesModal.vue';
 import SimulationModal from '../components/modals/SimulationModal.vue';
 import OnboardingWizardModal from '../components/modals/OnboardingWizardModal.vue';
@@ -105,6 +106,8 @@ const releaseGoalId = ref<number | null>(null);
 const showAddGoalModal = ref(false);
 const showEditGoalModal = ref(false);
 const editingGoal = ref<SavingsGoal | null>(null);
+const showCompleteGoalModal = ref(false);
+const completingGoal = ref<SavingsGoal | null>(null);
 const showSharesModal = ref(false);
 const showSimModal = ref(false);
 const simInitialGoal = ref<SavingsGoal | null>(null);
@@ -114,6 +117,68 @@ const showRecurringModal = ref(false);
 const showManageWalletsModal = ref(false);
 const showTransferWalletModal = ref(false);
 const showMobileMenu = ref(false);
+
+// Keep keyboard focus inside the active dashboard dialog and restore its opener.
+const activeModalKey = computed(() => {
+  const modals = [
+    ['profile', showProfileModal.value], ['transaction', showTransactionModal.value],
+    ['edit-transaction', showEditModal.value], ['cancel-transaction', showCancelModal.value],
+    ['categories', showManageModal.value], ['budget', showBudgetModal.value],
+    ['review', showReviewModal.value], ['save', showSaveModal.value],
+    ['release', showReleaseModal.value], ['add-goal', showAddGoalModal.value],
+    ['edit-goal', showEditGoalModal.value], ['complete-goal', showCompleteGoalModal.value],
+    ['shares', showSharesModal.value],
+    ['simulation', showSimModal.value], ['onboarding', showOnboardingModal.value],
+    ['recurring', showRecurringModal.value], ['wallets', showManageWalletsModal.value],
+    ['transfer', showTransferWalletModal.value], ['mobile-menu', showMobileMenu.value],
+  ] as const;
+  return modals.find(([, open]) => open)?.[0] ?? null;
+});
+
+let modalOpener: HTMLElement | null = null;
+let returnFocusPending = false;
+const getActiveDialog = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]')]
+  .reverse().find((dialog) => dialog.getClientRects().length > 0) ?? null;
+const getDialogControls = (dialog: HTMLElement) => [...dialog.querySelectorAll<HTMLElement>(
+  'button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+)].filter((control) => control.getClientRects().length > 0);
+
+const restoreModalFocus = async () => {
+  if (!returnFocusPending || loading.value || activeModalKey.value) return;
+  await nextTick();
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  if (loading.value || activeModalKey.value) return;
+  const returnKey = modalOpener?.dataset.focusReturn;
+  const replacement = returnKey
+    ? [...document.querySelectorAll<HTMLElement>('[data-focus-return]')]
+      .find((element) => element.dataset.focusReturn === returnKey && element.getClientRects().length > 0)
+    : null;
+  const fallback = [...document.querySelectorAll<HTMLElement>('#section-transaksi h2, #section-ringkasan button, [aria-label="Navigasi Bawah Mobile"] button')]
+    .find((element) => element.getClientRects().length > 0);
+  const target = modalOpener?.isConnected && modalOpener.getClientRects().length > 0
+    ? modalOpener : replacement ?? fallback;
+  target?.focus();
+  returnFocusPending = false;
+  modalOpener = null;
+};
+
+watch(activeModalKey, async (current, previous) => {
+  if (current && !previous) {
+    modalOpener = document.activeElement as HTMLElement;
+    returnFocusPending = false;
+  }
+  await nextTick();
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  if (current !== activeModalKey.value) return;
+  if (current) {
+    const dialog = getActiveDialog();
+    const initial = dialog?.querySelector<HTMLElement>('[data-initial-focus]');
+    (initial ?? dialog?.querySelector<HTMLElement>('input:not([type="hidden"]), select, textarea') ?? (dialog ? getDialogControls(dialog)[0] : null))?.focus();
+  } else {
+    returnFocusPending = true;
+    await restoreModalFocus();
+  }
+}, { flush: 'sync' });
 
 // Computed goal views
 const emergencyGoal = computed(() => savingsGoals.value.find((g) => g.type === 'EMERGENCY'));
@@ -193,6 +258,7 @@ const loadAllData = async () => {
     }
   } finally {
     loading.value = false;
+    void restoreModalFocus();
   }
 };
 
@@ -244,6 +310,31 @@ const openEditGoal = (goal: SavingsGoal) => {
   showEditGoalModal.value = true;
 };
 
+const handleOpenCompleteModal = (goal: SavingsGoal) => {
+  completingGoal.value = goal;
+  showCompleteGoalModal.value = true;
+};
+
+const handleReopenGoal = async (goal: SavingsGoal) => {
+  const confirmed = await confirmDialog.ask({
+    title: 'Buka Kembali Target Impian?',
+    message: `Target "${goal.name}" akan diaktifkan kembali. Persentase pembagian tabungan akan dihitung ulang secara proporsional.`,
+    confirmText: 'Ya, Aktifkan Kembali',
+    cancelText: 'Batal',
+    type: 'info',
+  });
+
+  if (!confirmed) return;
+
+  try {
+    await financeApi.reopenSavingsGoal(goal.id);
+    toast.success(`Target "${goal.name}" berhasil diaktifkan kembali.`);
+    await loadAllData();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || 'Gagal mengaktifkan kembali target');
+  }
+};
+
 const handleOpenSimulatorWithTopUp = (payload: { goal: SavingsGoal; recommendedMonthly: string }) => {
   simInitialGoal.value = payload.goal;
   simInitialMonthly.value = payload.recommendedMonthly;
@@ -292,6 +383,7 @@ const closeTopModal = () => {
   if (showManageWalletsModal.value) { showManageWalletsModal.value = false; return; }
   if (showRecurringModal.value) { showRecurringModal.value = false; return; }
   if (showSimModal.value) { showSimModal.value = false; return; }
+  if (showCompleteGoalModal.value) { showCompleteGoalModal.value = false; return; }
   if (showAddGoalModal.value) { showAddGoalModal.value = false; return; }
   if (showSharesModal.value) { showSharesModal.value = false; return; }
   if (showSaveModal.value) { showSaveModal.value = false; return; }
@@ -306,6 +398,27 @@ const closeTopModal = () => {
 };
 
 const handleGlobalKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Tab' && activeModalKey.value) {
+    const dialog = getActiveDialog();
+    if (dialog) {
+      const controls = getDialogControls(dialog);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!first || !last) {
+        e.preventDefault();
+        dialog.focus();
+      } else if (!dialog.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
   if (e.key === 'Escape') {
     closeTopModal();
   }
@@ -470,8 +583,9 @@ onUnmounted(() => {
       <!-- MAIN CONTENT -->
       <template v-else>
 
-        <!-- WIDGET TAGIHAN JATUH TEMPO (MODUL 5) -->
+        <!-- Tagihan mendatang tetap menonjol saat perlu ditindaklanjuti. -->
         <UpcomingBillsWidget
+          v-if="upcomingBills.length > 0"
           :upcoming-bills="upcomingBills"
           :loading="loading"
           @open-manage-recurring="showRecurringModal = true"
@@ -494,6 +608,15 @@ onUnmounted(() => {
             @open-wallets="showManageWalletsModal = true"
             @open-transfer="showTransferWalletModal = true"
           />
+          <!-- Keadaan tanpa tagihan adalah informasi sekunder, setelah saldo dan aksi utama. -->
+          <UpcomingBillsWidget
+            v-if="upcomingBills.length === 0"
+            class="mt-4"
+            :upcoming-bills="upcomingBills"
+            :loading="loading"
+            @open-manage-recurring="showRecurringModal = true"
+            @execute-bill="handleExecuteBill"
+          />
         </section>
 
         <!-- SECTION 2: TABUNGAN & TARGET IMPIAN (D-005) -->
@@ -510,6 +633,8 @@ onUnmounted(() => {
             @open-shares-modal="showSharesModal = true"
             @open-add-goal-modal="showAddGoalModal = true"
             @open-edit-goal-modal="openEditGoal"
+            @open-complete-modal="handleOpenCompleteModal"
+            @reopen-goal="handleReopenGoal"
             @open-release-modal="openReleaseModal"
             @open-simulator-with-goal="openSimulator"
             @open-simulator-with-top-up="handleOpenSimulatorWithTopUp"
@@ -660,6 +785,15 @@ onUnmounted(() => {
       :goal="editingGoal"
       @close="showEditGoalModal = false"
       @saved="loadAllData"
+    />
+
+    <CompleteGoalModal
+      :show="showCompleteGoalModal"
+      :goal="completingGoal"
+      :wallets="wallets"
+      :categories="categories"
+      @close="showCompleteGoalModal = false"
+      @completed="loadAllData"
     />
 
     <GoalSharesModal

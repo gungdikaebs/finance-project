@@ -45,6 +45,7 @@ const { isDark, toggleTheme } = useTheme();
     class="fixed inset-0 z-50 flex flex-col justify-end glass-modal-backdrop sm:hidden"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="mobile-menu-title"
   >
     <div
       class="bg-white dark:bg-[#16201A] rounded-t-3xl border-t border-stone-200/90 dark:border-[#243329] shadow-2xl p-5 space-y-4 max-h-[85dvh] overflow-y-auto animate-in slide-in-from-bottom-8 duration-200 text-[#18221B] dark:text-[#F0F4F1] transition-colors"
@@ -59,7 +60,7 @@ const { isDark, toggleTheme } = useTheme();
             {{ (userName || userEmail || 'P').charAt(0).toUpperCase() }}
           </div>
           <div class="min-w-0">
-            <h3 class="text-sm font-extrabold text-[#18221B] dark:text-[#F0F4F1] truncate">{{ userName || 'Memuat akun…' }}</h3>
+            <h3 id="mobile-menu-title" class="text-sm font-extrabold text-[#18221B] dark:text-[#F0F4F1] truncate">Menu akun {{ userName || 'Memuat akun…' }}</h3>
             <p v-if="userEmail" class="text-[11px] text-stone-500 dark:text-[#98A79D] truncate">{{ userEmail }}</p>
           </div>
         </div>
@@ -67,6 +68,7 @@ const { isDark, toggleTheme } = useTheme();
         <button
           type="button"
           @click="emit('close')"
+          aria-label="Tutup menu"
           class="tactile-btn p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#0E1410] transition cursor-pointer"
         >
           <X class="w-4 h-4" />

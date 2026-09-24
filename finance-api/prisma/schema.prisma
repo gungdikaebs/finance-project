@@ -131,6 +131,8 @@ model SavingsGoal {
   mode           String?  // 'FULL' | 'DOWN_PAYMENT'
   annualPriceIncreaseRatio Int? // basis points (misal 500 = 5.00%)
   isArchived     Boolean  @default(false)
+  isCompleted    Boolean  @default(false)
+  completedAt    DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

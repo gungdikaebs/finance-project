@@ -196,7 +196,7 @@ const emit = defineEmits<{
         </div>
 
         <p class="text-[11px] text-[#5E6961] dark:text-[#98A79D] leading-relaxed font-normal">
-          Penyisihan perlu dilakukan lewat “Sisihkan ke Tabungan”. Realisasi sudah dikurangi dana yang dilepas bulan ini.
+          Tabungan dilakukan lewat tombol "Sisihkan ke Tabungan". Jumlah tersimpan sudah otomatis dikurangi dana yang ditarik bulan ini.
         </p>
       </div>
     </div>

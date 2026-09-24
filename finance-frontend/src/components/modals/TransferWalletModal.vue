@@ -167,6 +167,9 @@ const handleTransfer = async () => {
   <div
     v-if="show"
     class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 glass-modal-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="transfer-wallet-title"
     @click.self="emit('close')"
   >
     <div
@@ -183,7 +186,7 @@ const handleTransfer = async () => {
             <ArrowRightLeft class="w-5 h-5" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 id="transfer-wallet-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">
               Pindah Dana Antar Dompet
             </h3>
             <p class="text-xs text-stone-500 dark:text-[#98A79D] font-medium">
@@ -194,6 +197,7 @@ const handleTransfer = async () => {
         <button
           type="button"
           @click="emit('close')"
+          aria-label="Tutup dialog pindah dana"
           class="w-10 h-10 rounded-xl flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] tactile-btn transition-colors cursor-pointer"
         >
           <X class="w-5 h-5" />
@@ -226,6 +230,7 @@ const handleTransfer = async () => {
               </span>
             </div>
             <select
+              aria-label="Dompet asal transfer"
               v-model="sourceWalletId"
               class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.source }"
@@ -270,6 +275,7 @@ const handleTransfer = async () => {
               </span>
             </div>
             <select
+              aria-label="Dompet tujuan transfer"
               v-model="targetWalletId"
               class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.target }"
@@ -299,6 +305,7 @@ const handleTransfer = async () => {
               Rp
             </span>
             <input
+              aria-label="Nominal pindah dana dalam rupiah"
               type="text"
               :value="amount"
               @input="handleAmountInput"
@@ -325,6 +332,7 @@ const handleTransfer = async () => {
               Tanggal Transfer
             </label>
             <input
+              aria-label="Tanggal transfer"
               type="date"
               v-model="date"
               class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
@@ -336,6 +344,7 @@ const handleTransfer = async () => {
               Catatan / Keterangan (Opsional)
             </label>
             <input
+              aria-label="Catatan transfer opsional"
               type="text"
               v-model="note"
               placeholder="misal: Top up GoPay jajan"

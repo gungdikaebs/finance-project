@@ -136,8 +136,9 @@ const handleUpdateGoal = async () => {
       <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <div class="space-y-3.5">
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nama Target</label>
+            <label for="edit-goal-name" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nama Target</label>
             <input
+              id="edit-goal-name"
               v-model="editName"
               type="text"
               placeholder="Contoh: Beli Rumah Pertama, Mobil, Laptop..."
@@ -150,8 +151,9 @@ const handleUpdateGoal = async () => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Harga Acuan / Target Dana (Rp)</label>
+            <label for="edit-goal-price" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Harga Acuan / Target Dana (Rp)</label>
             <input
+              id="edit-goal-price"
               :value="editPrice"
               @input="handlePriceInput"
               type="text"
@@ -166,8 +168,9 @@ const handleUpdateGoal = async () => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Skema Pembelian</label>
+            <label for="edit-goal-mode" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Skema Pembelian</label>
             <select
+              id="edit-goal-mode"
               v-model="editMode"
               class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
             >
@@ -177,8 +180,9 @@ const handleUpdateGoal = async () => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Target Waktu (Bulan - Opsional)</label>
+            <label for="edit-goal-months" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Target Waktu (Bulan - Opsional)</label>
             <input
+              id="edit-goal-months"
               v-model.number="editMonths"
               type="number"
               min="1"
