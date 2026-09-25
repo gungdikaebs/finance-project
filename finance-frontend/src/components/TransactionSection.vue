@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { formatRupiah, formatDate } from '../utils/format';
 import { financeApi, type Transaction } from '../api/services';
 import {
@@ -45,6 +45,18 @@ const emit = defineEmits<{
 const isExporting = ref(false);
 const exportFormat = ref<string | null>(null);
 const showExportDropdown = ref(false);
+const showAdditionalFilters = ref(false);
+const additionalFilterCount = computed(() => [
+  props.filterType !== '',
+  props.filterStatus !== 'ACTIVE',
+].filter(Boolean).length);
+
+const clearAdditionalFilters = () => {
+  emit('update:filterType', '');
+  emit('update:filterStatus', 'ACTIVE');
+  showAdditionalFilters.value = false;
+  emit('changeFilter');
+};
 
 const monthNames = [
   'Januari',
@@ -117,16 +129,11 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
 
       <!-- Filter Controls -->
       <div class="flex flex-wrap items-center gap-2">
-        <div class="flex items-center gap-1.5 bg-stone-100/80 dark:bg-[#0E1410] px-2 py-1 rounded-xl border border-stone-200/70 dark:border-[#243329] text-stone-600 dark:text-[#98A79D] text-xs">
-          <Filter class="w-3.5 h-3.5 text-stone-500 dark:text-[#98A79D]" :stroke-width="1.75" />
-          <span class="font-semibold text-[11px]">Filter:</span>
-        </div>
-
         <select
           aria-label="Bulan transaksi"
           :value="currentMonth"
           @change="emit('update:currentMonth', Number(($event.target as HTMLSelectElement).value)); emit('changeFilter')"
-          class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+          class="min-h-10 text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
         >
           <option v-for="(mName, idx) in monthNames" :key="idx + 1" :value="idx + 1">
             {{ mName }}
@@ -137,34 +144,24 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
           aria-label="Tahun transaksi"
           :value="currentYear"
           @change="emit('update:currentYear', Number(($event.target as HTMLSelectElement).value)); emit('changeFilter')"
-          class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+          class="min-h-10 text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
         >
           <option :value="2025">2025</option>
           <option :value="2026">2026</option>
           <option :value="2027">2027</option>
         </select>
 
-        <select
-          aria-label="Filter jenis transaksi"
-          :value="filterType"
-          @change="emit('update:filterType', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
-          class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+        <button
+          type="button"
+          @click="showAdditionalFilters = !showAdditionalFilters"
+          :aria-expanded="showAdditionalFilters"
+          aria-controls="additional-transaction-filters"
+          class="tactile-btn inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-stone-200/80 bg-white px-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183D2B] dark:border-[#243329] dark:bg-[#0E1410] dark:text-[#F0F4F1] dark:hover:bg-[#243329] dark:focus-visible:outline-[#B8DF38]"
         >
-          <option value="">Semua Tipe</option>
-          <option value="income">Pemasukan Saja</option>
-          <option value="expense">Pengeluaran Saja</option>
-        </select>
-
-        <select
-          aria-label="Filter status transaksi"
-          :value="filterStatus"
-          @change="emit('update:filterStatus', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
-          class="text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-        >
-          <option value="">Semua Status</option>
-          <option value="ACTIVE">Aktif</option>
-          <option value="CANCELLED">Dibatalkan</option>
-        </select>
+          <Filter class="h-3.5 w-3.5" aria-hidden="true" />
+          <span>{{ additionalFilterCount ? `Filter lain (${additionalFilterCount} aktif)` : 'Filter lain' }}</span>
+          <ChevronDown class="h-3.5 w-3.5 transition-transform" :class="showAdditionalFilters ? 'rotate-180' : ''" aria-hidden="true" />
+        </button>
 
         <!-- Export Dropdown (Modul 7) -->
         <div class="relative">
@@ -243,6 +240,34 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
             </button>
           </div>
         </div>
+      </div>
+
+      <div
+        v-if="showAdditionalFilters"
+        id="additional-transaction-filters"
+        class="grid grid-cols-2 gap-2 border-t border-stone-100 pt-3 dark:border-[#243329]"
+      >
+        <select
+          aria-label="Jenis transaksi"
+          :value="filterType"
+          @change="emit('update:filterType', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
+          class="min-h-10 min-w-0 text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+        >
+          <option value="">Semua jenis</option>
+          <option value="income">Pemasukan</option>
+          <option value="expense">Pengeluaran</option>
+        </select>
+
+        <select
+          aria-label="Status transaksi"
+          :value="filterStatus"
+          @change="emit('update:filterStatus', ($event.target as HTMLSelectElement).value); emit('changeFilter')"
+          class="min-h-10 min-w-0 text-xs font-semibold border border-stone-200/80 dark:border-[#243329] rounded-xl px-2.5 py-1.5 bg-stone-50/80 dark:bg-[#0E1410] text-stone-800 dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+        >
+          <option value="ACTIVE">Aktif</option>
+          <option value="">Semua status</option>
+          <option value="CANCELLED">Dibatalkan</option>
+        </select>
       </div>
     </div>
 
@@ -469,28 +494,41 @@ const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
         <ReceiptText class="w-6 h-6" :stroke-width="1.75" />
       </div>
       <div>
-        <h3 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">Belum Ada Transaksi</h3>
+        <h3 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">
+          {{ additionalFilterCount ? 'Tidak ada transaksi yang cocok' : 'Belum ada transaksi' }}
+        </h3>
         <p class="text-xs text-[#5E6961] dark:text-[#98A79D] max-w-sm mx-auto mt-1 leading-relaxed font-normal">
-          Mulai catat transaksi pemasukan atau pengeluaran untuk memantau batas kebutuhan dan tabungan bulan ini.
+          <template v-if="additionalFilterCount">Coba ubah filter jenis atau status, atau tampilkan semua transaksi.</template>
+          <template v-else>Catat pemasukan atau pengeluaran agar riwayat keuangan bulan ini tercatat.</template>
         </p>
       </div>
       <div class="flex items-center justify-center gap-2 pt-2">
         <button
+          v-if="additionalFilterCount"
           type="button"
-          @click="emit('openCreateIncome')"
-          class="tactile-btn px-3.5 py-2 bg-[#B8DF38] text-[#183D2B] rounded-xl text-xs font-extrabold hover:bg-[#a3c82e] shadow-xs cursor-pointer inline-flex items-center gap-1"
+          @click="clearAdditionalFilters"
+          class="tactile-btn min-h-10 px-3.5 py-2 bg-stone-100 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] rounded-xl text-xs font-bold hover:bg-stone-200 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] shadow-xs cursor-pointer"
         >
-          <Plus class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2.5" />
-          <span>Catat Pemasukan</span>
+          Tampilkan semua transaksi
         </button>
-        <button
-          type="button"
-          @click="emit('openCreateExpense')"
-          class="tactile-btn px-3.5 py-2 bg-stone-100 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] rounded-xl text-xs font-bold hover:bg-stone-200 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] shadow-xs cursor-pointer inline-flex items-center gap-1"
-        >
-          <Minus class="w-3.5 h-3.5 text-[#18221B] dark:text-[#F0F4F1]" :stroke-width="2.5" />
-          <span>Catat Pengeluaran</span>
-        </button>
+        <template v-else>
+          <button
+            type="button"
+            @click="emit('openCreateIncome')"
+            class="tactile-btn px-3.5 py-2 bg-[#B8DF38] text-[#183D2B] rounded-xl text-xs font-extrabold hover:bg-[#a3c82e] shadow-xs cursor-pointer inline-flex items-center gap-1"
+          >
+            <Plus class="w-3.5 h-3.5 text-[#183D2B]" :stroke-width="2.5" />
+            <span>Catat Pemasukan</span>
+          </button>
+          <button
+            type="button"
+            @click="emit('openCreateExpense')"
+            class="tactile-btn px-3.5 py-2 bg-stone-100 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] rounded-xl text-xs font-bold hover:bg-stone-200 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] shadow-xs cursor-pointer inline-flex items-center gap-1"
+          >
+            <Minus class="w-3.5 h-3.5 text-[#18221B] dark:text-[#F0F4F1]" :stroke-width="2.5" />
+            <span>Catat Pengeluaran</span>
+          </button>
+        </template>
       </div>
     </div>
   </div>

@@ -1,42 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { formatPercentageShare, formatRupiah } from '../utils/format';
-import type { MonthlyAnalyticsData } from '../api/services';
-import { useTheme } from '../composables/useTheme';
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Filler,
-} from 'chart.js';
+import { computed, ref } from 'vue';
 import { Bar, Doughnut } from 'vue-chartjs';
 import {
-  TrendingUp,
-  PieChart,
-  ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-} from 'lucide-vue-next';
-
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
+  ArcElement,
   BarElement,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Filler,
-);
+  Tooltip,
+} from 'chart.js';
+import { PieChart, TrendingUp } from 'lucide-vue-next';
+import type { MonthlyAnalyticsData } from '../api/services';
+import { useTheme } from '../composables/useTheme';
+import { formatRupiah } from '../utils/format';
+
+ChartJS.register(ArcElement, BarElement, CategoryScale, Legend, LinearScale, Tooltip);
 
 const props = defineProps<{
   analytics: MonthlyAnalyticsData | null;
@@ -46,54 +25,59 @@ const props = defineProps<{
 }>();
 
 const { isDark } = useTheme();
+const showAllCategories = ref(false);
 
 const monthNames = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ];
 
-const periodLabel = computed(() => {
-  return `${monthNames[props.currentMonth - 1] || ''} ${props.currentYear}`;
+const periodLabel = computed(() => `${monthNames[props.currentMonth - 1] || ''} ${props.currentYear}`);
+const trend = computed(() => props.analytics?.incomeVsExpenseTrend);
+
+const cashflowInsight = computed(() => {
+  const data = trend.value;
+  const index = data ? data.months.length - 1 : -1;
+  if (!data || index < 0) return null;
+
+  const income = BigInt(data.incomeData[index] || '0');
+  const expense = BigInt(data.expenseData[index] || '0');
+  const difference = income >= expense ? income - expense : expense - income;
+  const month = data.months[index];
+
+  if (difference === 0n) return `Pemasukan dan pengeluaran pada ${month} sama besar.`;
+  return income > expense
+    ? `Pemasukan pada ${month} lebih besar ${formatRupiah(difference)} daripada pengeluaran.`
+    : `Pengeluaran pada ${month} lebih besar ${formatRupiah(difference)} daripada pemasukan.`;
 });
 
-// Bar Chart (Tren 6 Bulan)
-const barChartData = computed(() => {
-  const trend = props.analytics?.incomeVsExpenseTrend;
-  if (!trend) {
-    return { labels: [], datasets: [] };
-  }
-
-  return {
-    labels: trend.months,
-    datasets: [
-      {
-        label: 'Pemasukan',
-        data: trend.incomeData.map(v => Number(v)),
-        backgroundColor: isDark.value ? '#22C55E' : '#183D2B',
-        hoverBackgroundColor: isDark.value ? '#16A34A' : '#24553D',
-        borderRadius: 6,
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
-      },
-      {
-        label: 'Pengeluaran',
-        data: trend.expenseData.map(v => Number(v)),
-        backgroundColor: '#E11D48',
-        hoverBackgroundColor: '#BE123C',
-        borderRadius: 6,
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
-      },
-    ],
-  };
-});
+const barChartData = computed(() => ({
+  labels: trend.value?.months || [],
+  datasets: [
+    {
+      label: 'Pemasukan',
+      data: trend.value?.incomeData.map(Number) || [],
+      backgroundColor: isDark.value ? '#22C55E' : '#183D2B',
+      hoverBackgroundColor: isDark.value ? '#16A34A' : '#24553D',
+      borderRadius: 6,
+      barPercentage: 0.7,
+      categoryPercentage: 0.8,
+    },
+    {
+      label: 'Pengeluaran',
+      data: trend.value?.expenseData.map(Number) || [],
+      backgroundColor: '#E11D48',
+      hoverBackgroundColor: '#BE123C',
+      borderRadius: 6,
+      barPercentage: 0.7,
+      categoryPercentage: 0.8,
+    },
+  ],
+}));
 
 const barChartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  animation: {
-    duration: 600,
-  },
   plugins: {
     legend: {
       position: 'top' as const,
@@ -110,22 +94,12 @@ const barChartOptions = computed(() => ({
     },
     tooltip: {
       backgroundColor: isDark.value ? '#16201A' : '#18221B',
-      borderColor: isDark.value ? '#243329' : 'transparent',
-      borderWidth: 1,
       titleColor: '#FFFFFF',
       bodyColor: '#F3F5EF',
       padding: 10,
       cornerRadius: 10,
-      titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 700 },
-      bodyFont: { family: 'Plus Jakarta Sans', size: 11, weight: 500 },
-      displayColors: true,
-      boxPadding: 4,
       callbacks: {
-        label: (context: any) => {
-          const label = context.dataset.label || '';
-          const value = formatRupiah(context.raw);
-          return ` ${label}: ${value}`;
-        },
+        label: (context: any) => ` ${context.dataset.label}: ${formatRupiah(context.raw)}`,
       },
     },
   },
@@ -140,445 +114,190 @@ const barChartOptions = computed(() => ({
     },
     y: {
       border: { display: false },
-      grid: {
-        color: isDark.value ? 'rgba(255, 255, 255, 0.08)' : 'rgba(24, 34, 27, 0.06)',
-      },
+      grid: { color: isDark.value ? 'rgba(255, 255, 255, 0.08)' : 'rgba(24, 34, 27, 0.06)' },
       ticks: {
         font: { family: 'Plus Jakarta Sans', size: 10, weight: 500 },
         color: isDark.value ? '#98A79D' : '#5E6961',
-        callback: (val: any) => {
-          if (val >= 1000000000) return (val / 1000000000).toFixed(1) + 'M';
-          if (val >= 1000000) return (val / 1000000).toFixed(0) + 'jt';
-          if (val >= 1000) return (val / 1000).toFixed(0) + 'rb';
-          return val;
+        callback: (value: any) => {
+          if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} M`;
+          if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)} jt`;
+          if (value >= 1_000) return `${(value / 1_000).toFixed(0)} rb`;
+          return value;
         },
       },
     },
   },
 }));
 
-// Doughnut Chart (Distribusi Pengeluaran)
-const hasExpenseCategories = computed(() => {
-  return (
-    props.analytics?.categoryDistribution &&
-    props.analytics.categoryDistribution.length > 0
-  );
-});
+const categories = computed(() => props.analytics?.categoryDistribution || []);
+const visibleCategories = computed(() =>
+  showAllCategories.value ? categories.value : categories.value.slice(0, 5),
+);
+const totalCategoryExpense = computed(() => categories.value.reduce(
+  (sum, category) => sum + BigInt(category.totalAmount),
+  BigInt(0),
+).toString());
 
-const totalCategoryExpense = computed(() => {
-  if (!props.analytics?.categoryDistribution) return '0';
-  const sum = props.analytics.categoryDistribution.reduce(
-    (acc, c) => acc + BigInt(c.totalAmount),
-    BigInt(0),
-  );
-  return sum.toString();
-});
-
-const doughnutChartData = computed(() => {
-  const cats = props.analytics?.categoryDistribution || [];
-  return {
-    labels: cats.map(c => c.categoryName),
-    datasets: [
-      {
-        data: cats.map(c => Number(c.totalAmount)),
-        backgroundColor: cats.map(c => c.color),
-        borderWidth: 2,
-        borderColor: isDark.value ? '#16201A' : '#FFFFFF',
-        hoverOffset: 4,
-      },
-    ],
-  };
-});
+const doughnutChartData = computed(() => ({
+  labels: categories.value.map(category => category.categoryName),
+  datasets: [{
+    data: categories.value.map(category => Number(category.totalAmount)),
+    backgroundColor: categories.value.map(category => category.color),
+    borderWidth: 2,
+    borderColor: isDark.value ? '#16201A' : '#FFFFFF',
+    hoverOffset: 4,
+  }],
+}));
 
 const doughnutChartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   cutout: '72%',
-  animation: {
-    duration: 600,
-  },
   plugins: {
     legend: { display: false },
     tooltip: {
       backgroundColor: isDark.value ? '#16201A' : '#18221B',
-      borderColor: isDark.value ? '#243329' : 'transparent',
-      borderWidth: 1,
       titleColor: '#FFFFFF',
       bodyColor: '#F3F5EF',
       padding: 10,
       cornerRadius: 10,
-      titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 700 },
-      bodyFont: { family: 'Plus Jakarta Sans', size: 11, weight: 500 },
-      displayColors: true,
-      boxPadding: 4,
       callbacks: {
         label: (context: any) => {
-          const label = context.label || '';
-          const value = formatRupiah(context.raw);
-          const cat = props.analytics?.categoryDistribution[context.dataIndex];
-          const pct = cat ? ` (${cat.percentage}%)` : '';
-          return ` ${label}: ${value}${pct}`;
+          const category = categories.value[context.dataIndex];
+          return ` ${context.label}: ${formatRupiah(context.raw)} (${category?.percentage ?? 0}%)`;
         },
       },
     },
   },
 }));
-
-// Budget vs Actual helper
-const budgetVsActual = computed(() => props.analytics?.budgetVsActual);
-const budgetShares = computed(() => {
-  const budgets = budgetVsActual.value;
-  if (!budgets) return null;
-  const total = BigInt(budgets.needs.budget) + BigInt(budgets.savings.target) + BigInt(budgets.wants.budget);
-  if (total === 0n) return null;
-  return {
-    needs: formatPercentageShare(budgets.needs.budget, total),
-    savings: formatPercentageShare(budgets.savings.target, total),
-    wants: formatPercentageShare(budgets.wants.budget, total),
-  };
-});
 </script>
 
 <template>
-  <section class="space-y-5" aria-labelledby="analytics-section-title">
-    <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-2xl bg-[#183D2B] dark:bg-[#132E21] text-[#B8DF38] flex items-center justify-center shadow-xs border border-emerald-900/40">
-          <TrendingUp class="w-5 h-5" :stroke-width="2" />
-        </div>
-        <div>
-          <h2 id="analytics-section-title" class="text-base sm:text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
-            Analitik & Tren Arus Kas
-          </h2>
-          <p class="text-xs text-stone-500 dark:text-[#98A79D] font-medium">
-            Visualisasi perbandingan pendapatan, pengeluaran, dan rasio anggaran {{ periodLabel }}
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#183D2B]/10 dark:bg-[#B8DF38]/15 text-[#183D2B] dark:text-[#B8DF38] border border-[#183D2B]/15 dark:border-[#B8DF38]/20">
-          <Sparkles class="w-3 h-3 text-[#183D2B] dark:text-[#B8DF38]" />
-          <span>Periode {{ periodLabel }}</span>
-        </span>
-      </div>
-    </div>
-
-    <!-- 3 Kartu Realisasi Anggaran -->
-    <div v-if="budgetVsActual" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- 1. Kebutuhan (Needs) -->
-      <div class="fintech-card p-4 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 flex items-center justify-center">
-              <ShieldCheck class="w-4 h-4" />
-            </div>
-            <div>
-              <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Kebutuhan (Need)</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.needs}` : 'Belum ada anggaran' }}</span>
-            </div>
-          </div>
-          <span
-            class="text-xs font-black tabular-nums px-2 py-0.5 rounded-full"
-            :class="[
-              budgetVsActual.needs.variancePercent > 100
-                ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300'
-                : budgetVsActual.needs.variancePercent > 80
-                ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300'
-                : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300'
-            ]"
-          >
-            {{ budgetVsActual.needs.variancePercent }}%
-          </span>
-        </div>
-
-        <div class="space-y-1">
-          <div class="flex items-baseline justify-between text-xs">
-            <span class="text-stone-500 dark:text-[#98A79D] font-medium">Realisasi / Anggaran:</span>
-            <span class="font-extrabold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">
-              {{ formatRupiah(budgetVsActual.needs.actual) }}
-              <span class="text-stone-400 dark:text-[#98A79D] font-normal">/ {{ formatRupiah(budgetVsActual.needs.budget) }}</span>
-            </span>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="h-2 w-full bg-stone-100 dark:bg-[#0E1410] rounded-full overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-500"
-              :class="[
-                budgetVsActual.needs.variancePercent > 100
-                  ? 'bg-rose-600'
-                  : budgetVsActual.needs.variancePercent > 80
-                  ? 'bg-amber-500'
-                  : 'bg-blue-600 dark:bg-blue-500'
-              ]"
-              :style="{ width: `${Math.min(budgetVsActual.needs.variancePercent, 100)}%` }"
-            ></div>
-          </div>
-        </div>
-
-        <p class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium leading-tight">
-          <template v-if="budgetVsActual.needs.variancePercent > 100">
-            Terlewati sebesar <span class="text-rose-700 dark:text-rose-400 font-bold tabular-nums">{{ formatRupiah(BigInt(budgetVsActual.needs.actual) - BigInt(budgetVsActual.needs.budget)) }}</span> dari batas alokasi.
-          </template>
-          <template v-else-if="Number(budgetVsActual.needs.budget) === 0">
-            Belum ada batas kebutuhan tercatat bulan ini.
-          </template>
-          <template v-else>
-            Tersisa aman <span class="text-emerald-800 dark:text-[#B8DF38] font-bold tabular-nums">{{ formatRupiah(BigInt(budgetVsActual.needs.budget) - BigInt(budgetVsActual.needs.actual)) }}</span> di batas pos kebutuhan.
-          </template>
+  <section class="space-y-4" aria-labelledby="analytics-section-title">
+    <header class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 id="analytics-section-title" class="text-base sm:text-lg font-bold text-[#18221B] dark:text-[#F0F4F1]">
+          Analitik keuangan
+        </h2>
+        <p class="text-xs text-stone-500 dark:text-[#98A79D]">
+          Bandingkan pemasukan dan pengeluaran, lalu lihat kategori belanja terbesar.
         </p>
       </div>
+      <span class="text-xs font-semibold text-stone-600 dark:text-[#B8C5BB]">{{ periodLabel }}</span>
+    </header>
 
-      <!-- 2. Keinginan (Wants) -->
-      <div class="fintech-card p-4 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center">
-              <ShoppingBag class="w-4 h-4" />
-            </div>
-            <div>
-              <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Keinginan (Want)</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.wants}` : 'Belum ada anggaran' }}</span>
-            </div>
-          </div>
-          <span
-            class="text-xs font-black tabular-nums px-2 py-0.5 rounded-full"
-            :class="[
-              budgetVsActual.wants.variancePercent > 100
-                ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300'
-                : budgetVsActual.wants.variancePercent > 80
-                ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300'
-                : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300'
-            ]"
-          >
-            {{ budgetVsActual.wants.variancePercent }}%
-          </span>
+    <p
+      v-if="cashflowInsight"
+      class="rounded-xl border border-emerald-900/10 bg-emerald-50/70 px-4 py-3 text-sm font-semibold text-[#183D2B] dark:border-[#B8DF38]/15 dark:bg-[#132E21] dark:text-[#F0F4F1]"
+      aria-live="polite"
+    >
+      {{ cashflowInsight }}
+    </p>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5">
+      <section class="fintech-card flex flex-col rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-[#243329] dark:bg-[#16201A] sm:p-5 lg:col-span-7" aria-labelledby="cashflow-chart-title">
+        <div class="mb-3">
+          <h3 id="cashflow-chart-title" class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            Pemasukan dan pengeluaran per bulan
+          </h3>
+          <p class="text-[11px] text-stone-500 dark:text-[#98A79D]">Enam bulan terakhir. Nilai dalam rupiah.</p>
         </div>
 
-        <div class="space-y-1">
-          <div class="flex items-baseline justify-between text-xs">
-            <span class="text-stone-500 dark:text-[#98A79D] font-medium">Realisasi / Anggaran:</span>
-            <span class="font-extrabold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">
-              {{ formatRupiah(budgetVsActual.wants.actual) }}
-              <span class="text-stone-400 dark:text-[#98A79D] font-normal">/ {{ formatRupiah(budgetVsActual.wants.budget) }}</span>
-            </span>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="h-2 w-full bg-stone-100 dark:bg-[#0E1410] rounded-full overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-500"
-              :class="[
-                budgetVsActual.wants.variancePercent > 100
-                  ? 'bg-rose-600'
-                  : budgetVsActual.wants.variancePercent > 80
-                  ? 'bg-amber-500'
-                  : 'bg-amber-600 dark:bg-amber-500'
-              ]"
-              :style="{ width: `${Math.min(budgetVsActual.wants.variancePercent, 100)}%` }"
-            ></div>
-          </div>
+        <div v-if="loading" class="flex h-64 items-center justify-center text-sm text-stone-500 dark:text-[#98A79D]" role="status">
+          Memuat analitik...
         </div>
-
-        <p class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium leading-tight">
-          <template v-if="budgetVsActual.wants.variancePercent > 100">
-            Terlewati sebesar <span class="text-rose-700 dark:text-rose-400 font-bold tabular-nums">{{ formatRupiah(BigInt(budgetVsActual.wants.actual) - BigInt(budgetVsActual.wants.budget)) }}</span>.
-          </template>
-          <template v-else-if="Number(budgetVsActual.wants.budget) === 0">
-            Belum ada batas keinginan tercatat bulan ini.
-          </template>
-          <template v-else>
-            Tersisa aman <span class="text-emerald-800 dark:text-[#B8DF38] font-bold tabular-nums">{{ formatRupiah(BigInt(budgetVsActual.wants.budget) - BigInt(budgetVsActual.wants.actual)) }}</span> untuk belanja santai.
-          </template>
-        </p>
-      </div>
-
-      <!-- 3. Tabungan (Savings) -->
-      <div class="fintech-card p-4 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center">
-              <Sparkles class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38]" />
-            </div>
-            <div>
-              <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] block">Tabungan & Investasi</span>
-              <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium">{{ budgetShares ? `Porsi anggaran ${budgetShares.savings}` : 'Belum ada anggaran' }}</span>
-            </div>
-          </div>
-          <span
-            class="text-xs font-black tabular-nums px-2 py-0.5 rounded-full"
-            :class="[
-              budgetVsActual.savings.achievementPercent >= 100
-                ? 'bg-emerald-100 dark:bg-emerald-950/50 text-[#183D2B] dark:text-[#B8DF38]'
-                : budgetVsActual.savings.achievementPercent >= 50
-                ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-900 dark:text-blue-300'
-                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
-            ]"
-          >
-            {{ budgetVsActual.savings.achievementPercent }}%
-          </span>
+        <div v-else-if="trend?.months.length" class="relative h-64 w-full sm:h-72">
+          <Bar :data="barChartData" :options="barChartOptions" />
+          <table class="visually-hidden">
+            <caption>Perbandingan pemasukan dan pengeluaran per bulan</caption>
+            <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th></tr></thead>
+            <tbody>
+              <tr v-for="(month, index) in trend.months" :key="month">
+                <th>{{ month }}</th>
+                <td>{{ formatRupiah(trend.incomeData[index]) }}</td>
+                <td>{{ formatRupiah(trend.expenseData[index]) }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="space-y-1">
-          <div class="flex items-baseline justify-between text-xs">
-            <span class="text-stone-500 dark:text-[#98A79D] font-medium">Tersisih / Target:</span>
-            <span class="font-extrabold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">
-              {{ formatRupiah(budgetVsActual.savings.allocated) }}
-              <span class="text-stone-400 dark:text-[#98A79D] font-normal">/ {{ formatRupiah(budgetVsActual.savings.target) }}</span>
-            </span>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="h-2 w-full bg-stone-100 dark:bg-[#0E1410] rounded-full overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all duration-500 bg-[#183D2B] dark:bg-[#B8DF38]"
-              :style="{ width: `${Math.min(budgetVsActual.savings.achievementPercent, 100)}%` }"
-            ></div>
-          </div>
+        <div v-else class="flex h-64 flex-col items-center justify-center text-center text-stone-500 dark:text-[#98A79D]">
+          <TrendingUp class="mb-2 h-7 w-7" aria-hidden="true" />
+          <p class="text-sm font-semibold">Belum ada data tren</p>
+          <p class="mt-1 max-w-xs text-xs">Catat pemasukan atau pengeluaran untuk mulai melihat perubahan arus uang.</p>
         </div>
+      </section>
 
-        <p class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium leading-tight">
-          <template v-if="budgetVsActual.savings.achievementPercent >= 100">
-            Target tabungan periode ini <strong class="text-[#183D2B] dark:text-[#B8DF38]">telah tercapai penuh</strong>.
-          </template>
-          <template v-else-if="Number(budgetVsActual.savings.target) === 0">
-            Belum ada target tabungan dari pemasukan bulan ini.
-          </template>
-          <template v-else>
-            Perlu disisihkan <span class="text-[#183D2B] dark:text-[#B8DF38] font-bold tabular-nums">{{ formatRupiah(BigInt(budgetVsActual.savings.target) - BigInt(budgetVsActual.savings.allocated)) }}</span> lagi untuk memenuhi komitmen.
-          </template>
-        </p>
-      </div>
-    </div>
-
-    <!-- Dua Kolom Chart Utama: Tren 6 Bulan (Kiri) & Donut Distribusi (Kanan) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Kolom Kiri: Tren Arus Kas 6 Bulan Terakhir (lg:col-span-7) -->
-      <div class="lg:col-span-7 fintech-card p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-xl bg-stone-100 dark:bg-[#0E1410] text-stone-700 dark:text-[#F0F4F1] flex items-center justify-center">
-                <TrendingUp class="w-4 h-4" />
-              </div>
-              <div>
-                <h3 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">Tren Arus Kas (6 Bulan Terakhir)</h3>
-                <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Perbandingan nominal Pemasukan vs Pengeluaran</span>
-              </div>
-            </div>
-
-            <div class="hidden sm:flex items-center gap-3 text-xs font-semibold">
-              <span class="inline-flex items-center gap-1.5 text-[#183D2B] dark:text-[#22C55E]">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#183D2B] dark:bg-[#22C55E]"></span>
-                Pemasukan
-              </span>
-              <span class="inline-flex items-center gap-1.5 text-rose-700 dark:text-rose-400">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-600 dark:bg-rose-500"></span>
-                Pengeluaran
-              </span>
-            </div>
+      <section class="fintech-card flex flex-col rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-[#243329] dark:bg-[#16201A] sm:p-5 lg:col-span-5" aria-labelledby="expense-chart-title">
+        <div class="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <h3 id="expense-chart-title" class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">Pengeluaran menurut kategori</h3>
+            <p class="text-[11px] text-stone-500 dark:text-[#98A79D]">{{ periodLabel }}</p>
           </div>
-
-          <!-- Canvas Bar Chart -->
-          <div class="h-64 sm:h-72 w-full relative">
-            <Bar
-              v-if="props.analytics?.incomeVsExpenseTrend?.months?.length"
-              :data="barChartData"
-              :options="barChartOptions"
-            />
-            <div
-              v-else
-              class="h-full flex flex-col items-center justify-center text-center p-6 text-stone-400 dark:text-[#98A79D]"
-            >
-              <TrendingUp class="w-8 h-8 mb-2 stroke-1" />
-              <p class="text-xs font-medium">Data tren belum tersedia</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-stone-100 dark:border-[#243329] mt-4 flex items-center justify-between text-[11px] text-stone-500 dark:text-[#98A79D]">
-          <span>*Data diagregasi dari transaksi aktif per bulan kalender</span>
-          <span class="font-semibold text-stone-700 dark:text-[#F0F4F1]">Skala otomatis (IDR)</span>
-        </div>
-      </div>
-
-      <!-- Kolom Kanan: Distribusi Pengeluaran per Kategori (lg:col-span-5) -->
-      <div class="lg:col-span-5 fintech-card p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] shadow-xs flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 flex items-center justify-center">
-              <PieChart class="w-4 h-4" />
-            </div>
-            <div>
-              <h3 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">Distribusi Pengeluaran</h3>
-              <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Berdasarkan kategori di {{ periodLabel }}</span>
-            </div>
-          </div>
-
-          <span class="text-xs font-extrabold text-[#18221B] dark:text-[#F0F4F1] tabular-nums bg-stone-100 dark:bg-[#0E1410] border border-stone-200/50 dark:border-[#243329] px-2.5 py-1 rounded-full">
+          <span class="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-bold tabular-nums text-[#18221B] dark:bg-[#0E1410] dark:text-[#F0F4F1]">
             {{ formatRupiah(totalCategoryExpense) }}
           </span>
         </div>
 
-        <!-- Donut Canvas & Category List -->
-        <div v-if="hasExpenseCategories" class="flex-1 flex flex-col justify-between space-y-4">
-          <!-- Donut Graphic -->
-          <div class="h-44 sm:h-48 w-full relative flex items-center justify-center my-1">
+        <div v-if="loading" class="flex min-h-[220px] flex-1 items-center justify-center text-sm text-stone-500 dark:text-[#98A79D]" role="status">
+          Memuat kategori...
+        </div>
+        <div v-else-if="categories.length" class="flex flex-1 flex-col">
+          <div class="relative mx-auto my-2 h-40 w-full max-w-[220px] sm:h-44">
             <Doughnut :data="doughnutChartData" :options="doughnutChartOptions" />
-            <!-- Donut Center Label -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span class="text-[10px] text-stone-400 dark:text-[#98A79D] font-medium uppercase tracking-wider">Total</span>
-              <span class="text-xs font-black text-[#18221B] dark:text-[#F0F4F1] tabular-nums max-w-[90px] truncate text-center">
-                {{ formatRupiah(totalCategoryExpense) }}
-              </span>
-            </div>
           </div>
 
-          <!-- Legenda Kategori Rinci -->
-          <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-            <div
-              v-for="cat in props.analytics?.categoryDistribution"
-              :key="cat.categoryId"
-              class="flex items-center justify-between p-2 rounded-xl bg-stone-50/70 dark:bg-[#0E1410] hover:bg-stone-100/70 dark:hover:bg-[#243329]/50 border border-stone-200/70 dark:border-[#243329] transition text-xs"
+          <ul class="space-y-1.5" aria-label="Rincian pengeluaran per kategori">
+            <li
+              v-for="category in visibleCategories"
+              :key="category.categoryId"
+              class="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-xs odd:bg-stone-50 dark:odd:bg-[#0E1410]"
             >
-              <div class="flex items-center gap-2 min-w-0">
-                <span
-                  class="w-3 h-3 rounded-md shrink-0"
-                  :style="{ backgroundColor: cat.color }"
-                ></span>
-                <span class="font-semibold text-[#18221B] dark:text-[#F0F4F1] truncate">{{ cat.categoryName }}</span>
-                <span
-                  class="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0"
-                  :class="cat.group === 'NEED' ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'"
-                >
-                  {{ cat.group === 'NEED' ? 'Need' : 'Want' }}
+              <div class="flex min-w-0 items-center gap-2">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full" :style="{ backgroundColor: category.color }" aria-hidden="true"></span>
+                <span class="truncate font-semibold text-[#18221B] dark:text-[#F0F4F1]">{{ category.categoryName }}</span>
+                <span class="shrink-0 text-[10px] text-stone-500 dark:text-[#98A79D]">
+                  {{ category.group === 'NEED' ? 'Kebutuhan' : 'Keinginan' }}
                 </span>
               </div>
-
-              <div class="text-right shrink-0 ml-2">
-                <span class="font-extrabold text-[#18221B] dark:text-[#F0F4F1] tabular-nums block">{{ formatRupiah(cat.totalAmount) }}</span>
-                <span class="text-[10px] text-stone-500 dark:text-[#98A79D] font-medium tabular-nums">{{ cat.percentage }}%</span>
+              <div class="shrink-0 text-right tabular-nums">
+                <span class="block font-bold text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(category.totalAmount) }}</span>
+                <span class="text-[10px] text-stone-500 dark:text-[#98A79D]">{{ category.percentage }}%</span>
               </div>
-            </div>
-          </div>
-        </div>
+            </li>
+          </ul>
 
-        <!-- Empty State ketika belum ada pengeluaran -->
-        <div
-          v-else
-          class="flex-1 min-h-[220px] flex flex-col items-center justify-center text-center p-6 bg-stone-50/60 dark:bg-[#0E1410]/60 rounded-xl border border-dashed border-stone-200 dark:border-[#243329]"
-        >
-          <div class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-[#16201A] text-stone-400 dark:text-[#98A79D] flex items-center justify-center mb-2.5">
-            <PieChart class="w-6 h-6 stroke-1" />
-          </div>
-          <h4 class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Belum Ada Pengeluaran</h4>
-          <p class="text-[11px] text-stone-500 dark:text-[#98A79D] max-w-xs leading-relaxed font-normal">
-            Catat transaksi pengeluaran pada bulan {{ periodLabel }} untuk melihat grafik komposisi pos kebutuhan vs keinginan.
+          <button
+            v-if="categories.length > 5"
+            type="button"
+            class="mt-2 min-h-10 self-start rounded-lg px-2 text-xs font-semibold text-[#183D2B] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183D2B] dark:text-[#B8DF38] dark:focus-visible:outline-[#B8DF38]"
+            :aria-expanded="showAllCategories"
+            @click="showAllCategories = !showAllCategories"
+          >
+            {{ showAllCategories ? 'Tampilkan lebih sedikit' : `Lihat semua ${categories.length} kategori` }}
+          </button>
+        </div>
+        <div v-else class="flex min-h-[220px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 bg-stone-50/60 p-5 text-center dark:border-[#243329] dark:bg-[#0E1410]/60">
+          <PieChart class="mb-2 h-7 w-7 text-stone-500 dark:text-[#98A79D]" aria-hidden="true" />
+          <h4 class="text-sm font-semibold text-[#18221B] dark:text-[#F0F4F1]">Belum ada pengeluaran</h4>
+          <p class="mt-1 max-w-xs text-xs text-stone-500 dark:text-[#98A79D]">
+            Catat pengeluaran pada bulan {{ periodLabel }} untuk melihat kategori belanja.
           </p>
         </div>
-      </div>
+      </section>
     </div>
   </section>
 </template>
+
+<style scoped>
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+</style>

@@ -654,6 +654,7 @@ onUnmounted(() => {
             :current-year="currentYear"
             :progress-needs="progressNeeds"
             :progress-wants="progressWants"
+            :transactions="transactions"
             @open-budget-policy-modal="showBudgetModal = true"
           />
         </section>

@@ -5,9 +5,9 @@ describe('AuthService', () => {
   it('tidak mengembalikan password hash setelah registrasi dan men-seed data awal', async () => {
     const mockCreatedUser = {
       id: 1,
-      name: 'Dika',
-      email: 'dika@example.com',
-      password: '$2b$10$hash',
+      name: 'rukamaru',
+      email: 'ruka@example.com',
+      password: '$2b$10$hash',  
       createdAt: new Date('2026-09-17T00:00:00.000Z'),
       updatedAt: new Date('2026-09-17T00:00:00.000Z'),
     };
@@ -48,8 +48,8 @@ describe('AuthService', () => {
     const service = new AuthService(prisma, {} as any);
 
     const result = await service.register({
-      name: 'Dika',
-      email: 'dika@example.com',
+      name: 'rukamaru',
+      email: 'ruka@example.com',
       password: 'Password123!',
     });
 
@@ -66,8 +66,8 @@ describe('AuthService', () => {
 
     expect(result).toEqual({
       id: 1,
-      name: 'Dika',
-      email: 'dika@example.com',
+      name: 'rukamaru',
+      email: 'ruka@example.com',
       createdAt: new Date('2026-09-17T00:00:00.000Z'),
       updatedAt: new Date('2026-09-17T00:00:00.000Z'),
     });
@@ -106,7 +106,7 @@ describe('AuthService', () => {
 
   describe('getCurrentUser', () => {
     it('mengembalikan hanya identitas akun yang sedang masuk', async () => {
-      const currentUser = { id: 1, name: 'Dika', email: 'dika@example.com' };
+      const currentUser = { id: 1, name: 'rukamaru', email: 'ruka@example.com' };
       const prisma = {
         user: { findUnique: jest.fn().mockResolvedValue(currentUser) },
       } as any;

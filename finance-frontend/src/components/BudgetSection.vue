@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { formatPercentageShare, formatRupiah } from '../utils/format';
-import type { MonthlyReport, BudgetPolicy } from '../api/services';
+import type { MonthlyReport, BudgetPolicy, Transaction } from '../api/services';
 import { SlidersHorizontal, Info, PieChart, ShieldCheck } from 'lucide-vue-next';
+import SafeToSpendCard from './SafeToSpendCard.vue';
 
 const props = defineProps<{
   monthlyReport?: MonthlyReport | null;
@@ -12,6 +13,7 @@ const props = defineProps<{
   currentYear: number;
   progressNeeds: number;
   progressWants: number;
+  transactions?: Transaction[];
 }>();
 
 const savingsTarget = computed(() => BigInt(props.monthlyReport?.budgetSavings || '0'));
@@ -92,6 +94,14 @@ const emit = defineEmits<{
         </p>
       </div>
     </div>
+
+    <!-- Batas Belanja Harian (Safe-to-Spend Daily) -->
+    <SafeToSpendCard
+      :monthly-report="monthlyReport"
+      :transactions="transactions"
+      :current-month="currentMonth"
+      :current-year="currentYear"
+    />
 
     <!-- 3-Column Budget Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3.5 pt-1">

@@ -6,7 +6,6 @@ import {
   Plus,
   Minus,
   PiggyBank,
-  Unlock,
   Wallet,
   Building2,
   Smartphone,
@@ -29,7 +28,6 @@ const emit = defineEmits<{
   (e: 'openIncome'): void;
   (e: 'openExpense'): void;
   (e: 'openSave'): void;
-  (e: 'openRelease'): void;
   (e: 'openWallets'): void;
   (e: 'openTransfer'): void;
 }>();
@@ -66,7 +64,7 @@ const getWalletIcon = (type: string) => {
             {{ formatRupiah(summary?.unallocatedMoney) }}
           </p>
           <p class="text-xs text-emerald-100/80 mt-2 max-w-md leading-relaxed">
-            {{ hasAllocationShortfall ? 'Dana yang disisihkan lebih besar dari saldo total. Tinjau kembali alokasi tabungan Anda.' : 'Bagian saldo yang belum disisihkan untuk tabungan atau tujuan lain.' }}
+            {{ hasAllocationShortfall ? 'Dana yang dialokasikan lebih besar dari saldo total. Tinjau kembali tabungan Anda.' : 'Sisa saldo yang belum diberi tujuan tabungan atau rencana lain.' }}
           </p>
         </div>
 
@@ -85,21 +83,21 @@ const getWalletIcon = (type: string) => {
               </span>
             </div>
           </div>
-          <p class="text-xs text-emerald-100/85 leading-relaxed mt-3">
-            Saldo total dikurangi dana yang disisihkan = {{ hasAllocationShortfall ? 'selisih alokasi yang perlu diperbaiki' : 'uang yang bisa dipakai' }}. Menyisihkan hanya menandai tujuan uang; uangnya tetap di rekening atau dompet semula.
-          </p>
         </div>
 
         <details class="group max-w-xl border-t border-white/15 pt-3">
           <summary class="flex items-center justify-between gap-2 text-xs font-semibold text-emerald-100 cursor-pointer list-none rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8DF38]">
-            <span>Rincian rekening dan saldo awal</span>
+            <span>Cara menghitung saldo</span>
             <ChevronDown class="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div class="pt-4 space-y-4">
-            <div>
-              <span class="text-[11px] text-emerald-100/75 block">Saldo saat mulai menggunakan aplikasi</span>
+            <p class="text-xs text-emerald-100/85 leading-relaxed">
+              Saldo total dikurangi uang yang sudah dialokasikan menjadi uang yang bisa dipakai. Menyisihkan hanya memberi tujuan pada uang; uangnya tetap di rekening atau dompet semula.
+            </p>
+            <div class="border-t border-white/10 pt-3">
+              <span class="text-[11px] text-emerald-100/75 block">Saldo awal saat mulai menggunakan aplikasi</span>
               <span class="text-sm font-semibold text-white tabular-nums block mt-0.5">{{ formatRupiah(summary?.initialBalance) }}</span>
-              <p class="text-[11px] text-emerald-100/70 mt-1">Angka awal ini sudah termasuk dalam saldo total, bukan uang tambahan.</p>
+              <p class="text-[11px] text-emerald-100/70 mt-1">Angka ini sudah termasuk dalam saldo total, bukan uang tambahan.</p>
             </div>
             <div v-if="wallets && wallets.length > 0" class="border-t border-white/10 pt-3">
               <div class="flex items-center justify-between gap-2 mb-2">
@@ -163,14 +161,6 @@ const getWalletIcon = (type: string) => {
           <span>Sisihkan ke Tabungan</span>
         </button>
 
-        <button
-          type="button"
-          @click="emit('openRelease')"
-          class="tactile-btn inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 font-semibold text-xs border border-white/15 cursor-pointer select-none"
-        >
-          <Unlock class="w-3.5 h-3.5 text-stone-300" :stroke-width="1.75" />
-          <span>Tarik Dana Tabungan</span>
-        </button>
       </div>
     </div>
   </div>

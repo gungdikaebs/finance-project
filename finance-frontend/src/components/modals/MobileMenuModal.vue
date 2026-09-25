@@ -77,7 +77,7 @@ const { isDark, toggleTheme } = useTheme();
 
       <!-- Menu Items -->
       <div class="space-y-1.5">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-[#98A79D]/70 px-1">Menu & Pengaturan</p>
+        <p class="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-[#98A79D]/70 px-1">Kelola keuangan</p>
 
         <!-- Profil Keuangan -->
         <button
@@ -154,6 +154,8 @@ const { isDark, toggleTheme } = useTheme();
           <ChevronRight class="w-4 h-4 text-stone-400 dark:text-[#98A79D]" />
         </button>
 
+        <p class="pt-2 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-[#98A79D]/70 px-1">Rencana dan laporan</p>
+
         <!-- Simulator KPR & Target -->
         <button
           type="button"
@@ -198,6 +200,8 @@ const { isDark, toggleTheme } = useTheme();
           </span>
           <ChevronRight class="w-4 h-4 text-stone-400 dark:text-[#98A79D]" />
         </button>
+
+        <p class="pt-2 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-[#98A79D]/70 px-1">Tampilan</p>
 
         <!-- Toggle Mode Gelap / Terang (Modul 9) -->
         <button
