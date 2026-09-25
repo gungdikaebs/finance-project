@@ -47,6 +47,7 @@ import ManageCategoriesModal from '../components/modals/ManageCategoriesModal.vu
 import BudgetPolicyModal from '../components/modals/BudgetPolicyModal.vue';
 import MonthEndReviewModal from '../components/modals/MonthEndReviewModal.vue';
 import SaveModal from '../components/modals/SaveModal.vue';
+import EmergencyTopUpModal from '../components/modals/EmergencyTopUpModal.vue';
 import ReleaseModal from '../components/modals/ReleaseModal.vue';
 import AddGoalModal from '../components/modals/AddGoalModal.vue';
 import EditGoalModal from '../components/modals/EditGoalModal.vue';
@@ -101,6 +102,7 @@ const showManageModal = ref(false);
 const showBudgetModal = ref(false);
 const showReviewModal = ref(false);
 const showSaveModal = ref(false);
+const showEmergencyTopUpModal = ref(false);
 const showReleaseModal = ref(false);
 const releaseGoalId = ref<number | null>(null);
 const showAddGoalModal = ref(false);
@@ -125,6 +127,7 @@ const activeModalKey = computed(() => {
     ['edit-transaction', showEditModal.value], ['cancel-transaction', showCancelModal.value],
     ['categories', showManageModal.value], ['budget', showBudgetModal.value],
     ['review', showReviewModal.value], ['save', showSaveModal.value],
+    ['emergency-top-up', showEmergencyTopUpModal.value],
     ['release', showReleaseModal.value], ['add-goal', showAddGoalModal.value],
     ['edit-goal', showEditGoalModal.value], ['complete-goal', showCompleteGoalModal.value],
     ['shares', showSharesModal.value],
@@ -386,6 +389,7 @@ const closeTopModal = () => {
   if (showCompleteGoalModal.value) { showCompleteGoalModal.value = false; return; }
   if (showAddGoalModal.value) { showAddGoalModal.value = false; return; }
   if (showSharesModal.value) { showSharesModal.value = false; return; }
+  if (showEmergencyTopUpModal.value) { showEmergencyTopUpModal.value = false; return; }
   if (showSaveModal.value) { showSaveModal.value = false; return; }
   if (showReleaseModal.value) { showReleaseModal.value = false; return; }
   if (showBudgetModal.value) { showBudgetModal.value = false; return; }
@@ -630,6 +634,7 @@ onUnmounted(() => {
             :unassigned-goal="unassignedGoal"
             :profile="profile"
             :forecasts="goalForecasts"
+            @open-emergency-top-up="showEmergencyTopUpModal = true"
             @open-shares-modal="showSharesModal = true"
             @open-add-goal-modal="showAddGoalModal = true"
             @open-edit-goal-modal="openEditGoal"
@@ -697,6 +702,7 @@ onUnmounted(() => {
     <!-- Mobile Bottom Navigation Bar (md:hidden) -->
     <MobileBottomNav
       :active-tab="mobileTab"
+      :menu-open="showMobileMenu"
       @update:active-tab="mobileTab = $event"
       @open-menu="showMobileMenu = true"
     />
@@ -764,6 +770,14 @@ onUnmounted(() => {
       :unallocated-money="summary?.unallocatedMoney || allocationStatus?.unallocatedMoney"
       :recommended-saving-amount="summary?.recommendedSavingAmount"
       @close="showSaveModal = false"
+      @saved="loadAllData"
+    />
+
+    <EmergencyTopUpModal
+      :show="showEmergencyTopUpModal"
+      :goal="emergencyGoal"
+      :unallocated-money="summary?.unallocatedMoney || allocationStatus?.unallocatedMoney"
+      @close="showEmergencyTopUpModal = false"
       @saved="loadAllData"
     />
 

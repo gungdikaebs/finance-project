@@ -9,6 +9,7 @@ import {
 
 defineProps<{
   activeTab: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi' | 'semua';
+  menuOpen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -27,6 +28,7 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('update:activeTab', 'ringkasan')"
+        :aria-current="activeTab === 'ringkasan' ? 'page' : undefined"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
         :class="activeTab === 'ringkasan' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
@@ -44,6 +46,7 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('update:activeTab', 'tabungan')"
+        :aria-current="activeTab === 'tabungan' ? 'page' : undefined"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
         :class="activeTab === 'tabungan' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
@@ -61,6 +64,7 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('update:activeTab', 'anggaran')"
+        :aria-current="activeTab === 'anggaran' ? 'page' : undefined"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
         :class="activeTab === 'anggaran' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
@@ -78,6 +82,7 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('update:activeTab', 'transaksi')"
+        :aria-current="activeTab === 'transaksi' ? 'page' : undefined"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
         :class="activeTab === 'transaksi' ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold' : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
       >
@@ -95,7 +100,13 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('openMenu')"
-        class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38]/30 dark:bg-[#B8DF38] hover:bg-[#B8DF38]/50 dark:hover:bg-[#a3c82e] border border-[#B8DF38]/60 dark:border-[#B8DF38] cursor-pointer select-none shadow-xs"
+        :aria-expanded="menuOpen"
+        aria-haspopup="dialog"
+        aria-label="Buka menu dan pengaturan"
+        class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
+        :class="menuOpen
+          ? 'text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38]/30 dark:bg-[#B8DF38] border border-[#B8DF38]/60 dark:border-[#B8DF38] shadow-xs'
+          : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329]'"
         title="Buka menu & alat lainnya"
       >
         <div class="relative">

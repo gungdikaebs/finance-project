@@ -112,6 +112,7 @@ const remainingToday = computed(() => {
 });
 
 const isSpentOverToday = computed(() => spentToday.value > dailyQuota.value && dailyQuota.value > 0n);
+const spendingScopeLabel = computed(() => mode.value === 'WANTS' ? 'Keinginan' : 'Semua Pengeluaran');
 
 // Progress Pemakaian Kuota Hari Ini (%)
 const progressToday = computed(() => {
@@ -140,27 +141,27 @@ const statusBadge = computed(() => {
   }
   if (isOverbudget.value || activeRemainingBudget.value <= 0n) {
     return {
-      text: 'Anggaran Habis',
+      text: `Anggaran ${spendingScopeLabel.value} Habis`,
       bgClass: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900/50',
       dotClass: 'bg-rose-500',
     };
   }
   if (isSpentOverToday.value) {
     return {
-      text: 'Melebihi Kuota Hari Ini',
+      text: `Melebihi Batas ${mode.value === 'WANTS' ? 'Keinginan' : 'Belanja'}`,
       bgClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900/50',
       dotClass: 'bg-amber-500',
     };
   }
   if (progressToday.value >= 80) {
     return {
-      text: 'Mendekati Batas',
+      text: `Mendekati Batas ${mode.value === 'WANTS' ? 'Keinginan' : 'Belanja'}`,
       bgClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900/50',
       dotClass: 'bg-amber-500',
     };
   }
   return {
-    text: 'Aman Terkendali',
+    text: `Aman untuk ${spendingScopeLabel.value}`,
     bgClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50',
     dotClass: 'bg-emerald-500',
   };
@@ -188,7 +189,11 @@ const statusBadge = computed(() => {
               {{ statusBadge.text }}
             </span>
           </div>
-          <p class="mt-0.5 text-xs text-stone-500 dark:text-[#98A79D]">Saran batas belanja berdasarkan sisa anggaran.</p>
+          <p class="mt-0.5 text-xs text-stone-500 dark:text-[#98A79D]">
+            {{ mode === 'WANTS'
+              ? 'Saran batas untuk Keinginan berdasarkan sisa anggaran bulan ini.'
+              : 'Saran batas untuk semua pengeluaran berdasarkan sisa anggaran bulan ini.' }}
+          </p>
         </div>
       </div>
 
@@ -234,7 +239,9 @@ const statusBadge = computed(() => {
 
       <div v-if="isCurrentMonth" class="space-y-2 border-t border-emerald-100/80 pt-3 dark:border-[#243329]">
         <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs">
-          <span class="font-semibold text-stone-700 dark:text-[#F0F4F1]">Pengeluaran hari ini</span>
+          <span class="font-semibold text-stone-700 dark:text-[#F0F4F1]">
+            {{ mode === 'WANTS' ? 'Pengeluaran keinginan hari ini' : 'Semua pengeluaran hari ini' }}
+          </span>
           <span class="font-bold tabular-nums text-[#18221B] dark:text-[#F0F4F1]">
             {{ formatRupiah(spentToday) }}
             <span class="font-medium text-stone-500 dark:text-[#98A79D]">dari {{ formatRupiah(dailyQuota) }}</span>
@@ -244,7 +251,7 @@ const statusBadge = computed(() => {
         <div
           class="h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-[#0E1410]"
           role="progressbar"
-          :aria-label="`Pengeluaran hari ini, ${progressToday}% dari batas harian`"
+          :aria-label="`${mode === 'WANTS' ? 'Pengeluaran keinginan' : 'Semua pengeluaran'}, ${progressToday}% dari batas harian`"
           aria-valuemin="0"
           aria-valuemax="100"
           :aria-valuenow="progressToday"
@@ -285,10 +292,10 @@ const statusBadge = computed(() => {
             <span>Hari tersisa: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ remainingDays }}</strong></span>
           </div>
           <p v-if="isSpentOverToday" class="leading-relaxed">
-            Pengeluaran hari ini melebihi batas. Sisa anggaran yang tersedia dibagi ke hari-hari berikutnya.
+            {{ mode === 'WANTS' ? 'Pengeluaran keinginan hari ini' : 'Semua pengeluaran hari ini' }} melebihi batas. Sisa anggaran yang tersedia dibagi ke hari-hari berikutnya.
           </p>
           <p v-else-if="dailyQuota > 0n" class="leading-relaxed">
-            Jika pengeluaran hari ini di bawah batas, sisa anggaran dibagi ke hari-hari berikutnya.
+            Jika {{ mode === 'WANTS' ? 'pengeluaran keinginan' : 'semua pengeluaran' }} hari ini di bawah batas, sisa anggaran dibagi ke hari-hari berikutnya.
           </p>
           <p v-else class="leading-relaxed">
             Sisa anggaran untuk pilihan ini sudah habis. Kurangi belanja atau tinjau pembagian anggaran.

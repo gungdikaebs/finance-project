@@ -206,8 +206,16 @@ const emit = defineEmits<{
         </div>
 
         <p class="text-[11px] text-[#5E6961] dark:text-[#98A79D] leading-relaxed font-normal">
-          Tabungan dilakukan lewat tombol "Sisihkan ke Tabungan". Jumlah tersimpan sudah otomatis dikurangi dana yang ditarik bulan ini.
+          Buka Tabungan, lalu pilih “Sisihkan ke Tabungan” untuk menyimpan uang.
         </p>
+        <details class="group border-t border-emerald-900/10 dark:border-[#243329] pt-2 text-[11px]">
+          <summary class="cursor-pointer list-none font-semibold text-[#183D2B] dark:text-[#B8DF38] underline decoration-dotted underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 dark:focus-visible:outline-[#B8DF38]">
+            Bagaimana angka tabungan dihitung?
+          </summary>
+          <p class="mt-2 leading-relaxed text-[#5E6961] dark:text-[#98A79D]">
+            Jumlah “Sudah disisihkan” adalah tabungan bulan ini setelah dikurangi dana yang ditarik kembali.
+          </p>
+        </details>
       </div>
     </div>
   </div>

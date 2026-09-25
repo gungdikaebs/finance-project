@@ -119,6 +119,48 @@ Visual: gunakan warna/tipografi yang ada; kurangi jumlah bidang berbingkai, teks
 - Batas QA yang masih tersisa: keadaan tanpa target aktif tidak dibuat karena memerlukan perubahan data pada dua target yang ada; di UI aktif/detail/edit tidak terlihat aksi arsip/pemulihan yang jelas, jadi target lama tidak diubah. Loading/error pratinjau tidak direkayasa dengan memutus jaringan. Kesetaraan angka terhadap perilaku sebelum perubahan belum diuji dengan pembandingan dataset. Pada form Target Baru 390 px, nominal panjang yang wajar (Rp1.234.567.890.123) terlihat penuh; nominal ekstrem 31 digit melebihi lebar kolom dan perlu digulir di dalam input.
 - Catatan build: peringatan chunk JS lebih dari 500 kB tetap muncul.
 
+## Backlog evaluasi UI terbaru — 25 September 2026
+
+Tahap 1–4 sudah menghasilkan Ringkasan yang mudah dipindai, aksi Pemasukan/Pengeluaran/Sisihkan yang terlihat jelas, kartu target yang lebih ringkas, navigasi mobile per bagian, serta konfirmasi pembatalan transaksi yang menjelaskan dampaknya pada saldo. Temuan berikut adalah backlog evaluasi terbaru; status implementasi dicatat per item. Prioritas didasarkan pada risiko salah memahami kondisi uang, bukan pada kemudahan membuat perubahan.
+
+### 1. Dana Pengaman setelah target tercapai — High (selesai)
+
+- **Bukti UI:** pada akun uji, Dana Pengaman terkumpul Rp32.748.000 dengan target Rp24.000.000. Kartu sudah menunjukkan “Target tercapai” dan “Lebih Rp8.748.000”. Header Tabungan menyebut 100% setoran berikutnya dialihkan ke Target Impian. Dari layar ini belum jelas langkah pengguna yang ingin menambah Dana Pengaman lagi secara sengaja setelah target tercapai.
+- **Dampak:** pengguna dapat mengira tombol Sisihkan akan menambah Dana Pengaman, padahal pratinjau penyisihan mengarahkannya seluruhnya ke target impian. Pengguna yang ingin mempertahankan cadangan lebih besar tidak menemukan tindakan yang jelas.
+- **Perubahan:** ketika target tercapai, kartu Dana Pengaman menampilkan aksi “Tambah ke Dana Pengaman”. Form menerima nominal satu kali dari uang yang belum disisihkan dan menjelaskan bahwa uang tetap berada di rekening/dompet, sementara setoran otomatis berikutnya tetap dialihkan ke Target Impian. Layar tinjau menampilkan nominal, saldo Dana Pengaman setelah tambahan, serta sisa uang yang bisa dipakai. Penyimpanan menggunakan alokasi ke target Dana Pengaman yang sudah ada; rumus setoran otomatis dan model backend tidak diubah.
+- **Verifikasi:** build produksi berhasil. Melalui UI ponsel, tombol dan modal diperiksa secara visual; fokus awal masuk ke nominal dan setelah Batal kembali ke tombol pembuka. Nominal Rp40.000.000 ditolak ketika saldo tersedia Rp36.204.900; nominal uji Rp5.000.000 menampilkan perhitungan saldo setelah tambahan dengan benar dan kembali dapat diubah. Form kemudian dibatalkan sebelum konfirmasi, sehingga tidak ada transaksi atau saldo yang diubah. Validasi kepemilikan target dan batas saldo juga tersedia pada endpoint alokasi yang dipakai.
+- **Kriteria penerimaan:** [x] UI menjelaskan tujuan setoran otomatis berikutnya; [x] pengguna dapat menambah Dana Pengaman satu kali; [x] tujuan dan dampak pada saldo ditinjau sebelum konfirmasi; [x] pengguna dapat membatalkan atau mengubah nominal; [x] setoran otomatis berikutnya tidak berubah. Pengiriman konfirmasi akhir tidak dilakukan saat QA agar tidak membuat transaksi uji.
+
+### 2. Cakupan angka pada Batas belanja harian — Medium (copy dan status selesai)
+
+- **Bukti UI:** dengan mode default “Keinginan”, kartu menulis “Pengeluaran hari ini Rp0”. Setelah mode diganti ke “Semua pengeluaran”, angka menjadi Rp1.010.000 karena ada transaksi kategori Kebutuhan pada hari yang sama. Angkanya mengikuti filter, tetapi label “Pengeluaran hari ini” tidak menyebut cakupan filter tersebut.
+- **Dampak:** pengguna dapat menyimpulkan belum mengeluarkan uang sama sekali hari ini. Status hijau “Aman Terkendali” juga dapat terbaca sebagai penilaian seluruh keuangan, padahal kartu sedang menilai mode yang dipilih.
+- **Perbaikan:** label angka berubah menjadi “Pengeluaran keinginan hari ini” atau “Semua pengeluaran hari ini”; keterangan rekomendasi serta status (“Aman untuk Keinginan/Semua Pengeluaran”) kini menyebut mode yang sedang dipilih. Nama aksesibel progress bar juga mengikuti mode. Kontrol mode yang sudah ada dipertahankan sebagai tombol pilihan dengan `aria-pressed`; tidak diubah menjadi checkbox baru atau radio tanpa kebutuhan.
+- **Verifikasi:** pada viewport 390×844, mode Keinginan menampilkan “Pengeluaran keinginan hari ini Rp0” dan “Aman untuk Keinginan”; mode Semua Pengeluaran menampilkan “Semua pengeluaran hari ini Rp1.010.000” dan “Aman untuk Semua Pengeluaran”. Saat kembali ke mode Keinginan, angka dan label kembali sesuai. Tidak ada transaksi atau saldo yang diubah.
+- **Kriteria penerimaan:** [x] label, nilai, status, dan nama progress mengikuti mode; pengeluaran kategori Kebutuhan tidak tersirat masuk ke angka mode Keinginan. [ ] Periksa pengumuman status tombol dan angka dengan pembaca layar nyata.
+
+### 3. Penanda navigasi dan nama aksi target pada mobile — Low–Medium (selesai)
+
+- **Bukti UI:** pada lebar 390 px, tombol “Menu” tetap berbidang lime yang paling mencolok ketika Ringkasan, Tabungan, Anggaran, atau Transaksi sedang aktif. Beberapa tombol pembuka kartu target juga sama-sama terbaca “Lihat detail & tindakan” tanpa nama target di accessibility tree.
+- **Dampak:** penanda tab aktif bersaing dengan Menu; pengguna pembaca layar harus menebak target yang akan dibuka.
+- **Perbaikan:** tombol Menu kini netral ketika panel tertutup dan mengikuti gaya aktif ketika dibuka. Tab yang terpilih ditandai sebagai halaman saat ini. Tombol Menu menyebut fungsinya dan status buka/tutupnya. Tombol detail setiap target kini memuat nama target di label aksesibel.
+- **Verifikasi:** pada viewport 390×844, Tabungan terlihat sebagai tab aktif dan Menu tidak lagi bersaing secara visual. UI menunjukkan `aria-current="page"` pada Tabungan, `aria-expanded="false"` pada Menu tertutup, serta label aksesibel “Lihat detail dan tindakan untuk …” yang berbeda untuk setiap target. Saat Menu dibuka, status berubah menjadi expanded. Tidak ada data finansial yang diubah.
+- **Kriteria penerimaan:** [x] tab aktif paling jelas secara visual; aksi tiap target dan status Menu dapat dibedakan dari accessibility tree. [ ] Pengumuman akhir tetap perlu diperiksa dengan pembaca layar nyata.
+
+### 4. Sisa kepadatan pada Anggaran — Low (selesai)
+
+- **Bukti UI:** setelah kartu batas belanja harian diringkas, layar Anggaran masih menampilkan rasio pemasukan, batas harian, tiga ringkasan kategori, dan penjelasan “Tabungan Bulan Ini” dalam satu rangkaian. Pada 390 px pengguna perlu menggulir beberapa panel untuk menyusun gambaran utuh.
+- **Perubahan:** penjelasan kartu tabungan kini memprioritaskan langkah “Buka Tabungan, lalu pilih ‘Sisihkan ke Tabungan’”; cara angka “Sudah disisihkan” dikurangi dengan penarikan dipindahkan ke rincian “Bagaimana angka tabungan dihitung?” yang bisa dibuka. Angka dan perhitungan finansial tidak diubah.
+- **Verifikasi:** build produksi berhasil. Pada viewport ponsel, petunjuk langkah terlihat pada kartu Tabungan Bulan Ini; rincian perhitungan berhasil dibuka dan ditutup lewat kontrol yang dapat diakses. Tidak ada data finansial yang diubah.
+- **Kriteria penerimaan:** [x] langkah berikutnya dapat dikenali tanpa membuka rincian; [x] rincian perhitungan tetap tersedia dan dapat dibuka/ditutup.
+
+### Batas pemeriksaan dan koreksi temuan
+
+- Pemeriksaan terbaru dilakukan lewat browser aplikasi pada viewport ponsel, dengan akun yang sudah berisi data fiktif. Ini bukan pengulangan onboarding akun kosong. Rincian tabungan dikembalikan ke keadaan tertutup; tidak ada data yang diubah pada pemeriksaan terbaru.
+- Pada pemeriksaan alur transaksi sebelumnya, satu pengeluaran fiktif Rp10.000 dengan catatan “Uji usability - kopi” **disimpan** untuk melihat feedback dan pembaruan saldo; transaksi itu masih ada. Ini terpisah dari QA tahap 1–4 yang saat itu tidak mengubah transaksi.
+- Temuan lama tentang tidak adanya pilihan rekening pada form pengeluaran **belum terbukti**: akun uji hanya memiliki satu rekening aktif. Perilaku ketika ada beberapa rekening perlu diuji melalui UI sebelum dibuat task perubahan alur rekening.
+- Validasi nominal Sisihkan yang melebihi uang tersedia sudah diperbaiki setelah QA tahap 4: input di atas Rp36.214.900 menampilkan pesan batas dan menonaktifkan “Tinjau Pembagian”; nilai tepat pada batas masih bisa ditinjau. Penyisihan uji tidak dikonfirmasi.
+
 ## Kondisi repo dan serah terima
 
 - Saat rencana disusun, ada perubahan belum di-commit pada `finance-api/prisma/seed.ts`, `finance-api/src/auth/auth.service.spec.ts`, `finance-frontend/src/components/BudgetSection.vue`, `finance-frontend/src/pages/Dashboard.vue`, dan `finance-frontend/src/pages/Login.vue`, serta file baru `finance-frontend/src/components/SafeToSpendCard.vue`. Semuanya diperlakukan sebagai pekerjaan pihak lain dan dipertahankan.
