@@ -23,8 +23,11 @@ import { useConfirm } from '../composables/useConfirm';
 import {
   AlertCircle,
   RefreshCw,
+  Sun,
+  Moon,
 } from 'lucide-vue-next';
 import { useToast } from '../composables/useToast';
+import { useTheme } from '../composables/useTheme';
 
 // Modular Components
 import Sidebar from '../components/Sidebar.vue';
@@ -63,6 +66,7 @@ const router = useRouter();
 const auth = useAuthStore();
 const toast = useToast();
 const confirmDialog = useConfirm();
+const { isDark, toggleTheme } = useTheme();
 
 // Core Data State
 const profile = ref<FinanceProfile | null>(null);
@@ -511,6 +515,48 @@ onUnmounted(() => {
     <!-- Main Content Area: Offset on lg+ by lg:pl-64 -->
     <div class="flex-1 min-w-0 flex flex-col min-h-screen lg:pl-64">
 
+      <!-- Mobile Top App Bar (Visible on < lg) -->
+      <header class="lg:hidden sticky top-0 z-30 bg-[#F3F5EF]/95 dark:bg-[#0E1410]/95 backdrop-blur-md border-b border-[#DDE6DC] dark:border-[#27372C] px-4 py-2.5 flex items-center justify-between transition-colors">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] text-[#B8DF38] dark:text-[#183D2B] font-black text-xs grid place-items-center shadow-xs">
+            PK
+          </div>
+          <div>
+            <span class="text-xs font-extrabold tracking-tight block text-[#18221B] dark:text-[#F0F4F1]">Project-Keuangan</span>
+            <span class="text-[10px] text-emerald-700 dark:text-[#B8DF38] font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Fintech Aktif
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <!-- Theme Toggle -->
+          <button
+            type="button"
+            @click="toggleTheme"
+            class="tactile-btn p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800/60 transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+            :aria-label="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'"
+          >
+            <Sun v-if="isDark" class="w-4 h-4 text-[#B8DF38]" />
+            <Moon v-else class="w-4 h-4 text-stone-700" />
+          </button>
+
+          <!-- User Profile / Menu Trigger -->
+          <button
+            type="button"
+            @click="showMobileMenu = true"
+            class="tactile-btn flex items-center gap-1.5 p-1.5 pl-2 pr-2.5 rounded-xl bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#27372C] text-xs font-bold text-stone-700 dark:text-stone-200 shadow-2xs cursor-pointer min-h-[36px]"
+            aria-label="Buka menu pengguna"
+          >
+            <div class="w-6 h-6 rounded-lg bg-[#183D2B] dark:bg-[#132E21] text-[#B8DF38] text-[11px] font-bold grid place-items-center">
+              {{ (auth.user?.name || auth.user?.email || 'P').charAt(0).toUpperCase() }}
+            </div>
+            <span class="text-[11px] max-w-[80px] truncate hidden min-[360px]:inline">{{ auth.user?.name?.split(' ')[0] || 'Akun' }}</span>
+          </button>
+        </div>
+      </header>
+
       <!-- Main Content Container -->
       <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-28 lg:pb-12">
       <!-- Error Alert Banner with Retry -->
@@ -599,7 +645,7 @@ onUnmounted(() => {
         <!-- SECTION 1: HERO KARTU SALDO UTAMA -->
         <section
           id="section-ringkasan"
-          :class="{ 'hidden md:block': mobileTab !== 'ringkasan' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'ringkasan' && mobileTab !== 'semua' }"
         >
           <HeroBalanceCard
             :summary="summary"
@@ -626,7 +672,7 @@ onUnmounted(() => {
         <!-- SECTION 2: TABUNGAN & TARGET IMPIAN (D-005) -->
         <section
           id="section-tabungan"
-          :class="{ 'hidden md:block': mobileTab !== 'tabungan' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'tabungan' && mobileTab !== 'semua' }"
         >
           <SavingsSection
             :emergency-goal="emergencyGoal"
@@ -649,7 +695,7 @@ onUnmounted(() => {
         <!-- SECTION 3: KONTROL ANGGARAN BULANAN (BUDGETING FLEKSIBEL) -->
         <section
           id="section-anggaran"
-          :class="{ 'hidden md:block': mobileTab !== 'anggaran' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'anggaran' && mobileTab !== 'semua' }"
         >
           <BudgetSection
             :monthly-report="monthlyReport"
@@ -667,7 +713,7 @@ onUnmounted(() => {
         <!-- SECTION 4: ANALITIK & TREN ARUS KAS (MODUL 3) -->
         <section
           id="section-analitik"
-          :class="{ 'hidden md:block': mobileTab !== 'analitik' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'analitik' && mobileTab !== 'semua' }"
         >
           <CashflowAnalyticsSection
             :analytics="analytics"
@@ -680,7 +726,7 @@ onUnmounted(() => {
         <!-- SECTION 5: RIWAYAT TRANSAKSI -->
         <section
           id="section-transaksi"
-          :class="{ 'hidden md:block': mobileTab !== 'transaksi' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'transaksi' && mobileTab !== 'semua' }"
         >
           <TransactionSection
             :transactions="transactions"
@@ -699,7 +745,7 @@ onUnmounted(() => {
     </main>
   </div>
 
-    <!-- Mobile Bottom Navigation Bar (md:hidden) -->
+    <!-- Mobile Bottom Navigation Bar (lg:hidden) -->
     <MobileBottomNav
       :active-tab="mobileTab"
       :menu-open="showMobileMenu"

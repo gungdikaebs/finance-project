@@ -221,16 +221,6 @@ async function handleSubmit() {
               {{ loading ? 'Memproses...' : isRegister ? 'Daftar dengan email' : 'Masuk dengan email' }}
               <ArrowRight v-if="!loading" class="w-4 h-4" />
             </button>
-
-            <div v-if="!isRegister" class="pt-2 text-center">
-              <button
-                type="button"
-                @click="email = 'admin@gmail.com'; password = 'admin123'"
-                class="text-xs text-[#24553D] dark:text-[#B8DF38] hover:underline inline-flex items-center gap-1 cursor-pointer font-semibold"
-              >
-                <span>Gunakan akun demo (admin@gmail.com)</span>
-              </button>
-            </div>
           </form>
         </template>
       </main>

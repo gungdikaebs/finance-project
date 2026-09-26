@@ -20,7 +20,7 @@ const emit = defineEmits<{
 
 <template>
   <aside
-    class="md:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 max-w-md mx-auto z-40 glass-dock rounded-2xl border border-emerald-950/10 dark:border-[#243329] py-2 px-3 shadow-[0_12px_32px_-4px_rgba(24,61,43,0.18)] dark:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] select-none transition-colors"
+    class="lg:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 max-w-md mx-auto z-40 glass-dock rounded-2xl border border-emerald-950/10 dark:border-[#243329] py-2 px-3 shadow-[0_12px_32px_-4px_rgba(24,61,43,0.18)] dark:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] select-none transition-colors"
     aria-label="Navigasi Bawah Mobile"
   >
     <div class="flex justify-around items-center">
