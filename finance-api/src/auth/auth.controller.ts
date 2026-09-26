@@ -12,6 +12,8 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyPasswordDto } from './dto/verify-password.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
+import { LinkGoogleDto } from './dto/link-google.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +28,18 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('google')
+  googleLogin(@Body() dto: GoogleLoginDto) {
+    return this.authService.googleLogin(dto.credential);
+  }
+
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('google/link')
+  linkGoogle(@Body() dto: LinkGoogleDto) {
+    return this.authService.linkGoogleAccount(dto.credential, dto.password);
   }
 
   @UseGuards(JwtAuthGuard)

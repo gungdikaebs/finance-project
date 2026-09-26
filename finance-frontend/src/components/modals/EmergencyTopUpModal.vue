@@ -133,7 +133,7 @@ const handleTopUp = async () => {
             <strong class="text-[#183D2B] dark:text-[#B8DF38] font-extrabold tabular-nums">{{ formatRupiah(available) }}</strong>
           </div>
           <p class="text-[11px] text-stone-600 dark:text-[#98A79D] leading-relaxed">
-            Tambahan ini hanya memberi tujuan pada uang yang belum disisihkan. Uang tetap di rekening atau dompet semula; setoran otomatis berikutnya tetap masuk ke Target Impian.
+            Tambahan ini memakai sebagian uang yang bisa dipakai untuk menambah Dana Pengaman. Uang tetap di rekening atau dompet semula; setoran otomatis berikutnya tetap masuk ke Target Impian.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ const handleTopUp = async () => {
             :aria-invalid="exceedsAvailable"
           />
           <p id="emergency-top-up-hint" class="text-[11px] text-stone-500 dark:text-[#98A79D]">
-            Maksimal {{ formatRupiah(available) }} dari uang yang belum disisihkan.
+            Batas yang tersedia saat ini: {{ formatRupiah(available) }}.
           </p>
           <p v-if="exceedsAvailable" class="text-xs text-red-700 dark:text-red-300" role="alert">
             Nominal melebihi uang yang bisa dipakai. Kurangi hingga maksimal {{ formatRupiah(available) }}.

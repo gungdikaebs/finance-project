@@ -127,6 +127,7 @@ npm install
 npm run dev
 ```
 Frontend akan aktif di `http://localhost:5173`.
+Halaman `/` adalah landing page, `/login` untuk masuk atau mendaftar, dan `/dashboard` untuk aplikasi setelah masuk.
 
 ---
 
@@ -138,12 +139,19 @@ PORT=3001
 DATABASE_URL="file:./dev.db"
 # Minimal 32 karakter rahasia untuk tanda tangan token JWT
 JWT_SECRET=super-secret-jwt-key-finance-project-min-32-chars
+# Google Web Client ID yang sama dengan frontend; kosongkan jika belum memakai login Google
+GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+# Daftar origin frontend yang diizinkan, pisahkan dengan koma untuk lebih dari satu domain
+FRONTEND_ORIGINS=http://localhost:5173
 ```
 
 ### Frontend (`finance-frontend/.env`)
 ```env
 VITE_API_URL=http://localhost:3001
+VITE_GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
 ```
+
+Untuk mengaktifkan Google login, buat **OAuth 2.0 Client ID** bertipe *Web application* di Google Cloud. Tambahkan `http://localhost:5173` sebagai *Authorized JavaScript origin* saat pengembangan dan origin HTTPS frontend saat produksi. Isi Client ID yang sama di kedua berkas `.env`, lalu mulai ulang frontend dan backend. Alur ini memakai tombol Google Identity Services dan ID token, tanpa Google client secret atau refresh token. Bila Client ID belum diisi, form email-kata sandi tetap dapat dipakai. Publikasi di domain produksi juga memerlukan pengaturan branding dan domain aplikasi pada Google Cloud.
 
 ---
 
@@ -153,7 +161,7 @@ VITE_API_URL=http://localhost:3001
 ```bash
 cd finance-api
 
-# Menjalankan seluruh Unit Test (8 suites, 18 tests)
+# Menjalankan seluruh unit test
 npm test -- --runInBand
 
 # Menjalankan E2E Test pada SQLite sementara terisolasi

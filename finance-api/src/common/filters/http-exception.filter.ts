@@ -17,6 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         response.status(status).json({
             success: false,
             message: res.message || 'Error',
+            ...(typeof res.code === 'string' ? { code: res.code } : {}),
         });
     }
 }

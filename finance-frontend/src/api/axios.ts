@@ -17,10 +17,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const isAuthAttempt = /^\/auth\/(login|register|google(?:\/link)?)$/.test(error.config?.url || '');
+        if (error.response?.status === 401 && !isAuthAttempt) {
             localStorage.removeItem('token');
-            if (window.location.pathname !== '/') {
-                window.location.href = '/';
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);
@@ -28,4 +29,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

@@ -30,7 +30,21 @@ export const useAuthStore = defineStore('auth', {
                 password,
             });
 
-            this.token = res.data.data.token;
+            await this.acceptToken(res.data.data.token);
+        },
+
+        async loginWithGoogle(credential: string) {
+            const res = await api.post('/auth/google', { credential });
+            await this.acceptToken(res.data.data.token);
+        },
+
+        async linkGoogle(credential: string, password: string) {
+            const res = await api.post('/auth/google/link', { credential, password });
+            await this.acceptToken(res.data.data.token);
+        },
+
+        async acceptToken(token: string) {
+            this.token = token;
             if (this.token) {
                 localStorage.setItem('token', this.token);
                 try {

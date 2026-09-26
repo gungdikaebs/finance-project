@@ -71,10 +71,10 @@ const emit = defineEmits<{
       <button
         type="button"
         @click="emit('openBudgetPolicyModal')"
-        class="tactile-btn self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-100 dark:bg-[#0E1410] hover:bg-stone-200 dark:hover:bg-[#243329] text-[#18221B] dark:text-[#F0F4F1] border border-stone-200/80 dark:border-[#243329] cursor-pointer transition shadow-2xs"
+        class="tactile-btn self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-100 dark:bg-[#243329] hover:bg-stone-200 dark:hover:bg-[#344639] text-[#18221B] dark:text-[#F0F4F1] border border-stone-200/80 dark:border-[#344639] cursor-pointer transition shadow-2xs"
         aria-label="Atur rasio pembagian anggaran"
       >
-        <SlidersHorizontal class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#0E1410]" :stroke-width="2" />
+        <SlidersHorizontal class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" :stroke-width="2" />
         <span>Ubah Rasio</span>
       </button>
     </div>

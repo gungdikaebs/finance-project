@@ -254,7 +254,7 @@ const loadAllData = async () => {
   } catch (err: any) {
     if (err.response?.status === 401) {
       auth.logout();
-      router.push('/');
+      router.push('/login');
     } else {
       console.error(err);
       loadError.value = err.response?.data?.message || err.message || 'Gagal memuat data keuangan dari server. Silakan coba lagi.';
@@ -446,14 +446,14 @@ let sectionObserver: IntersectionObserver | null = null;
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalKeydown);
   if (!auth.token) {
-    router.push('/');
+    router.push('/login');
     return;
   }
   if (!auth.user) {
     auth.fetchUser().catch((err) => {
       if (err.response?.status === 401) {
         auth.logout();
-        router.push('/');
+        router.push('/login');
       } else {
         toast.error('Identitas akun belum dapat dimuat. Coba buka ulang halaman.');
       }
