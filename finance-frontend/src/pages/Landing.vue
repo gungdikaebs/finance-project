@@ -20,6 +20,7 @@ import {
 import { useAuthStore } from '../stores/auth.store';
 import { useTheme } from '../composables/useTheme';
 import { formatRupiah } from '../utils/format';
+import NalaraLogo from '../components/ui/NalaraLogo.vue';
 
 const auth = useAuthStore();
 const { isDark, toggleTheme } = useTheme();
@@ -134,13 +135,11 @@ const scrollToSimulation = () => scrollToSection('simulasi');
         <RouterLink
           to="/"
           class="inline-flex items-center gap-2.5 sm:gap-3 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38] group"
-          aria-label="Project-Keuangan, beranda"
+          aria-label="Nalara, beranda"
         >
-          <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] text-[#B8DF38] dark:text-[#183D2B] grid place-items-center font-black text-xs sm:text-sm tracking-wider shadow-sm ring-1 ring-black/5 dark:ring-white/10 shrink-0 group-hover:scale-105 transition-transform">
-            PK
-          </span>
+          <NalaraLogo :with-badge="true" size="sm" class="sm:scale-110" />
           <span class="font-extrabold tracking-tight text-sm sm:text-base text-[#18221B] dark:text-[#F0F4F1]">
-            Project-Keuangan
+            Nalara
           </span>
         </RouterLink>
 
@@ -712,10 +711,8 @@ const scrollToSimulation = () => scrollToSection('simulasi');
     <footer class="border-t border-[#DDE6DC] dark:border-[#27372C] py-6 sm:py-8 text-xs text-[#5E6961] dark:text-[#98A79D]">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
         <div class="flex items-center gap-2">
-          <span class="w-6 h-6 rounded-lg bg-[#183D2B] dark:bg-[#B8DF38] text-[#B8DF38] dark:text-[#183D2B] grid place-items-center font-black text-[10px]">
-            PK
-          </span>
-          <span class="font-bold text-[#18221B] dark:text-[#F0F4F1]">Project-Keuangan</span>
+          <NalaraLogo :with-badge="true" size="xs" />
+          <span class="font-bold text-[#18221B] dark:text-[#F0F4F1]">Nalara</span>
           <span class="hidden sm:inline">· Pengelolaan Anggaran & Impian</span>
         </div>
 

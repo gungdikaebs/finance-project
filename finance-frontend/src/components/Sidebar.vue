@@ -17,6 +17,7 @@ import {
   Moon,
 } from 'lucide-vue-next';
 import { useTheme } from '../composables/useTheme';
+import NalaraLogo from './ui/NalaraLogo.vue';
 
 const props = defineProps<{
   activeSection?: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi';
@@ -49,12 +50,9 @@ const { isDark, toggleTheme } = useTheme();
     <div class="flex-1 flex flex-col overflow-y-auto px-4 py-5 space-y-6">
       <!-- Brand Monogram & App Title -->
       <div class="flex items-center space-x-3 px-2">
-        <div
-          class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#183D2B] via-[#143425] to-[#0D2218] text-[#B8DF38] font-bold text-sm flex items-center justify-center shadow-md ring-2 ring-[#B8DF38]/20 tracking-wider shrink-0">
-          PK
-        </div>
+        <NalaraLogo :with-badge="true" size="md" />
         <div class="min-w-0">
-          <h1 class="text-sm font-bold tracking-tight text-[#18221B] dark:text-[#F0F4F1] truncate">Project-Keuangan</h1>
+          <h1 class="text-sm font-bold tracking-tight text-[#18221B] dark:text-[#F0F4F1] truncate">Nalara</h1>
           <div class="flex items-center space-x-1.5 mt-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-[10px] text-[#18221B]/55 dark:text-[#98A79D] font-medium">Fintech Live</span>

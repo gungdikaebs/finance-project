@@ -39,6 +39,7 @@ import BudgetSection from '../components/BudgetSection.vue';
 import TransactionSection from '../components/TransactionSection.vue';
 import CashflowAnalyticsSection from '../components/CashflowAnalyticsSection.vue';
 import UpcomingBillsWidget from '../components/UpcomingBillsWidget.vue';
+import NalaraLogo from '../components/ui/NalaraLogo.vue';
 import type { MonthlyAnalyticsData } from '../api/services';
 
 // Modular Modals
@@ -518,11 +519,9 @@ onUnmounted(() => {
       <!-- Mobile Top App Bar (Visible on < lg) -->
       <header class="lg:hidden sticky top-0 z-30 bg-[#F3F5EF]/95 dark:bg-[#0E1410]/95 backdrop-blur-md border-b border-[#DDE6DC] dark:border-[#27372C] px-4 py-2.5 flex items-center justify-between transition-colors">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] text-[#B8DF38] dark:text-[#183D2B] font-black text-xs grid place-items-center shadow-xs">
-            PK
-          </div>
+          <NalaraLogo :with-badge="true" size="sm" />
           <div>
-            <span class="text-xs font-extrabold tracking-tight block text-[#18221B] dark:text-[#F0F4F1]">Project-Keuangan</span>
+            <span class="text-xs font-extrabold tracking-tight block text-[#18221B] dark:text-[#F0F4F1]">Nalara</span>
             <span class="text-[10px] text-emerald-700 dark:text-[#B8DF38] font-bold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Fintech Aktif

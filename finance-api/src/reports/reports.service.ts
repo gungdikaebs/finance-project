@@ -624,7 +624,7 @@ export class ReportsService {
     const { transactions, user } = await this.getExportTransactions(userId, month, year);
 
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Project-Keuangan';
+    workbook.creator = 'Nalara';
     workbook.created = new Date();
 
     const sheet = workbook.addWorksheet(`Laporan ${month}-${year}`, {
@@ -785,7 +785,7 @@ export class ReportsService {
         .fillColor('#B8DF38')
         .fontSize(15)
         .font('Helvetica-Bold')
-        .text('PROJECT-KEUANGAN', 50, 48, { continued: true })
+        .text('NALARA', 50, 48, { continued: true })
         .fillColor('#FFFFFF')
         .fontSize(11)
         .font('Helvetica')
@@ -897,7 +897,7 @@ export class ReportsService {
         .fontSize(7)
         .fillColor('#94A3B8')
         .text(
-          'Dokumen ini dihasilkan secara otomatis oleh sistem Project-Keuangan (D-010).',
+          'Dokumen ini dihasilkan secara otomatis oleh sistem Nalara (D-010).',
           36,
           790,
           { align: 'center', width: 523 },

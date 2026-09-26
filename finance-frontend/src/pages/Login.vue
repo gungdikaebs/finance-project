@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff, LockKeyhole } from 'lucide-vue-next
 import api from '../api/axios';
 import GoogleSignInButton from '../components/GoogleSignInButton.vue';
 import { useAuthStore } from '../stores/auth.store';
+import NalaraLogo from '../components/ui/NalaraLogo.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -137,7 +138,7 @@ async function handleSubmit() {
       <img src="/landing-budget-desk.jpg" alt="Seseorang mencatat rencana keuangan di meja kerja" class="absolute inset-0 w-full h-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-t from-[#0D2218]/95 via-[#0D2218]/30 to-[#0D2218]/10"></div>
       <div class="relative z-10 self-end p-10 xl:p-16 max-w-2xl">
-        <p class="text-sm font-semibold text-[#D5EC89] mb-4">Project-Keuangan</p>
+        <p class="text-sm font-semibold text-[#D5EC89] mb-4">Nalara</p>
         <p class="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.12]">Catat hari ini. Pahami langkah berikutnya.</p>
         <p class="mt-5 max-w-md text-base text-[#F0F4F1]/85 leading-relaxed">Satu tempat untuk transaksi, anggaran, tabungan, dan target yang ingin kamu capai.</p>
       </div>
@@ -145,9 +146,9 @@ async function handleSubmit() {
 
     <div class="min-h-[100dvh] flex flex-col px-5 sm:px-10 lg:px-12 py-7 sm:py-10">
       <header class="flex items-center justify-between gap-4">
-        <RouterLink to="/" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38]" aria-label="Project-Keuangan, kembali ke beranda">
-          <span class="w-10 h-10 rounded-xl bg-[#183D2B] text-[#B8DF38] grid place-items-center font-bold text-sm">PK</span>
-          <span class="font-bold tracking-tight text-sm sm:text-base">Project-Keuangan</span>
+        <RouterLink to="/" class="inline-flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38]" aria-label="Nalara, kembali ke beranda">
+          <NalaraLogo :with-badge="true" size="sm" />
+          <span class="font-bold tracking-tight text-sm sm:text-base">Nalara</span>
         </RouterLink>
         <RouterLink to="/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#24553D] dark:text-[#B8DF38] hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current">
           <ArrowLeft class="w-4 h-4" /> Beranda
@@ -160,7 +161,7 @@ async function handleSubmit() {
             <LockKeyhole class="w-6 h-6" />
           </div>
           <h1 class="text-3xl font-bold tracking-tight">Hubungkan akun lama</h1>
-          <p class="mt-3 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Email Google ini sudah dipakai di Project-Keuangan. Masukkan kata sandi akun lama sekali saja agar data keuanganmu tetap di akun yang sama.</p>
+          <p class="mt-3 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Email Google ini sudah dipakai di Nalara. Masukkan kata sandi akun lama sekali saja agar data keuanganmu tetap di akun yang sama.</p>
           <form class="mt-8 space-y-4" @submit.prevent="handleLink">
             <div>
               <label for="link-password" class="block text-sm font-semibold mb-2">Kata sandi akun lama</label>
@@ -225,7 +226,7 @@ async function handleSubmit() {
         </template>
       </main>
 
-      <footer class="text-center text-xs text-[#5E6961] dark:text-[#B5C2B8]">Project-Keuangan</footer>
+      <footer class="text-center text-xs text-[#5E6961] dark:text-[#B5C2B8]">Nalara</footer>
     </div>
   </div>
 </template>

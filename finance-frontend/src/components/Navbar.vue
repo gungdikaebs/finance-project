@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Clock,
 } from 'lucide-vue-next';
+import NalaraLogo from './ui/NalaraLogo.vue';
 
 defineProps<{
   timezone?: string;
@@ -33,13 +34,11 @@ const showMobileMenu = ref(false);
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <!-- Brand & Status -->
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-[#183D2B] text-[#B8DF38] font-black flex items-center justify-center text-sm shadow-sm border border-emerald-900/30 select-none">
-          PK
-        </div>
+        <NalaraLogo :with-badge="true" size="sm" />
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="text-sm sm:text-base font-extrabold text-[#18221B] tracking-tight leading-none">
-              Project Keuangan
+              Nalara
             </h1>
             <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
