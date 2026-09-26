@@ -1,7 +1,23 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
+    }
+    // Jika diakses dari HP via IP lokal (misal: 192.168.x.x), otomatis arahkan ke backend di IP yang sama
+    if (
+        typeof window !== 'undefined' &&
+        window.location.hostname &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1'
+    ) {
+        return `http://${window.location.hostname}:3001`;
+    }
+    return 'http://localhost:3001';
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+    baseURL: getBaseURL(),
 });
 
 api.interceptors.request.use((config) => {

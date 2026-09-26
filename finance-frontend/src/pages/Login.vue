@@ -139,8 +139,8 @@ async function handleSubmit() {
       <div class="absolute inset-0 bg-gradient-to-t from-[#0D2218]/95 via-[#0D2218]/30 to-[#0D2218]/10"></div>
       <div class="relative z-10 self-end p-10 xl:p-16 max-w-2xl">
         <p class="text-sm font-semibold text-[#D5EC89] mb-4">Nalara</p>
-        <p class="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.12]">Catat hari ini. Pahami langkah berikutnya.</p>
-        <p class="mt-5 max-w-md text-base text-[#F0F4F1]/85 leading-relaxed">Satu tempat untuk transaksi, anggaran, tabungan, dan target yang ingin kamu capai.</p>
+        <p class="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.12]">Catat transaksi. Pahami kondisi keuanganmu.</p>
+        <p class="mt-5 max-w-md text-base text-[#F0F4F1]/85 leading-relaxed">Atur anggaran dan pantau tabungan serta tujuanmu di satu tempat.</p>
       </div>
     </aside>
 
@@ -161,7 +161,7 @@ async function handleSubmit() {
             <LockKeyhole class="w-6 h-6" />
           </div>
           <h1 class="text-3xl font-bold tracking-tight">Hubungkan akun lama</h1>
-          <p class="mt-3 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Email Google ini sudah dipakai di Nalara. Masukkan kata sandi akun lama sekali saja agar data keuanganmu tetap di akun yang sama.</p>
+          <p class="mt-3 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Email Google ini cocok dengan akun Nalara yang sudah ada. Masukkan kata sandi akun tersebut untuk menghubungkan kedua cara masuk. Catatan keuanganmu tetap di akun yang sama.</p>
           <form class="mt-8 space-y-4" @submit.prevent="handleLink">
             <div>
               <label for="link-password" class="block text-sm font-semibold mb-2">Kata sandi akun lama</label>
@@ -171,12 +171,12 @@ async function handleSubmit() {
             <button type="submit" :disabled="loading" class="auth-primary w-full">{{ loading ? 'Menghubungkan...' : 'Hubungkan dan masuk' }}</button>
           </form>
           <button type="button" class="mt-5 self-start text-sm font-semibold text-[#24553D] dark:text-[#B8DF38] hover:underline" @click="googleCredential = null; linkPassword = ''; errorMessage = ''">Kembali ke pilihan masuk</button>
-          <p class="mt-8 text-xs leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Lupa kata sandi lama? Untuk saat ini, akun tidak dapat dihubungkan otomatis berdasarkan email saja.</p>
+          <p class="mt-8 text-xs leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">Lupa kata sandi? Akun belum bisa dihubungkan lewat Google tanpa kata sandi akun yang sudah ada.</p>
         </template>
 
         <template v-else>
-          <h1 class="text-3xl sm:text-[2.15rem] font-bold tracking-tight">{{ isRegister ? 'Mulai catat keuanganmu' : 'Selamat datang kembali' }}</h1>
-          <p class="mt-2 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">{{ isRegister ? 'Buat akun untuk mulai melihat uangmu dengan lebih jelas.' : 'Masuk untuk melanjutkan catatan keuanganmu.' }}</p>
+          <h1 class="text-3xl sm:text-[2.15rem] font-bold tracking-tight">{{ isRegister ? 'Buat akun Nalara' : 'Masuk ke Nalara' }}</h1>
+          <p class="mt-2 text-sm leading-relaxed text-[#5E6961] dark:text-[#B5C2B8]">{{ isRegister ? 'Setelah mendaftar, kamu bisa mulai mencatat pemasukan dan pengeluaran.' : 'Lanjutkan catatan dan rencana keuanganmu.' }}</p>
 
           <div class="grid grid-cols-2 mt-8 border-b border-[#D2DDD2] dark:border-[#314035]" role="group" aria-label="Pilih metode akun">
             <button type="button" class="auth-mode" :class="!isRegister ? 'auth-mode-active' : ''" :aria-current="!isRegister ? 'page' : undefined" @click="setMode(false)">Masuk</button>
