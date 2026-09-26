@@ -80,10 +80,6 @@ html.dark .glass-dock {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
   background: rgba(13, 34, 24, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

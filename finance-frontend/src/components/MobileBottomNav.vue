@@ -105,14 +105,18 @@ const emit = defineEmits<{
         aria-label="Buka menu dan pengaturan"
         class="tactile-btn flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition text-center cursor-pointer select-none"
         :class="menuOpen
-          ? 'text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38]/30 dark:bg-[#B8DF38] border border-[#B8DF38]/60 dark:border-[#B8DF38] shadow-xs'
-          : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329]'"
+          ? 'text-[#183D2B] dark:text-[#B8DF38] font-extrabold'
+          : 'text-stone-500 dark:text-[#98A79D] font-semibold hover:text-stone-700 dark:hover:text-[#F0F4F1]'"
         title="Buka menu & alat lainnya"
       >
         <div class="relative">
-          <Menu class="w-5 h-5" :stroke-width="2" />
+          <Menu class="w-5 h-5" :stroke-width="menuOpen ? 2.25 : 1.75" />
+          <span
+            v-if="menuOpen"
+            class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#B8DF38] shadow-xs"
+          ></span>
         </div>
-        <span class="text-[10px] mt-1 font-bold">Menu</span>
+        <span class="text-[10px] mt-1">Menu</span>
       </button>
     </div>
   </aside>
