@@ -4,7 +4,13 @@ import { onMounted, onUnmounted, ref } from 'vue';
 type GoogleApi = {
   accounts: {
     id: {
-      initialize: (options: { client_id: string; callback: (response: { credential?: string }) => void; auto_select: boolean }) => void;
+      initialize: (options: {
+        client_id: string;
+        callback: (response: { credential?: string }) => void;
+        auto_select?: boolean;
+        itp_support?: boolean;
+        ux_mode?: string;
+      }) => void;
       renderButton: (element: HTMLElement, options: Record<string, string | number>) => void;
     };
   };
@@ -49,6 +55,8 @@ function loadGoogleScript(): Promise<GoogleApi> {
   return googleScriptPromise;
 }
 
+let isInitialized = false;
+
 onMounted(async () => {
   mounted = true;
   if (!clientId || clientId === 'isi-dengan-google-web-client-id') {
@@ -59,13 +67,19 @@ onMounted(async () => {
   try {
     const google = await loadGoogleScript();
     if (!mounted || !container.value) return;
-    google.accounts.id.initialize({
-      client_id: clientId,
-      auto_select: false,
-      callback: (response) => {
-        if (mounted && response.credential) emit('credential', response.credential);
-      },
-    });
+
+    if (!isInitialized) {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        auto_select: false,
+        itp_support: true,
+        ux_mode: 'popup',
+        callback: (response) => {
+          if (mounted && response.credential) emit('credential', response.credential);
+        },
+      });
+      isInitialized = true;
+    }
 
     let lastWidth = 0;
     const render = () => {

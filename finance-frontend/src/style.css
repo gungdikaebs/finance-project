@@ -80,13 +80,13 @@ html.dark .glass-dock {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(13, 34, 24, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(12, 18, 14, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 html.dark .glass-modal-backdrop {
-  background: rgba(7, 10, 8, 0.75);
+  background: rgba(6, 10, 8, 0.88);
 }
 
 /* Subtle card styling with crisp layered edge */

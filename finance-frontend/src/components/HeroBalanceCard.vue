@@ -51,9 +51,9 @@ const getWalletIcon = (type: string) => {
 
 <template>
   <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#183D2B] via-[#143425] to-[#0D2218] dark:from-[#132E21] dark:via-[#0F241A] dark:to-[#0A1B13] text-white p-6 sm:p-8 shadow-[0_12px_40px_-10px_rgba(24,61,43,0.35)] dark:shadow-[0_12px_40px_-10px_rgba(0,0,0,0.6)] border border-emerald-800/40 dark:border-[#B8DF38]/30 transition-all duration-200">
-    <!-- Ambient Radial Lighting Glow -->
-    <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-[#B8DF38]/10 blur-3xl pointer-events-none"></div>
-    <div class="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+    <!-- Ambient Radial Lighting Glow (Restrained) -->
+    <div class="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-[#B8DF38]/[0.05] blur-2xl pointer-events-none"></div>
+    <div class="absolute -left-16 -bottom-16 w-56 h-56 rounded-full bg-emerald-500/[0.05] blur-2xl pointer-events-none"></div>
 
     <div class="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
       <!-- Balance Info -->

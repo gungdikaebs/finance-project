@@ -165,54 +165,51 @@ const finishOnboarding = async () => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-hidden"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
     role="dialog"
     aria-modal="true"
     aria-labelledby="onboarding-title"
   >
-    <!-- Locked Frosted Backdrop -->
-    <div class="fixed inset-0 bg-[#0E1410]/70 backdrop-blur-md transition-opacity"></div>
+    <!-- Locked Deep Frosted Backdrop (prevents distracting background glows) -->
+    <div class="fixed inset-0 bg-[#060A08]/92 backdrop-blur-xl transition-opacity"></div>
 
     <!-- Modal Container -->
     <div
-      class="relative w-full max-w-lg bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[85vh] shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden flex flex-col mx-auto animate-modal-enter"
+      class="relative w-full max-w-lg bg-white dark:bg-[#131C16] rounded-3xl max-h-[88dvh] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.65)] border border-stone-200/90 dark:border-[#203024] overflow-hidden flex flex-col my-auto animate-modal-enter"
     >
-      <!-- Top Decorative Accent -->
-      <div class="h-2 w-full bg-gradient-to-r from-[#183D2B] via-[#B8DF38] to-[#183D2B]"></div>
-
       <!-- Header: Step Indicators & Title (shrink-0) -->
-      <div class="px-5 sm:px-6 pt-5 pb-4 border-b border-stone-100 dark:border-[#243329] shrink-0 bg-white dark:bg-[#16201A]">
+      <div class="px-5 sm:px-6 pt-5 pb-4 border-b border-stone-100 dark:border-[#1E2D22] shrink-0 bg-white dark:bg-[#131C16]">
         <div class="flex items-center justify-between mb-3.5">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38]/10 text-[#B8DF38] flex items-center justify-center font-bold text-xs shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-[#B8DF38]/10 text-emerald-700 dark:text-[#B8DF38] border border-emerald-500/20 dark:border-[#B8DF38]/20 flex items-center justify-center font-bold text-xs">
               <Sparkles class="w-4 h-4" />
             </div>
             <div>
-              <span class="text-xs font-semibold uppercase tracking-wider text-[#183D2B]/70 dark:text-[#98A79D]">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-[#8FA094]">
                 Panduan Pengguna Baru
               </span>
-              <h2 id="onboarding-title" class="text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
+              <h2 id="onboarding-title" class="text-base sm:text-lg font-bold text-stone-900 dark:text-[#F0F4F1] leading-tight">
                 Setup Awal Keuangan Anda
               </h2>
             </div>
           </div>
-          <span class="text-xs font-bold text-emerald-800 dark:text-[#B8DF38] bg-emerald-50 dark:bg-[#0E1410] px-2.5 py-1 rounded-full border border-emerald-200 dark:border-[#243329]">
-            Langkah {{ currentStep }} dari {{ totalSteps }}
+          <span class="text-xs font-semibold text-stone-600 dark:text-[#98A79D] bg-stone-100 dark:bg-[#0E1511] px-2.5 py-1 rounded-full border border-stone-200/80 dark:border-[#203024]">
+            {{ currentStep }} / {{ totalSteps }}
           </span>
         </div>
 
-        <!-- Step Progress Dots/Pills -->
+        <!-- Step Progress Segmented Bar -->
         <div class="grid grid-cols-5 gap-1.5 pt-1">
           <div
             v-for="step in totalSteps"
             :key="step"
-            class="h-1.5 rounded-full transition-all duration-300"
+            class="h-1 rounded-full transition-all duration-300"
             :class="[
               step < currentStep
-                ? 'bg-[#183D2B] dark:bg-[#B8DF38]'
+                ? 'bg-[#183D2B] dark:bg-[#B8DF38]/50'
                 : step === currentStep
-                ? 'bg-[#B8DF38]'
-                : 'bg-stone-200 dark:bg-[#243329]'
+                ? 'bg-[#183D2B] dark:bg-[#B8DF38]'
+                : 'bg-stone-200 dark:bg-[#1D2B21]'
             ]"
           ></div>
         </div>
@@ -231,11 +228,11 @@ const finishOnboarding = async () => {
 
         <!-- STEP 1: Selamat Datang & Filosofi Satu Saldo Utama -->
         <div v-if="currentStep === 1" class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#0E1410] border border-emerald-200/60 dark:border-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-sm">
-            <Layers class="w-7 h-7 text-[#183D2B] dark:text-[#B8DF38]" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-[#0E1511] border border-emerald-200/60 dark:border-[#203024] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-2xs">
+            <Layers class="w-6 h-6 text-[#183D2B] dark:text-[#B8DF38]" />
           </div>
           <div class="text-center space-y-1.5">
-            <h3 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 class="text-base font-bold text-stone-900 dark:text-[#F0F4F1]">
               Filosofi "Satu Saldo Utama"
             </h3>
             <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed max-w-sm mx-auto">
@@ -243,7 +240,7 @@ const finishOnboarding = async () => {
             </p>
           </div>
 
-          <div class="bg-[#F3F5EF] dark:bg-[#0E1410] rounded-2xl p-4 border border-emerald-950/5 dark:border-[#243329] space-y-2.5 text-xs text-stone-700 dark:text-stone-300">
+          <div class="bg-[#F8FAF7] dark:bg-[#0E1511] rounded-2xl p-4 border border-stone-200/70 dark:border-[#203024] space-y-3 text-xs text-stone-700 dark:text-stone-300">
             <div class="flex items-start gap-2.5">
               <CheckCircle2 class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38] shrink-0 mt-0.5" />
               <span><strong>Bebas Fragmentasi:</strong> Tanpa ribet mencatat transfer antar-rekening fisik yang semu.</span>
@@ -261,11 +258,11 @@ const finishOnboarding = async () => {
 
         <!-- STEP 2: Input Saldo Awal -->
         <div v-if="currentStep === 2" class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#0E1410] border border-emerald-200/60 dark:border-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-sm">
-            <Wallet class="w-7 h-7 text-[#183D2B] dark:text-[#B8DF38]" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-[#0E1511] border border-emerald-200/60 dark:border-[#203024] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-2xs">
+            <Wallet class="w-6 h-6 text-[#183D2B] dark:text-[#B8DF38]" />
           </div>
           <div class="text-center space-y-1.5">
-            <h3 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 class="text-base font-bold text-stone-900 dark:text-[#F0F4F1]">
               Berapa Total Uang Riil Anda Saat Ini?
             </h3>
             <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed max-w-sm mx-auto">
@@ -287,7 +284,7 @@ const finishOnboarding = async () => {
                 :value="initialBalanceInput"
                 @input="onBalanceInput"
                 placeholder="0"
-                class="w-full pl-12 pr-4 py-3.5 bg-[#F3F5EF] dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#B8DF38] focus:border-[#183D2B] dark:focus:border-[#B8DF38] transition-all"
+                class="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-[#0E1511] border border-stone-200 dark:border-[#203024] rounded-xl text-base font-bold text-stone-900 dark:text-[#F0F4F1] tabular-nums focus:bg-white dark:focus:bg-[#0E1511] focus:outline-none focus:ring-1 focus:ring-[#B8DF38] focus:border-[#B8DF38] transition-all"
                 autofocus
               />
             </div>
@@ -300,11 +297,11 @@ const finishOnboarding = async () => {
 
         <!-- STEP 3: Estimasi Kebutuhan Pokok -->
         <div v-if="currentStep === 3" class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#0E1410] border border-emerald-200/60 dark:border-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-sm">
-            <ReceiptText class="w-7 h-7 text-[#183D2B] dark:text-[#B8DF38]" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-[#0E1511] border border-emerald-200/60 dark:border-[#203024] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-2xs">
+            <ReceiptText class="w-6 h-6 text-[#183D2B] dark:text-[#B8DF38]" />
           </div>
           <div class="text-center space-y-1.5">
-            <h3 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 class="text-base font-bold text-stone-900 dark:text-[#F0F4F1]">
               Estimasi Pengeluaran Pokok Bulanan
             </h3>
             <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed max-w-sm mx-auto">
@@ -326,7 +323,7 @@ const finishOnboarding = async () => {
                 :value="monthlyNeedsInput"
                 @input="onNeedsInput"
                 placeholder="0"
-                class="w-full pl-12 pr-4 py-3.5 bg-[#F3F5EF] dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2 focus:ring-[#B8DF38] focus:border-[#183D2B] dark:focus:border-[#B8DF38] transition-all"
+                class="w-full pl-12 pr-4 py-3 bg-stone-50 dark:bg-[#0E1511] border border-stone-200 dark:border-[#203024] rounded-xl text-base font-bold text-stone-900 dark:text-[#F0F4F1] tabular-nums focus:bg-white dark:focus:bg-[#0E1511] focus:outline-none focus:ring-1 focus:ring-[#B8DF38] focus:border-[#B8DF38] transition-all"
                 autofocus
               />
             </div>
@@ -339,11 +336,11 @@ const finishOnboarding = async () => {
 
         <!-- STEP 4: Setup Dana Pengaman -->
         <div v-if="currentStep === 4" class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#0E1410] border border-emerald-200/60 dark:border-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-sm">
-            <ShieldAlert class="w-7 h-7 text-[#183D2B] dark:text-[#B8DF38]" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-[#0E1511] border border-emerald-200/60 dark:border-[#203024] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-2xs">
+            <ShieldAlert class="w-6 h-6 text-[#183D2B] dark:text-[#B8DF38]" />
           </div>
           <div class="text-center space-y-1.5">
-            <h3 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 class="text-base font-bold text-stone-900 dark:text-[#F0F4F1]">
               Target Ketahanan Dana Pengaman
             </h3>
             <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed max-w-sm mx-auto">
@@ -357,23 +354,23 @@ const finishOnboarding = async () => {
               :key="opt.value"
               type="button"
               @click="emergencyMonths = opt.value"
-              class="p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all tactile-btn cursor-pointer"
+              class="p-3.5 rounded-xl border text-left flex items-center justify-between transition-all tactile-btn cursor-pointer"
               :class="[
                 emergencyMonths === opt.value
-                  ? 'border-[#183D2B] dark:border-[#B8DF38] bg-emerald-50/70 dark:bg-[#183D2B]/30 ring-2 ring-[#B8DF38]/50 shadow-sm'
-                  : 'border-stone-200 dark:border-[#243329] bg-white dark:bg-[#0E1410] hover:border-stone-300 dark:hover:border-stone-700'
+                  ? 'border-[#183D2B] dark:border-[#B8DF38] bg-emerald-50/80 dark:bg-[#182B1F] text-stone-900 dark:text-[#F0F4F1]'
+                  : 'border-stone-200 dark:border-[#203024] bg-white dark:bg-[#0E1511] text-stone-600 dark:text-[#98A79D] hover:border-stone-300 dark:hover:border-[#2C3F32]'
               ]"
             >
               <div>
-                <div class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">{{ opt.label }}</div>
-                <div class="text-[11px] text-stone-500 dark:text-[#98A79D]">{{ opt.desc }}</div>
+                <div class="text-xs font-bold">{{ opt.label }}</div>
+                <div class="text-[11px] text-stone-500 dark:text-[#8FA094]">{{ opt.desc }}</div>
               </div>
               <div
                 class="w-5 h-5 rounded-full flex items-center justify-center border transition-all"
                 :class="[
                   emergencyMonths === opt.value
                     ? 'border-[#183D2B] dark:border-[#B8DF38] bg-[#183D2B] dark:bg-[#B8DF38] text-[#B8DF38] dark:text-[#0E1410]'
-                    : 'border-stone-300 dark:border-[#243329] bg-white dark:bg-[#16201A]'
+                    : 'border-stone-300 dark:border-[#203024] bg-white dark:bg-[#131C16]'
                 ]"
               >
                 <Check v-if="emergencyMonths === opt.value" class="w-3 h-3" :stroke-width="3" />
@@ -382,7 +379,7 @@ const finishOnboarding = async () => {
           </div>
 
           <!-- Target Preview Box -->
-          <div class="p-3.5 bg-[#F3F5EF] dark:bg-[#0E1410] rounded-2xl border border-emerald-950/10 dark:border-[#243329] flex items-center justify-between">
+          <div class="p-3.5 bg-stone-50 dark:bg-[#0E1511] rounded-2xl border border-stone-200/70 dark:border-[#203024] flex items-center justify-between">
             <span class="text-xs text-stone-600 dark:text-[#98A79D] font-medium">Target Nominal Dana Pengaman:</span>
             <span class="text-sm font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums">
               {{ formatRupiah(targetEmergencyAmount) }}
@@ -392,11 +389,11 @@ const finishOnboarding = async () => {
 
         <!-- STEP 5: Konfirmasi Rasio Anggaran 50/30/20 -->
         <div v-if="currentStep === 5" class="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#0E1410] border border-emerald-200/60 dark:border-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-sm">
-            <PieChart class="w-7 h-7 text-[#183D2B] dark:text-[#B8DF38]" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-[#0E1511] border border-emerald-200/60 dark:border-[#203024] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto shadow-2xs">
+            <PieChart class="w-6 h-6 text-[#183D2B] dark:text-[#B8DF38]" />
           </div>
           <div class="text-center space-y-1.5">
-            <h3 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 class="text-base font-bold text-stone-900 dark:text-[#F0F4F1]">
               Siap Memulai Pengelolaan Finansial!
             </h3>
             <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed max-w-sm mx-auto">
@@ -406,15 +403,15 @@ const finishOnboarding = async () => {
 
           <!-- Summary Bento Cards -->
           <div class="space-y-2 text-xs">
-            <div class="p-3 bg-stone-50 dark:bg-[#0E1410] rounded-xl border border-stone-200/80 dark:border-[#243329] flex items-center justify-between">
+            <div class="p-3 bg-stone-50 dark:bg-[#0E1511] rounded-xl border border-stone-200/80 dark:border-[#203024] flex items-center justify-between">
               <span class="text-stone-600 dark:text-[#98A79D]">Saldo Awal Riil:</span>
-              <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(rawInitialBalance) }}</span>
+              <span class="font-bold text-stone-900 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(rawInitialBalance) }}</span>
             </div>
-            <div class="p-3 bg-stone-50 dark:bg-[#0E1410] rounded-xl border border-stone-200/80 dark:border-[#243329] flex items-center justify-between">
+            <div class="p-3 bg-stone-50 dark:bg-[#0E1511] rounded-xl border border-stone-200/80 dark:border-[#203024] flex items-center justify-between">
               <span class="text-stone-600 dark:text-[#98A79D]">Kebutuhan Pokok Bulanan:</span>
-              <span class="font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(rawMonthlyNeeds) }}</span>
+              <span class="font-bold text-stone-900 dark:text-[#F0F4F1] tabular-nums">{{ formatRupiah(rawMonthlyNeeds) }}</span>
             </div>
-            <div class="p-3 bg-stone-50 dark:bg-[#0E1410] rounded-xl border border-stone-200/80 dark:border-[#243329] flex items-center justify-between">
+            <div class="p-3 bg-stone-50 dark:bg-[#0E1511] rounded-xl border border-stone-200/80 dark:border-[#203024] flex items-center justify-between">
               <span class="text-stone-600 dark:text-[#98A79D]">Target Dana Pengaman ({{ emergencyMonths }} Bln):</span>
               <span class="font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums">{{ formatRupiah(targetEmergencyAmount) }}</span>
             </div>
@@ -427,7 +424,7 @@ const finishOnboarding = async () => {
               <span class="text-lime-700 dark:text-[#B8DF38]">30% Tabungan</span>
               <span class="text-amber-700 dark:text-amber-400">20% Keinginan</span>
             </div>
-            <div class="h-2.5 w-full rounded-full overflow-hidden flex bg-stone-200 dark:bg-[#243329] shadow-inner">
+            <div class="h-2 w-full rounded-full overflow-hidden flex bg-stone-200 dark:bg-[#1D2B21]">
               <div class="bg-[#183D2B] dark:bg-emerald-600 h-full w-[50%]"></div>
               <div class="bg-[#B8DF38] h-full w-[30%]"></div>
               <div class="bg-amber-400 h-full w-[20%]"></div>
@@ -437,14 +434,14 @@ const finishOnboarding = async () => {
       </div>
 
       <!-- Footer Actions -->
-      <div class="px-5 sm:px-6 py-4 bg-stone-50/80 dark:bg-[#16201A] border-t border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 gap-3">
+      <div class="px-5 sm:px-6 py-4 bg-stone-50/90 dark:bg-[#0E1511] border-t border-stone-100 dark:border-[#1E2D22] flex items-center justify-between shrink-0 gap-3">
         <!-- Back button or Skip button -->
         <div>
           <button
             v-if="currentStep > 1"
             type="button"
             @click="prevStep"
-            class="min-h-[44px] px-4 py-2.5 rounded-xl border border-stone-200 dark:border-[#243329] text-xs font-semibold text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#243329] transition-all flex items-center gap-1.5 tactile-btn cursor-pointer"
+            class="min-h-[42px] px-3.5 py-2 rounded-xl border border-stone-200 dark:border-[#203024] text-xs font-semibold text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#18251C] transition-all flex items-center gap-1.5 tactile-btn cursor-pointer"
           >
             <ArrowLeft class="w-3.5 h-3.5" />
             Kembali
@@ -454,7 +451,7 @@ const finishOnboarding = async () => {
             type="button"
             @click="skipOnboarding"
             :disabled="saving"
-            class="min-h-[44px] flex items-center text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-[#F0F4F1] transition-colors py-2 px-1 cursor-pointer"
+            class="min-h-[42px] flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-[#F0F4F1] transition-colors py-2 px-1 cursor-pointer disabled:opacity-50"
           >
             Lewati untuk sekarang
           </button>
@@ -466,7 +463,7 @@ const finishOnboarding = async () => {
             v-if="currentStep < totalSteps"
             type="button"
             @click="nextStep"
-            class="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-emerald-900 dark:hover:bg-[#a6cb2f] text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 tactile-btn cursor-pointer"
+            class="min-h-[42px] px-5 py-2 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-emerald-900 dark:hover:bg-[#a6cb2f] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 tactile-btn cursor-pointer"
           >
             Lanjut
             <ArrowRight class="w-3.5 h-3.5" />
@@ -476,7 +473,7 @@ const finishOnboarding = async () => {
             type="button"
             @click="finishOnboarding"
             :disabled="saving"
-            class="min-h-[44px] px-6 py-2.5 rounded-xl bg-[#B8DF38] text-[#18221B] hover:bg-[#a6cb2f] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 tactile-btn disabled:opacity-50 cursor-pointer"
+            class="min-h-[42px] px-5 py-2 rounded-xl bg-[#B8DF38] text-[#0E1410] hover:bg-[#a6cb2f] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 tactile-btn disabled:opacity-50 cursor-pointer"
           >
             <Check class="w-4 h-4" :stroke-width="2.5" />
             {{ saving ? 'Menyimpan...' : 'Selesai & Buka Dashboard' }}
