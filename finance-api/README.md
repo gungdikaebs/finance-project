@@ -40,7 +40,7 @@ npm install
 Buat file `.env` berdasarkan `.env.example`:
 ```env
 PORT=3001
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./finance.db"
 JWT_SECRET=super-secret-jwt-key-finance-project-min-32-chars
 ```
 
@@ -49,7 +49,7 @@ JWT_SECRET=super-secret-jwt-key-finance-project-min-32-chars
 
 ### 3. Migrasi Database
 ```bash
-# Menjalankan migrasi Prisma ke file SQLite lokal (prisma/dev.db)
+# Menjalankan migrasi Prisma ke file SQLite lokal (prisma/finance.db)
 npx prisma migrate dev
 ```
 
@@ -62,6 +62,8 @@ npm run start:dev
 npm run build
 npm run start:prod
 ```
+
+Untuk deployment Docker di VPS dengan volume SQLite persisten, lihat [DEPLOYMENT.md](./DEPLOYMENT.md). Di lingkungan produksi gunakan `prisma migrate deploy`, bukan `migrate dev`.
 
 ---
 

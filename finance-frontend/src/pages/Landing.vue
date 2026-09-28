@@ -445,62 +445,82 @@ const projectedDate = computed(() => {
       </div>
     </section>
 
-    <!-- 4. MODERN APP EXPERIENCE (PWA, Mobile & Desktop Ready) -->
+    <!-- 4. MODERN APP EXPERIENCE (PWA, Mobile & Desktop Ready - Coming Soon) -->
     <section class="py-16 sm:py-24">
       <div
         class="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-10">
         <div class="max-w-xl">
-          <!-- Text element 1: Eyebrow (Allowed: 2nd eyebrow across 5 sections) -->
-          <p class="mb-4 text-xs font-bold uppercase tracking-wider text-[#24553D] dark:text-[#B8DF38]">
-            Aplikasi Modern
-          </p>
+          <!-- Text element 1: Refined Status Pill (Replaces raw eyebrow with clean status indicator) -->
+          <div
+            class="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#CAD8CA] bg-white/90 px-3.5 py-1.5 text-xs font-medium text-[#24553D] shadow-2xs backdrop-blur-xs dark:border-[#26362A] dark:bg-[#16201A]/90 dark:text-[#B8DF38]">
+            <span class="relative flex h-2 w-2">
+              <span
+                class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75 dark:bg-[#B8DF38]"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-[#183D2B] dark:bg-[#B8DF38]"></span>
+            </span>
+            <span class="font-mono text-[11px] font-bold uppercase tracking-wider">Coming Soon</span>
+            <span class="h-3 w-px bg-[#CAD8CA] dark:bg-[#2C4030]"></span>
+            <span class="text-[#4C5F53] dark:text-[#B8C6BB]">Aplikasi Mobile</span>
+          </div>
+
+          <!-- Text element 2: Headline (max 2 lines desktop) -->
           <h2
             class="text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl text-[#18221B] dark:text-[#F0F4F1]">
             Bisa dipasang di HP dan laptop Anda.
           </h2>
+
+          <!-- Text element 3: Subtext (concise & clear) -->
           <p class="mt-4 text-base leading-relaxed text-[#53645A] dark:text-[#ADBCB0]">
-            Nalara mengusung teknologi Progressive Web App (PWA). Anda dapat memasang aplikasi langsung ke layar utama
-            smartphone tanpa melalui Play Store, menikmati mode layar penuh, navigasi sentuh ergonomis, dan privasi
-            catatan tanpa pelacakan iklan.
+            Kami sedang memfinalisasi dukungan Progressive Web App (PWA). Anda segera dapat memasang Nalara langsung ke
+            layar utama ponsel tanpa perlu unduh lewat store—cepat, hemat ruang penyimpanan, dan tanpa pelacak iklan.
           </p>
 
-          <!-- Feature Bullets (Using distinct card trio instead of long list) -->
+          <!-- Feature Highlights (Refined cards with clear hierarchy) -->
           <div class="mt-8 space-y-3">
             <div
-              class="flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-[#16201A] border border-[#CAD8CA] dark:border-[#26362A]">
+              class="flex items-center gap-3.5 p-3.5 rounded-xl bg-white dark:bg-[#16201A] border border-[#CAD8CA] dark:border-[#26362A] shadow-2xs transition hover:border-[#183D2B]/30 dark:hover:border-[#B8DF38]/30">
               <div
                 class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center shrink-0">
                 <Smartphone class="w-4 h-4" />
               </div>
-              <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
-                Akses instan dari layar utama ponsel dengan satu ketukan
-              </p>
+              <div>
+                <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+                  Akses instan dari layar utama ponsel dengan satu ketukan
+                </p>
+                <p class="text-[11px] text-[#596B5E] dark:text-[#98A79D] mt-0.5">
+                  Pengalaman ringan layaknya aplikasi native tanpa beban memori tinggi
+                </p>
+              </div>
             </div>
 
             <div
-              class="flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-[#16201A] border border-[#CAD8CA] dark:border-[#26362A]">
+              class="flex items-center gap-3.5 p-3.5 rounded-xl bg-white dark:bg-[#16201A] border border-[#CAD8CA] dark:border-[#26362A] shadow-2xs transition hover:border-[#183D2B]/30 dark:hover:border-[#B8DF38]/30">
               <div
                 class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center shrink-0">
                 <ShieldCheck class="w-4 h-4" />
               </div>
-              <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
-                Privasi terjaga, data keuangan terenkripsi tanpa iklan pihak ketiga
-              </p>
+              <div>
+                <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+                  Privasi terjaga tanpa iklan pihak ketiga
+                </p>
+                <p class="text-[11px] text-[#596B5E] dark:text-[#98A79D] mt-0.5">
+                  Data catatan finansial tersimpan aman dan terenkripsi
+                </p>
+              </div>
             </div>
           </div>
 
+          <!-- Text element 4: Release Status & Navigation Link -->
           <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-            <!-- Tombol Pasang Aplikasi Sekarang - Sementara dinonaktifkan
-            <button
-              v-if="!isInstalled"
-              type="button"
-              @click="installApp"
-              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#183D2B] dark:bg-[#B8DF38] px-5 py-2.5 text-xs font-bold text-white dark:text-[#0E1410] shadow-xs transition hover:opacity-95 active:scale-[0.98] cursor-pointer"
-            >
-              <Download class="w-4 h-4" />
-              Pasang Aplikasi Sekarang
-            </button>
-            -->
+            <div
+              class="inline-flex min-h-11 items-center gap-2.5 rounded-xl border border-dashed border-[#B8C8B9] bg-[#F3F6F1] px-4 py-2 text-xs text-[#405147] dark:border-[#2F4434] dark:bg-[#141E17] dark:text-[#B8C6BB]">
+              <span class="font-medium">Tahap Rilis</span>
+              <span
+                class="rounded-md bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#183D2B] shadow-2xs dark:bg-[#1E2B21] dark:text-[#B8DF38]">
+                Segera Hadir
+              </span>
+            </div>
+
             <RouterLink to="/about"
               class="inline-flex items-center gap-2 text-sm font-bold text-[#183D2B] dark:text-[#B8DF38] hover:gap-3 transition">
               Pelajari filosofi di balik Nalara
@@ -509,15 +529,40 @@ const projectedDate = computed(() => {
           </div>
         </div>
 
-        <!-- Right Side: Editorial Image Card -->
+        <!-- Right Side: Editorial Image Card with Floating Preview Glass Badges -->
         <figure class="relative mx-auto w-full max-w-lg lg:mr-0">
-          <div class="overflow-hidden rounded-2xl border border-[#CAD8CA] dark:border-[#324638] bg-[#0E1410] shadow-xl">
+          <!-- Ambient Glow Backdrop -->
+          <div
+            class="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-[#183D2B]/15 via-[#B8DF38]/10 to-transparent blur-xl dark:from-[#B8DF38]/10 dark:via-[#183D2B]/20 pointer-events-none"
+            aria-hidden="true"></div>
+
+          <div
+            class="relative overflow-hidden rounded-2xl border border-[#CAD8CA] dark:border-[#324638] bg-[#0E1410] shadow-xl">
+            <!-- Top Floating Status Pill -->
+            <div
+              class="absolute top-4 left-4 z-10 inline-flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md border border-white/15">
+              <span class="h-2 w-2 rounded-full bg-[#B8DF38] animate-pulse"></span>
+              <span>Pratinjau Antarmuka Mobile</span>
+            </div>
+
             <img src="/nalara-landing-mobile.jpg"
               alt="Seseorang membuka aplikasi keuangan Nalara di smartphone saat santai di kafe" width="1536"
               height="1024" loading="lazy" class="h-[320px] w-full object-cover sm:h-[390px]" />
+
+            <!-- Bottom Floating Device Support Strip -->
+            <div
+              class="absolute bottom-4 inset-x-4 z-10 flex items-center justify-between rounded-xl bg-black/60 px-4 py-2.5 backdrop-blur-md border border-white/10 text-white text-xs">
+              <div class="flex items-center gap-2 font-medium">
+                <Smartphone class="h-4 w-4 text-[#B8DF38]" />
+                <span>Mendukung iOS, Android & Desktop</span>
+              </div>
+              <span class="rounded-md bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-[#B8DF38] uppercase">
+                PWA
+              </span>
+            </div>
           </div>
           <figcaption class="mt-3 text-xs text-[#596B5E] dark:text-[#ADBCB0]">
-            Akses catatan keuangan langsung dari smartphone Anda.
+            Akses catatan keuangan langsung dari smartphone Anda kapan saja dan di mana saja.
           </figcaption>
         </figure>
       </div>
