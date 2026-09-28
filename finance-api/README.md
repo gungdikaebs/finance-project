@@ -53,6 +53,8 @@ JWT_SECRET=super-secret-jwt-key-finance-project-min-32-chars
 npx prisma migrate dev
 ```
 
+Jika database lokal lama sudah diperbarui dengan `prisma db push`, jangan menyetujui *reset* yang ditawarkan Prisma sebelum memeriksa skema dan mencadangkan data. Lihat [panduan database SQLite lama](./DEPLOYMENT.md#jika-membawa-database-sqlite-lama).
+
 ### 4. Menjalankan Server
 ```bash
 # Mode development dengan hot reload

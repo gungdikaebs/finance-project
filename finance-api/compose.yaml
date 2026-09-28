@@ -2,6 +2,7 @@ name: nalara-api
 
 services:
   api:
+    container_name: nalara-api
     build:
       context: .
       dockerfile: Dockerfile

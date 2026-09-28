@@ -3,13 +3,14 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ResponseInterceptor } from '../src/common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 
 describe('Alur keuangan utama (e2e)', () => {
+  const testPassword = 'Password123!';
   let app: INestApplication<App>;
   let temporaryDirectory: string;
   let tokenA: string;
@@ -20,7 +21,9 @@ describe('Alur keuangan utama (e2e)', () => {
       return this.toString();
     };
     temporaryDirectory = mkdtempSync(join(tmpdir(), 'finance-api-e2e-'));
-    process.env.DATABASE_URL = `file:${join(temporaryDirectory, 'test.db')}`;
+    const databasePath = join(temporaryDirectory, 'test.db');
+    writeFileSync(databasePath, '');
+    process.env.DATABASE_URL = `file:${databasePath}`;
     process.env.JWT_SECRET = 'integration-test-secret-32-characters-minimum';
 
     execFileSync(
@@ -56,20 +59,20 @@ describe('Alur keuangan utama (e2e)', () => {
     ]) {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ ...user, password: 'password-ku' })
+        .send({ ...user, password: testPassword })
         .expect(201);
     }
 
     tokenA = (
       await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'a@example.com', password: 'password-ku' })
+        .send({ email: 'a@example.com', password: testPassword })
         .expect(201)
     ).body.data.token;
     tokenB = (
       await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'b@example.com', password: 'password-ku' })
+        .send({ email: 'b@example.com', password: testPassword })
         .expect(201)
     ).body.data.token;
   });

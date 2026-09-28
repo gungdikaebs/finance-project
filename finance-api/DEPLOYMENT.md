@@ -26,6 +26,12 @@ curl --fail http://127.0.0.1:3001/
 
 Jangan menaruh secret produksi di repo. `FRONTEND_ORIGINS` berisi origin frontend lengkap, misalnya `https://app.example.com`, tanpa path atau garis miring di akhir. `DATABASE_URL`, `NODE_ENV`, dan `PORT` sudah diatur oleh Compose. Perintah `sqlite3` membuat file database kosong pada volume baru sebelum Prisma bermigrasi; ia aman untuk file database yang sudah ada, tetapi **jangan gunakan volume berisi data lama tanpa memastikan sumbernya**. Jangan menjalankan `prisma migrate dev`, `prisma db push`, atau seed demo pada database produksi. Migrasi produksi dijalankan secara eksplisit dengan `prisma migrate deploy` sebelum API menerima trafik.
 
+### Jika membawa database SQLite lama
+
+Riwayat migrasi lama belum mencakup semua perubahan skema. Migrasi `20260928000000_sync_schema_for_deployment` melengkapinya dan mempertahankan baris yang sudah ada. **Backup database terlebih dahulu**, lalu jalankan `prisma migrate deploy` pada salinan database di staging dan uji data serta fungsi utama sebelum menjalankannya pada database produksi.
+
+Ada kemungkinan database lama sudah memiliki skema terbaru karena sebelumnya memakai `prisma db push`, tetapi riwayat migrasinya belum mencatat migrasi baru. Dalam keadaan ini, menjalankan migrasi baru akan gagal karena tabel atau kolom sudah ada. Bandingkan database tersebut dengan `prisma/schema.prisma` menggunakan `prisma migrate diff --from-url <URL_DATABASE> --to-schema-datamodel prisma/schema.prisma --exit-code` pada salinan. **Hanya jika hasilnya `No difference detected`**, tandai migrasi tersebut sebagai sudah diterapkan dengan `prisma migrate resolve --applied 20260928000000_sync_schema_for_deployment`, kemudian periksa `prisma migrate status`. Jangan menandai migrasi sebagai diterapkan hanya agar pesan error hilang; jika masih ada perbedaan skema, hentikan deploy dan periksa jalur migrasinya.
+
 Setelah API sehat, atur reverse proxy ke API dan pasang HTTPS. Baru kemudian arahkan `VITE_API_URL` frontend Vercel ke domain API, serta tambahkan domain frontend yang benar pada pengaturan Google OAuth. Uji CORS, registrasi, login email dan Google, transaksi, dan transaksi berulang pada lingkungan produksi.
 
 ## Backup
