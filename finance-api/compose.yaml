@@ -16,6 +16,9 @@ services:
       - "127.0.0.1:3001:3001"
     volumes:
       - nalara_sqlite:/data
+    networks:
+      - default
+      - proxy_network
     init: true
     restart: unless-stopped
     healthcheck:
@@ -31,3 +34,8 @@ services:
 
 volumes:
   nalara_sqlite:
+
+networks:
+  default:
+  proxy_network:
+    external: true

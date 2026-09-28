@@ -6,7 +6,7 @@ Dokumen ini hanya untuk backend NestJS dan SQLite. Frontend Vue/Vite dapat didep
 
 - Gunakan satu instance service `api`. Proses transaksi berulang berjalan di dalam NestJS; menjalankan beberapa replika dapat memproses jadwal yang sama lebih dari sekali.
 - Pastikan Docker dan Docker Compose tersedia, serta reverse proxy HTTPS di VPS sudah diketahui konfigurasinya.
-- `compose.yaml` hanya mengikat port API ke `127.0.0.1:3001`. Reverse proxy yang berjalan di host dapat meneruskan trafik ke port ini. Jika reverse proxy juga berada di Docker, sambungkan kedua service melalui jaringan Docker yang sesuai sebelum membuka akses publik; jangan mengubah port API menjadi terbuka ke seluruh internet hanya untuk mengatasi koneksi proxy.
+- `compose.yaml` hanya mengikat port API ke `127.0.0.1:3001` dan menghubungkan container `nalara-api` ke jaringan Docker eksternal `proxy_network`. Pastikan jaringan ini sudah ada sebelum menjalankan Compose. Reverse proxy Docker pada jaringan yang sama dapat meneruskan trafik ke `http://nalara-api:3001`; jangan menggunakan `127.0.0.1:3001` dari dalam container proxy atau membuka port API ke seluruh internet.
 - Database produksi memakai `file:/data/finance.db`. Named volume `nalara_sqlite` menjaga file tersebut tetap ada saat container diganti. Jangan memasang volume di `/app/prisma`, karena itu akan menutupi schema dan file migrasi yang ada di image.
 
 ## Konfigurasi dan startup pertama
