@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Nalara">
+  <rect width="512" height="512" fill="#0B192C"/>
+  <g transform="translate(64 64) scale(.75)">
+    <path d="M96 408V104L328 408" stroke="#F8FAFC" stroke-width="72" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M328 104V408H448" stroke="#60A5FA" stroke-width="72" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

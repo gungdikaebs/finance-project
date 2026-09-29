@@ -64,7 +64,7 @@ const dismissBanner = () => {
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-center gap-3">
         <img
-          src="/favicon.png"
+          src="/nalara-favicon.png"
           alt="Nalara Logo"
           class="w-10 h-10 rounded-xl shadow-xs border border-slate-200 dark:border-slate-800 shrink-0"
         />

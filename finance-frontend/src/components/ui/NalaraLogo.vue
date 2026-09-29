@@ -64,7 +64,7 @@ const badgeIconDimension = computed(() => {
       <!-- Light Icon -->
       <img
         v-if="variant === 'light' || variant === 'auto'"
-        src="/nalara-icon-light.png"
+        src="/nalara-mark-light.svg"
         :width="badgeIconDimension"
         :height="badgeIconDimension"
         alt="Nalara"
@@ -76,7 +76,7 @@ const badgeIconDimension = computed(() => {
       <!-- Dark Icon -->
       <img
         v-if="variant === 'dark' || variant === 'auto'"
-        src="/nalara-icon-dark.png"
+        src="/nalara-mark-dark.svg"
         :width="badgeIconDimension"
         :height="badgeIconDimension"
         alt="Nalara"
@@ -95,7 +95,7 @@ const badgeIconDimension = computed(() => {
       <!-- Light Icon -->
       <img
         v-if="variant === 'light' || variant === 'auto'"
-        src="/nalara-icon-light.png"
+        src="/nalara-mark-light.svg"
         :width="iconDimension"
         :height="iconDimension"
         alt="Nalara"
@@ -107,7 +107,7 @@ const badgeIconDimension = computed(() => {
       <!-- Dark Icon -->
       <img
         v-if="variant === 'dark' || variant === 'auto'"
-        src="/nalara-icon-dark.png"
+        src="/nalara-mark-dark.svg"
         :width="iconDimension"
         :height="iconDimension"
         alt="Nalara"

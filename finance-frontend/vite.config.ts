@@ -10,30 +10,30 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['nalara-favicon.png', 'nalara-app-icon.svg', 'nalara-apple-touch-icon.png', 'nalara-app-icon-192.png', 'nalara-app-icon-512.png'],
       manifest: {
         name: 'Nalara Keuangan Pribadi',
         short_name: 'Nalara',
         description: 'Kelola keuangan pribadi: catat transaksi, pantau anggaran, dan wujudkan target impian.',
-        theme_color: '#183D2B',
-        background_color: '#F3F5EF',
+        theme_color: '#0B192C',
+        background_color: '#F8FAFC',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'nalara-app-icon-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'nalara-app-icon-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'maskable-icon-512x512.png',
+            src: 'nalara-maskable-icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
@@ -59,4 +59,3 @@ export default defineConfig({
     }),
   ],
 });
-
