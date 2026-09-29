@@ -43,9 +43,9 @@ const badgeDimensionClass = computed(() => {
 
 const badgeBgClass = computed(() => {
   if (!props.withBadge) return '';
-  if (props.variant === 'dark') return 'bg-[#16201A] border border-[#243329] shadow-xs';
-  if (props.variant === 'light') return 'bg-white border border-emerald-950/10 shadow-xs';
-  return 'bg-white dark:bg-[#16201A] border border-emerald-950/10 dark:border-[#243329] shadow-xs';
+  if (props.variant === 'dark') return 'bg-[#0D1524] border border-[#1E293B] shadow-xs';
+  if (props.variant === 'light') return 'bg-white border border-slate-200/80 shadow-xs';
+  return 'bg-white dark:bg-[#0D1524] border border-slate-200/80 dark:border-[#1E293B] shadow-xs';
 });
 
 const badgeIconDimension = computed(() => {
@@ -122,7 +122,7 @@ const badgeIconDimension = computed(() => {
     <span
       v-if="showWordmark"
       class="font-extrabold tracking-tight"
-      :class="wordmarkClass || 'text-sm sm:text-base text-[#18221B] dark:text-[#F0F4F1]'"
+      :class="wordmarkClass || 'text-sm sm:text-base text-[#0B192C] dark:text-[#F8FAFC]'"
     >
       Nalara
     </span>

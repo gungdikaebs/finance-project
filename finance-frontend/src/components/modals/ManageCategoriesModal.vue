@@ -240,23 +240,23 @@ const handleUnarchiveCategory = async (id: number) => {
     aria-labelledby="manage-categories-title"
     @click.self="emit('close')"
   >
-    <div class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-2xl mx-auto flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter">
+    <div class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-2xl mx-auto flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden animate-modal-enter">
       <!-- Modal Header (shrink-0) -->
-      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]">
+      <div class="px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#0D1524]">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center shrink-0 border border-emerald-100/50 dark:border-[#344639]">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100/50 dark:border-blue-900/50">
             <FolderTree class="w-5 h-5" />
           </div>
           <div>
-            <h3 id="manage-categories-title" class="text-base sm:text-lg font-bold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
+            <h3 id="manage-categories-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">
               Kelola Kategori & Sumber Dana
             </h3>
-            <p class="text-xs text-[#18221B]/60 dark:text-[#98A79D]">Atur sumber pemasukan serta kategori pos kebutuhan dan keinginan</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Atur sumber pemasukan serta kategori pos kebutuhan dan keinginan</p>
           </div>
         </div>
         <button
           @click="emit('close')"
-          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] transition cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
@@ -269,10 +269,10 @@ const handleUnarchiveCategory = async (id: number) => {
       <div class="space-y-3.5">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <ArrowDownLeft class="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-            <h4 class="text-xs font-bold uppercase tracking-wider text-[#18221B] dark:text-[#F0F4F1]">Sumber Pemasukan</h4>
+            <ArrowDownLeft class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Sumber Pemasukan</h4>
           </div>
-          <span class="text-[11px] text-[#18221B]/50 dark:text-[#98A79D] font-medium">
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
             {{ incomeSources.filter(s => !s.isArchived).length }} Aktif
           </span>
         </div>
@@ -283,12 +283,12 @@ const handleUnarchiveCategory = async (id: number) => {
             v-model="newSource"
             type="text"
             placeholder="Nama sumber baru (misal: Gaji Kantor, Freelance, Dividen)"
-            class="flex-1 px-3.5 py-2.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm text-[#18221B] dark:text-[#F0F4F1] placeholder-[#18221B]/40 dark:placeholder-stone-500 focus:outline-none focus:bg-white dark:focus:bg-[#0E1410] focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition"
+            class="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-[#070B14] border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#070B14] focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
           />
           <button
             @click="handleAddSource"
             :disabled="submittingSource || !newSource.trim()"
-            class="tactile-btn px-4 py-2.5 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-semibold rounded-xl hover:bg-[#204e37] dark:hover:bg-[#a3c82e] disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer transition shadow-xs"
+            class="tactile-btn px-4 py-2.5 bg-[#0B192C] hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-semibold rounded-xl disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer transition shadow-xs"
           >
             <Plus class="w-4 h-4" />
             <span>{{ submittingSource ? 'Menyimpan...' : 'Tambah' }}</span>
@@ -300,7 +300,7 @@ const handleUnarchiveCategory = async (id: number) => {
             v-for="src in incomeSources"
             :key="src.id"
             class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl border text-xs transition"
-            :class="src.isArchived ? 'bg-stone-100 dark:bg-[#0E1410] text-[#18221B]/40 dark:text-stone-500 border-stone-200 dark:border-[#243329]' : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 shadow-2xs'"
+            :class="src.isArchived ? 'bg-slate-100 dark:bg-[#070B14] text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800' : 'bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 border-blue-200/70 dark:border-blue-800/50 shadow-2xs'"
           >
             <!-- Inline Edit Form for Source -->
             <template v-if="editingSourceId === src.id">
@@ -308,14 +308,14 @@ const handleUnarchiveCategory = async (id: number) => {
                 :aria-label="`Ubah nama sumber ${src.name}`"
                 v-model="editingSourceName"
                 type="text"
-                class="px-2 py-0.5 border border-emerald-500 dark:border-[#B8DF38] rounded bg-white dark:bg-[#0E1410] text-xs text-[#18221B] dark:text-[#F0F4F1] focus:outline-none"
+                class="px-2 py-0.5 border border-blue-500 dark:border-blue-400 rounded bg-white dark:bg-[#070B14] text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
                 @keyup.enter="handleUpdateSource(src.id)"
               />
               <button
                 type="button"
                 @click="handleUpdateSource(src.id)"
                 :disabled="submittingEditSource"
-                class="p-0.5 text-emerald-700 dark:text-[#B8DF38] hover:text-emerald-900 cursor-pointer"
+                class="p-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 cursor-pointer"
                 title="Simpan perubahan"
               >
                 <Check class="w-3.5 h-3.5" />
@@ -323,7 +323,7 @@ const handleUnarchiveCategory = async (id: number) => {
               <button
                 type="button"
                 @click="cancelEditSource"
-                class="p-0.5 text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] cursor-pointer"
+                class="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                 title="Batal"
               >
                 <X class="w-3.5 h-3.5" />
@@ -339,7 +339,7 @@ const handleUnarchiveCategory = async (id: number) => {
                 <button
                   type="button"
                   @click="startEditSource(src)"
-                  class="p-0.5 text-stone-400 hover:text-[#183D2B] dark:hover:text-[#B8DF38] transition cursor-pointer"
+                  class="p-0.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
                   title="Ubah nama sumber"
                 >
                   <Pencil class="w-3 h-3" />
@@ -349,7 +349,7 @@ const handleUnarchiveCategory = async (id: number) => {
                 <button
                   v-if="!src.isArchived"
                   @click="handleArchiveSource(src.id)"
-                  class="text-stone-400 hover:text-amber-700 dark:hover:text-amber-400 p-0.5 rounded transition cursor-pointer"
+                  class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-0.5 rounded transition cursor-pointer"
                   title="Arsipkan sumber ini"
                 >
                   <Archive class="w-3 h-3" />
@@ -358,7 +358,7 @@ const handleUnarchiveCategory = async (id: number) => {
                   v-else
                   type="button"
                   @click="handleUnarchiveSource(src.id)"
-                  class="text-emerald-700 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-emerald-200 p-0.5 rounded transition cursor-pointer"
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 p-0.5 rounded transition cursor-pointer"
                   title="Pulihkan sumber ini"
                 >
                   <RotateCcw class="w-3 h-3" />
@@ -368,27 +368,27 @@ const handleUnarchiveCategory = async (id: number) => {
                 <button
                   type="button"
                   @click="handleDeleteSource(src)"
-                  class="text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 p-0.5 rounded transition cursor-pointer"
+                  class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-0.5 rounded transition cursor-pointer"
                   title="Hapus permanen sumber ini"
                 >
                   <Trash2 class="w-3 h-3" />
                 </button>
               </div>
 
-              <span v-if="src.isArchived" class="text-[10px] text-[#18221B]/40 dark:text-stone-500 font-mono">(Arsip)</span>
+              <span v-if="src.isArchived" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(Arsip)</span>
             </template>
           </div>
         </div>
       </div>
 
       <!-- Bagian Kategori Pengeluaran (Pos 50/30/20) -->
-      <div class="space-y-3.5 border-t border-stone-100 dark:border-[#243329] pt-5">
+      <div class="space-y-3.5 border-t border-slate-100 dark:border-slate-800 pt-5">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <Tag class="w-4 h-4 text-[#183D2B] dark:text-[#B8DF38]" />
-            <h4 class="text-xs font-bold uppercase tracking-wider text-[#18221B] dark:text-[#F0F4F1]">Kategori Pengeluaran (Pos 50/30/20)</h4>
+            <Tag class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Kategori Pengeluaran (Pos 50/30/20)</h4>
           </div>
-          <span class="text-[11px] text-[#18221B]/50 dark:text-[#98A79D] font-medium">
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
             {{ expenseCategories.filter(c => !c.isArchived).length }} Aktif
           </span>
         </div>
@@ -399,12 +399,12 @@ const handleUnarchiveCategory = async (id: number) => {
             v-model="newCatName"
             type="text"
             placeholder="Nama kategori pengeluaran (misal: Makan & Minum)"
-            class="flex-1 px-3.5 py-2.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm text-[#18221B] dark:text-[#F0F4F1] placeholder-[#18221B]/40 dark:placeholder-stone-500 focus:outline-none focus:bg-white dark:focus:bg-[#0E1410] focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition"
+            class="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-[#070B14] border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#070B14] focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
           />
           <select
             aria-label="Kelompok kategori pengeluaran baru"
             v-model="newCatGroup"
-            class="w-full sm:w-auto px-3 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs sm:text-sm bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:border-[#183D2B] dark:focus:border-[#B8DF38] focus:ring-2 focus:ring-[#B8DF38]/30 transition cursor-pointer"
+            class="w-full sm:w-auto px-3 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm bg-white dark:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition cursor-pointer"
           >
             <option value="NEED">Kebutuhan (Need)</option>
             <option value="WANT">Keinginan (Want)</option>
@@ -412,7 +412,7 @@ const handleUnarchiveCategory = async (id: number) => {
           <button
             type="submit"
             :disabled="submittingCat || !newCatName.trim()"
-            class="tactile-btn px-4 py-2.5 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-semibold rounded-xl hover:bg-[#204e37] dark:hover:bg-[#a3c82e] disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer transition shadow-xs shrink-0"
+            class="tactile-btn px-4 py-2.5 bg-[#0B192C] hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer transition shadow-xs shrink-0"
           >
             <Plus class="w-4 h-4" />
             <span>{{ submittingCat ? 'Menyimpan...' : 'Tambah' }}</span>
@@ -424,7 +424,7 @@ const handleUnarchiveCategory = async (id: number) => {
             v-for="cat in expenseCategories"
             :key="cat.id"
             class="p-3 rounded-xl border transition"
-            :class="cat.isArchived ? 'bg-stone-100 dark:bg-[#0E1410] border-stone-200 dark:border-[#243329] opacity-70' : 'bg-white dark:bg-[#0E1410] border-stone-200 dark:border-[#243329] hover:border-stone-300 dark:hover:border-[#344639] shadow-2xs'"
+            :class="cat.isArchived ? 'bg-slate-100 dark:bg-[#070B14] border-slate-200 dark:border-slate-800 opacity-70' : 'bg-white dark:bg-[#070B14] border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs'"
           >
             <!-- Inline Edit Form for Category -->
             <template v-if="editingCatId === cat.id">
@@ -434,14 +434,14 @@ const handleUnarchiveCategory = async (id: number) => {
                   v-model="editingCatName"
                   type="text"
                   placeholder="Nama kategori"
-                  class="w-full px-2.5 py-1.5 border border-emerald-500 dark:border-[#B8DF38] rounded-lg text-xs bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none"
+                  class="w-full px-2.5 py-1.5 border border-blue-500 dark:border-blue-400 rounded-lg text-xs bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none"
                   @keyup.enter="handleUpdateCategory(cat.id)"
                 />
                 <div class="flex items-center justify-between gap-2">
                   <select
                     :aria-label="`Kelompok kategori ${cat.name}`"
                     v-model="editingCatGroup"
-                    class="px-2 py-1 border border-stone-200 dark:border-[#243329] rounded-lg text-xs bg-white dark:bg-[#16201A] text-[#18221B] dark:text-[#F0F4F1]"
+                    class="px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100"
                   >
                     <option value="NEED">Kebutuhan (Need)</option>
                     <option value="WANT">Keinginan (Want)</option>
@@ -451,15 +451,15 @@ const handleUnarchiveCategory = async (id: number) => {
                       type="button"
                       @click="handleUpdateCategory(cat.id)"
                       :disabled="submittingEditCat"
-                      class="tactile-btn px-2.5 py-1 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] text-xs font-bold rounded-lg flex items-center space-x-1 cursor-pointer"
+                      class="tactile-btn px-2.5 py-1 bg-[#0B192C] hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-lg flex items-center space-x-1 cursor-pointer"
                     >
-                      <Check class="w-3 h-3 text-[#B8DF38] dark:text-[#0E1410]" />
+                      <Check class="w-3 h-3 text-white" />
                       <span>Simpan</span>
                     </button>
                     <button
                       type="button"
                       @click="cancelEditCategory"
-                      class="tactile-btn px-2 py-1 bg-stone-100 dark:bg-[#243329] hover:bg-stone-200 dark:hover:bg-[#2e4034] text-stone-600 dark:text-stone-300 text-xs rounded-lg cursor-pointer"
+                      class="tactile-btn px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg cursor-pointer"
                     >
                       Batal
                     </button>
@@ -477,8 +477,8 @@ const handleUnarchiveCategory = async (id: number) => {
                     :class="cat.group === 'NEED' ? 'bg-blue-600 dark:bg-blue-400' : 'bg-amber-500 dark:bg-amber-400'"
                   ></span>
                   <div class="min-w-0">
-                    <p class="font-semibold text-xs text-[#18221B] dark:text-[#F0F4F1] truncate">{{ cat.name }}</p>
-                    <div class="flex items-center space-x-1.5 text-[10px] text-[#18221B]/55 dark:text-[#98A79D] font-medium">
+                    <p class="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate">{{ cat.name }}</p>
+                    <div class="flex items-center space-x-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                       <span v-if="cat.group === 'NEED'" class="text-blue-700 dark:text-blue-400 font-semibold">Kebutuhan (Need)</span>
                       <span v-else class="text-amber-700 dark:text-amber-400 font-semibold">Keinginan (Want)</span>
                     </div>
@@ -490,7 +490,7 @@ const handleUnarchiveCategory = async (id: number) => {
                   <button
                     type="button"
                     @click="startEditCategory(cat)"
-                    class="p-1.5 rounded-lg text-stone-400 hover:text-[#183D2B] dark:hover:text-[#B8DF38] hover:bg-stone-100 dark:hover:bg-[#243329] transition cursor-pointer"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                     title="Ubah nama / kelompok kategori"
                   >
                     <Pencil class="w-3.5 h-3.5" />
@@ -500,7 +500,7 @@ const handleUnarchiveCategory = async (id: number) => {
                   <button
                     v-if="!cat.isArchived"
                     @click="handleArchiveCategory(cat.id)"
-                    class="p-1.5 rounded-lg text-stone-400 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-[#243329] transition cursor-pointer"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition cursor-pointer"
                     title="Arsipkan kategori"
                   >
                     <Archive class="w-3.5 h-3.5" />
@@ -509,10 +509,10 @@ const handleUnarchiveCategory = async (id: number) => {
                     v-else
                     type="button"
                     @click="handleUnarchiveCategory(cat.id)"
-                    class="tactile-btn px-2 py-1 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 rounded-lg transition cursor-pointer flex items-center space-x-1 text-[11px] font-bold shadow-2xs"
+                    class="tactile-btn px-2 py-1 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-lg transition cursor-pointer flex items-center space-x-1 text-[11px] font-bold shadow-2xs"
                     title="Pulihkan kategori ini"
                   >
-                    <RotateCcw class="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+                    <RotateCcw class="w-3 h-3 text-blue-600 dark:text-blue-400" />
                     <span>Pulihkan</span>
                   </button>
 
@@ -520,7 +520,7 @@ const handleUnarchiveCategory = async (id: number) => {
                   <button
                     type="button"
                     @click="handleDeleteCategory(cat)"
-                    class="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-[#243329] transition cursor-pointer"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 transition cursor-pointer"
                     title="Hapus permanen kategori ini"
                   >
                     <Trash2 class="w-3.5 h-3.5" />
@@ -534,12 +534,12 @@ const handleUnarchiveCategory = async (id: number) => {
       </div>
 
       <!-- Modal Footer (shrink-0) -->
-      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#0E1410]/70 shrink-0">
+      <div class="flex items-center justify-end px-5 sm:px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] shrink-0">
         <button
           @click="emit('close')"
-          class="tactile-btn min-h-[44px] px-6 py-2.5 bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-emerald-900 dark:hover:bg-[#a3c82e] rounded-xl text-xs font-bold cursor-pointer transition flex items-center space-x-1.5 shadow-sm"
+          class="tactile-btn min-h-[44px] px-6 py-2.5 bg-[#0B192C] hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer transition flex items-center space-x-1.5 shadow-sm"
         >
-          <Check class="w-4 h-4 text-[#B8DF38] dark:text-[#0E1410]" />
+          <Check class="w-4 h-4 text-white" />
           <span>Selesai</span>
         </button>
       </div>

@@ -437,13 +437,17 @@ const activeSection = ref<'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | '
 
 const scrollToSection = (section: 'ringkasan' | 'analitik' | 'anggaran' | 'tabungan' | 'transaksi') => {
   activeSection.value = section;
-  if (mobileTab.value !== 'semua' && mobileTab.value !== section) {
+  if (section === 'analitik') {
+    mobileTab.value = 'ringkasan';
+  } else if (mobileTab.value !== 'semua' && mobileTab.value !== section) {
     mobileTab.value = section;
   }
-  const el = document.getElementById(`section-${section}`);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  nextTick(() => {
+    const el = document.getElementById(`section-${section}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 };
 
 let sectionObserver: IntersectionObserver | null = null;
@@ -494,7 +498,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F3F5EF] dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] transition-colors duration-200">
+  <div class="min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] text-[#0F172A] dark:text-[#F8FAFC] transition-colors duration-200">
     <!-- Desktop Sidebar (Visible on lg+) -->
     <Sidebar
       :active-section="activeSection"
@@ -517,12 +521,12 @@ onUnmounted(() => {
     <div class="flex-1 min-w-0 flex flex-col min-h-screen lg:pl-64">
 
       <!-- Mobile Top App Bar (Visible on < lg) -->
-      <header class="lg:hidden sticky top-0 z-30 bg-[#F3F5EF]/95 dark:bg-[#0E1410]/95 backdrop-blur-md border-b border-[#DDE6DC] dark:border-[#27372C] px-4 py-2.5 flex items-center justify-between transition-colors">
+      <header class="lg:hidden sticky top-0 z-30 bg-[#F8FAFC]/95 dark:bg-[#070B14]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between transition-colors">
         <div class="flex items-center gap-2.5">
           <NalaraLogo :with-badge="true" size="sm" />
           <div>
-            <span class="text-xs font-extrabold tracking-tight block text-[#18221B] dark:text-[#F0F4F1]">Nalara</span>
-            <span class="text-[10px] text-emerald-700 dark:text-[#B8DF38] font-bold flex items-center gap-1">
+            <span class="text-xs font-extrabold tracking-tight block text-[#0B192C] dark:text-[#F8FAFC]">Nalara</span>
+            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Fintech Aktif
             </span>
@@ -534,21 +538,21 @@ onUnmounted(() => {
           <button
             type="button"
             @click="toggleTheme"
-            class="tactile-btn p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800/60 transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+            class="tactile-btn p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
             :aria-label="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'"
           >
-            <Sun v-if="isDark" class="w-4 h-4 text-[#B8DF38]" />
-            <Moon v-else class="w-4 h-4 text-stone-700" />
+            <Sun v-if="isDark" class="w-4 h-4 text-amber-400" />
+            <Moon v-else class="w-4 h-4 text-slate-700" />
           </button>
 
           <!-- User Profile / Menu Trigger -->
           <button
             type="button"
             @click="showMobileMenu = true"
-            class="tactile-btn flex items-center gap-1.5 p-1.5 pl-2 pr-2.5 rounded-xl bg-white dark:bg-[#16201A] border border-stone-200/80 dark:border-[#27372C] text-xs font-bold text-stone-700 dark:text-stone-200 shadow-2xs cursor-pointer min-h-[36px]"
+            class="tactile-btn flex items-center gap-1.5 p-1.5 pl-2 pr-2.5 rounded-xl bg-white dark:bg-[#0D1524] border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-2xs cursor-pointer min-h-[36px]"
             aria-label="Buka menu pengguna"
           >
-            <div class="w-6 h-6 rounded-lg bg-[#183D2B] dark:bg-[#132E21] text-[#B8DF38] text-[11px] font-bold grid place-items-center">
+            <div class="w-6 h-6 rounded-lg bg-slate-200 text-[#0B192C] dark:bg-slate-800 dark:text-white text-[11px] font-bold grid place-items-center">
               {{ (auth.user?.name || auth.user?.email || 'P').charAt(0).toUpperCase() }}
             </div>
             <span class="text-[11px] max-w-[80px] truncate hidden min-[360px]:inline">{{ auth.user?.name?.split(' ')[0] || 'Akun' }}</span>
@@ -586,46 +590,46 @@ onUnmounted(() => {
       <!-- LOADING SKELETON -->
       <div v-if="loading" class="space-y-6 animate-pulse" aria-busy="true" aria-label="Memuat data...">
         <!-- Hero Card Skeleton -->
-        <div class="bg-[#183D2B] rounded-2xl p-6 sm:p-8 shadow-sm">
-          <div class="h-4 w-36 bg-white/20 rounded mb-4"></div>
-          <div class="h-10 w-64 bg-white/30 rounded mb-6"></div>
-          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+        <div class="bg-white dark:bg-[#0D1524] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm">
+          <div class="h-4 w-36 bg-slate-200 dark:bg-slate-700 rounded mb-4"></div>
+          <div class="h-10 w-64 bg-slate-200 dark:bg-slate-700 rounded mb-6"></div>
+          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div class="space-y-2">
-              <div class="h-3 w-28 bg-white/20 rounded"></div>
-              <div class="h-5 w-24 bg-white/20 rounded"></div>
+              <div class="h-3 w-28 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div class="h-5 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
             </div>
             <div class="space-y-2">
-              <div class="h-3 w-28 bg-white/20 rounded"></div>
-              <div class="h-5 w-28 bg-white/20 rounded"></div>
+              <div class="h-3 w-28 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div class="h-5 w-28 bg-slate-200 dark:bg-slate-700 rounded"></div>
             </div>
           </div>
         </div>
 
         <!-- Tabungan Skeleton -->
-        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-4">
-          <div class="h-5 w-48 bg-stone-200 rounded"></div>
+        <div class="bg-white dark:bg-[#0D1524] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+          <div class="h-5 w-48 bg-slate-200 dark:bg-slate-700 rounded"></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="h-32 bg-stone-100 rounded-xl"></div>
-            <div class="h-32 bg-stone-100 rounded-xl"></div>
+            <div class="h-32 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
+            <div class="h-32 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
           </div>
         </div>
 
         <!-- Anggaran Skeleton -->
-        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-4">
-          <div class="h-5 w-40 bg-stone-200 rounded"></div>
+        <div class="bg-white dark:bg-[#0D1524] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+          <div class="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="h-24 bg-stone-100 rounded-xl"></div>
-            <div class="h-24 bg-stone-100 rounded-xl"></div>
-            <div class="h-24 bg-stone-100 rounded-xl"></div>
+            <div class="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
+            <div class="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
+            <div class="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
           </div>
         </div>
 
         <!-- Transaksi Skeleton -->
-        <div class="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-xs space-y-3">
-          <div class="h-5 w-36 bg-stone-200 rounded mb-4"></div>
-          <div class="h-10 bg-stone-100 rounded-lg"></div>
-          <div class="h-10 bg-stone-100 rounded-lg"></div>
-          <div class="h-10 bg-stone-100 rounded-lg"></div>
+        <div class="bg-white dark:bg-[#0D1524] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-3">
+          <div class="h-5 w-36 bg-slate-200 dark:bg-slate-700 rounded mb-4"></div>
+          <div class="h-10 bg-slate-100 dark:bg-slate-800/60 rounded-lg"></div>
+          <div class="h-10 bg-slate-100 dark:bg-slate-800/60 rounded-lg"></div>
+          <div class="h-10 bg-slate-100 dark:bg-slate-800/60 rounded-lg"></div>
         </div>
       </div>
 
@@ -712,7 +716,7 @@ onUnmounted(() => {
         <!-- SECTION 4: ANALITIK & TREN ARUS KAS (MODUL 3) -->
         <section
           id="section-analitik"
-          :class="{ 'hidden lg:block': mobileTab !== 'analitik' && mobileTab !== 'semua' }"
+          :class="{ 'hidden lg:block': mobileTab !== 'analitik' && mobileTab !== 'semua' && mobileTab !== 'ringkasan' }"
         >
           <CashflowAnalyticsSection
             :analytics="analytics"
@@ -898,7 +902,7 @@ onUnmounted(() => {
       @open-recurring="showRecurringModal = true; showMobileMenu = false"
       @open-simulator="openSimulator(); showMobileMenu = false"
       @open-month-end-review="openMonthEndReview(); showMobileMenu = false"
-      @open-analytics="mobileTab = 'analitik'; showMobileMenu = false"
+      @open-analytics="scrollToSection('analitik'); showMobileMenu = false"
       @logout="handleLogout"
     />
 

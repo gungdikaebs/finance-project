@@ -56,7 +56,6 @@ const toggleGoalDetails = (goalId: number) => {
   expandedGoalIds.value = expanded;
 };
 
-
 const coverageMonths = computed(() => {
   if (props.emergencyMonths !== undefined && props.emergencyMonths !== null) {
     return props.emergencyMonths;
@@ -135,17 +134,17 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
 </script>
 
 <template>
-  <div class="fintech-card rounded-2xl p-5 sm:p-6 space-y-6 bg-white dark:bg-[#16201A] border border-stone-200/90 dark:border-[#243329] transition-colors">
+  <div class="fintech-card rounded-2xl p-5 sm:p-6 space-y-6 bg-white dark:bg-[#0D1524] border border-slate-200 dark:border-slate-800 transition-colors">
     <!-- Header -->
-    <div class="flex flex-col gap-3 border-b border-stone-100 dark:border-[#243329] pb-4">
+    <div class="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
       <div>
         <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-[#0E1410] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center border border-emerald-100 dark:border-[#243329]">
+          <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shadow-2xs">
             <Target class="w-4 h-4" :stroke-width="2" />
           </div>
-          <h2 class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">Tabungan & Target Impian</h2>
+          <h2 class="text-base font-extrabold text-[#0B192C] dark:text-[#F8FAFC]">Tabungan & Target Impian</h2>
         </div>
-        <p class="text-xs text-[#5E6961] dark:text-[#98A79D] mt-1 font-normal">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">
           <template v-if="emergencyTargetMet">
             Dana Pengaman sudah tercapai. 100% dari setoran berikutnya dialihkan ke Target Impian.
           </template>
@@ -159,9 +158,9 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
         <button
           type="button"
           @click="emit('openReleaseModal')"
-          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-[#F0F4F1] bg-stone-100 dark:bg-[#0E1410] hover:bg-stone-200 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329] whitespace-nowrap shrink-0"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-700 whitespace-nowrap shrink-0"
         >
-          <Unlock class="w-3.5 h-3.5 text-stone-600 dark:text-[#98A79D]" :stroke-width="1.75" />
+          <Unlock class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" :stroke-width="1.75" />
           <span>Tarik Dana</span>
         </button>
 
@@ -169,18 +168,18 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
           v-if="activePurchaseGoals.length > 1"
           type="button"
           @click="emit('openSharesModal')"
-          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-[#F0F4F1] bg-stone-100 dark:bg-[#0E1410] hover:bg-stone-200 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329] whitespace-nowrap shrink-0"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-700 whitespace-nowrap shrink-0"
         >
-          <SlidersHorizontal class="w-3.5 h-3.5 text-stone-600 dark:text-[#98A79D]" :stroke-width="1.75" />
+          <SlidersHorizontal class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" :stroke-width="1.75" />
           <span>Atur Pembagian</span>
         </button>
 
         <button
           type="button"
           @click="emit('openAddGoalModal')"
-          class="tactile-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#183D2B] bg-[#B8DF38] hover:bg-[#a3c82e] rounded-xl shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0"
+          class="tactile-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#172B45] rounded-xl shadow-xs cursor-pointer select-none whitespace-nowrap shrink-0 dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100"
         >
-          <Plus class="w-4 h-4 text-[#183D2B]" :stroke-width="2.5" />
+          <Plus class="w-4 h-4 text-white dark:text-[#0B192C]" :stroke-width="2.5" />
           <span>Target Baru</span>
         </button>
       </div>
@@ -189,31 +188,31 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
     <!-- Seksi Tabungan Grid -->
     <div class="space-y-5">
       <!-- KARTU 1: DANA PENGAMAN (EMERGENCY FUND) -->
-      <div v-if="emergencyGoal" class="p-5 rounded-2xl bg-gradient-to-br from-[#183D2B]/8 via-[#183D2B]/5 to-transparent dark:from-[#183D2B]/20 dark:via-[#132E21]/30 dark:to-transparent border border-[#183D2B]/15 dark:border-[#243329] space-y-4">
+      <div v-if="emergencyGoal" class="p-5 rounded-2xl bg-slate-50/80 dark:bg-[#070B14] border border-slate-200 dark:border-slate-800 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#183D2B] dark:bg-[#132E21] text-[#B8DF38] flex items-center justify-center shrink-0 shadow-xs border border-emerald-900/40">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-2xs border border-blue-200/60 dark:border-blue-900/50">
               <ShieldCheck class="w-5 h-5" :stroke-width="2" />
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-[#183D2B] dark:text-[#B8DF38]">Dana Pengaman</h3>
-                <span v-if="emergencyTargetMet" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#183D2B]/10 dark:bg-[#B8DF38]/15 text-[#183D2B] dark:text-[#B8DF38]">
+                <h3 class="text-sm font-bold text-[#0B192C] dark:text-[#F8FAFC]">Dana Pengaman</h3>
+                <span v-if="emergencyTargetMet" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
                   Target tercapai
                 </span>
               </div>
-              <p class="text-xs text-stone-500 dark:text-[#98A79D] mt-0.5 font-normal">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-normal">
                 Target {{ emergencyGoal.targetMonths || 6 }} bulan kebutuhan pokok
               </p>
             </div>
           </div>
 
           <div class="sm:text-right">
-            <span class="block text-[11px] text-stone-500 dark:text-[#98A79D]">Terkumpul</span>
-            <div class="text-xl font-black text-[#183D2B] dark:text-[#B8DF38] tabular-nums">
+            <span class="block text-[11px] text-slate-500 dark:text-slate-400">Terkumpul</span>
+            <div class="text-xl font-extrabold text-[#0B192C] dark:text-[#F8FAFC] tabular-nums">
               {{ formatRupiah(emergencyGoal.currentBalance) }}
             </div>
-            <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 dark:text-emerald-400">
+            <span class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
               {{ coverageMonths.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }} bulan kebutuhan
             </span>
           </div>
@@ -222,12 +221,12 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
         <!-- Progress bar terhadap target bulan pengaman -->
         <div class="space-y-1.5 pt-1">
           <div class="flex justify-between items-baseline text-xs">
-            <span class="text-stone-600 dark:text-[#98A79D]">Target: <strong class="text-[#18221B] dark:text-[#F0F4F1] font-bold tabular-nums">{{ formatRupiah(emergencyTargetNominal) }}</strong></span>
-            <span v-if="!emergencyTargetMet" class="font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums">{{ emergencyProgress }}%</span>
-            <span v-else class="font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums">Lebih {{ formatRupiah(emergencyExcess) }}</span>
+            <span class="text-slate-600 dark:text-slate-400">Target: <strong class="text-[#0B192C] dark:text-[#F8FAFC] font-bold tabular-nums">{{ formatRupiah(emergencyTargetNominal) }}</strong></span>
+            <span v-if="!emergencyTargetMet" class="font-bold text-blue-600 dark:text-blue-400 tabular-nums">{{ emergencyProgress }}%</span>
+            <span v-else class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">Lebih {{ formatRupiah(emergencyExcess) }}</span>
           </div>
           <div
-            class="relative w-full bg-stone-200/80 dark:bg-[#0E1410] rounded-full h-2.5 overflow-hidden border border-stone-300/40 dark:border-[#243329]"
+            class="relative w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden"
             role="progressbar"
             aria-label="Progres Dana Pengaman"
             :aria-valuenow="emergencyProgress"
@@ -235,29 +234,29 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
             aria-valuemax="100"
           >
             <div
-              class="bg-[#183D2B] dark:bg-[#B8DF38] h-full rounded-full transition-all duration-500"
+              class="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-500"
               :style="{ width: `${emergencyProgress}%` }"
             ></div>
             <!-- Milestone Notch Ticks (25%, 50%, 75%) -->
             <div class="absolute inset-0 pointer-events-none flex items-center">
-              <div class="absolute left-1/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#16201A]/80 z-10"></div>
-              <div class="absolute left-2/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#16201A]/80 z-10"></div>
-              <div class="absolute left-3/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#16201A]/80 z-10"></div>
+              <div class="absolute left-1/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#070B14]/80 z-10"></div>
+              <div class="absolute left-2/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#070B14]/80 z-10"></div>
+              <div class="absolute left-3/4 -translate-x-1/2 w-0.5 h-full bg-white/70 dark:bg-[#070B14]/80 z-10"></div>
             </div>
           </div>
-          <p v-if="emergencyTargetMet" class="text-xs text-stone-600 dark:text-[#98A79D]">
+          <p v-if="emergencyTargetMet" class="text-xs text-slate-500 dark:text-slate-400">
             Setoran tabungan berikutnya dialihkan ke Target Impian.
           </p>
         </div>
 
-        <div v-if="emergencyTargetMet" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-[#183D2B]/10 dark:border-[#243329] pt-3">
-          <p class="text-xs text-stone-600 dark:text-[#98A79D] leading-relaxed">
+        <div v-if="emergencyTargetMet" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-200 dark:border-slate-800 pt-3">
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             Ingin menambah cadangan di atas target? Tambahkan dana satu kali.
           </p>
           <button
             type="button"
             @click="emit('openEmergencyTopUp')"
-            class="tactile-btn inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-[#183D2B] hover:bg-[#24553d] dark:bg-[#B8DF38] dark:hover:bg-[#a3c82e] text-white dark:text-[#0E1410] cursor-pointer transition shadow-sm shrink-0"
+            class="tactile-btn inline-flex items-center justify-center gap-2 min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0B192C] hover:bg-[#172B45] text-white cursor-pointer transition shadow-xs shrink-0 dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100"
           >
             <Plus class="w-4 h-4" :stroke-width="2" />
             <span>Tambah ke Dana Pengaman</span>
@@ -268,10 +267,10 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
       <!-- KARTU 2: TARGET IMPIAN (PURCHASE GOALS) -->
       <div class="space-y-3.5">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-[#F0F4F1]">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
             Target Impian
           </span>
-          <span class="text-xs font-medium text-stone-500 dark:text-[#98A79D] tabular-nums">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">
             {{ activePurchaseGoals.length }} Target Aktif
           </span>
         </div>
@@ -279,23 +278,23 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
         <!-- Empty State Target Impian -->
         <div
           v-if="activePurchaseGoals.length === 0"
-          class="p-8 border-2 border-dashed border-stone-200 dark:border-[#243329] rounded-2xl text-center space-y-3 bg-stone-50/50 dark:bg-[#0E1410]/50"
+          class="p-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center space-y-3 bg-slate-50/50 dark:bg-[#070B14]/50"
         >
-          <div class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-[#16201A] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center mx-auto">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
             <Target class="w-6 h-6" :stroke-width="1.75" />
           </div>
           <div>
-            <h4 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">Belum Ada Target Impian Aktif</h4>
-            <p class="text-xs text-[#5E6961] dark:text-[#98A79D] max-w-sm mx-auto mt-1 leading-relaxed font-normal">
+            <h4 class="text-sm font-bold text-[#0B192C] dark:text-[#F8FAFC]">Belum Ada Target Impian Aktif</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed font-normal">
               Tambahkan tujuan seperti rumah, kendaraan, atau gadget. Setoran ke Target Impian akan dibagi ke tujuan aktif.
             </p>
           </div>
           <button
             type="button"
             @click="emit('openAddGoalModal')"
-            class="tactile-btn mt-2 px-4 py-2 bg-[#183D2B] dark:bg-[#132E21] text-white rounded-xl text-xs font-bold hover:bg-[#24553d] dark:hover:bg-[#1c3f2d] border border-emerald-900/40 cursor-pointer inline-flex items-center gap-1.5"
+            class="tactile-btn mt-2 px-4 py-2 bg-[#0B192C] text-white rounded-xl text-xs font-bold hover:bg-[#172B45] cursor-pointer inline-flex items-center gap-1.5 shadow-xs dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100"
           >
-            <Plus class="w-4 h-4 text-[#B8DF38]" :stroke-width="2.5" />
+            <Plus class="w-4 h-4 text-white dark:text-[#0B192C]" :stroke-width="2.5" />
             <span>Buat Target Pertama</span>
           </button>
         </div>
@@ -305,13 +304,13 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
           <div
             v-for="goal in activePurchaseGoals"
             :key="goal.id"
-            class="fintech-card-interactive min-w-0 p-4 sm:p-5 rounded-2xl border bg-white dark:bg-[#16201A] space-y-3.5"
-            :class="isGoalFunded(goal) ? 'border-emerald-500/50 dark:border-[#B8DF38]/40 ring-1 ring-emerald-500/20' : 'border-stone-200/80 dark:border-[#243329]'"
+            class="fintech-card-interactive min-w-0 p-4 sm:p-5 rounded-2xl border bg-white dark:bg-[#070B14] space-y-3.5"
+            :class="isGoalFunded(goal) ? 'border-emerald-500/50 dark:border-emerald-400/40 ring-1 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800'"
           >
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="min-w-0">
-                <h4 class="text-base font-bold text-[#18221B] dark:text-[#F0F4F1] break-words">{{ goal.name }}</h4>
-                <div v-if="isGoalExpanded(goal.id)" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[#5E6961] dark:text-[#98A79D] mt-0.5">
+                <h4 class="text-base font-bold text-[#0B192C] dark:text-[#F8FAFC] break-words">{{ goal.name }}</h4>
+                <div v-if="isGoalExpanded(goal.id)" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   <span class="font-medium">{{ goal.mode === 'DOWN_PAYMENT' ? 'Uang Muka (DP)' : 'Beli Lunas' }}</span>
                   <span>•</span>
                   <span class="font-bold tabular-nums">Porsi {{ Math.round((goal.shareRatio || 0) / 100) }}%</span>
@@ -321,9 +320,9 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
               <!-- Time Estimation / Status Badge -->
               <span
                 v-if="isGoalFunded(goal)"
-                class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-[#B8DF38] border border-emerald-300/80 dark:border-[#B8DF38]/40"
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50"
               >
-                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-700 dark:text-[#B8DF38]" />
+                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Dana Sudah Cukup</span>
               </span>
               <span
@@ -336,15 +335,15 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
               </span>
               <span
                 v-else-if="isGoalExpanded(goal.id) && getForecast(goal.id)?.targetMonths !== null && getForecast(goal.id)?.targetMonths !== undefined"
-                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-[#183D2B] dark:text-[#B8DF38] border border-[#183D2B]/20 dark:border-[#B8DF38]/30 tabular-nums"
+                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 tabular-nums"
               >
-                <Calendar class="w-3 h-3 text-[#183D2B] dark:text-[#B8DF38]" />
+                <Calendar class="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 <span v-if="getForecast(goal.id)?.hasUserTargetMonths">Target: {{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
                 <span v-else>~{{ getForecast(goal.id)!.targetMonths }} bln ({{ getForecast(goal.id)!.targetDateFormatted }})</span>
               </span>
               <span
                 v-else-if="isGoalExpanded(goal.id)"
-                class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-stone-100 dark:bg-[#0E1410] text-stone-700 dark:text-[#98A79D] border border-stone-200 dark:border-[#243329]"
+                class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
               >
                 Proses
               </span>
@@ -354,17 +353,17 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
             <div class="space-y-1.5">
               <div class="grid grid-cols-2 items-end gap-3 text-xs">
                 <div class="min-w-0">
-                  <span class="block text-xs font-medium text-stone-500 dark:text-[#98A79D]">Terkumpul</span>
-                  <span class="block text-base font-extrabold text-[#183D2B] dark:text-[#B8DF38] tabular-nums break-words">{{ formatRupiah(goal.currentBalance) }}</span>
+                  <span class="block text-xs font-medium text-slate-500 dark:text-slate-400">Terkumpul</span>
+                  <span class="block text-base font-extrabold text-[#0B192C] dark:text-[#F8FAFC] tabular-nums break-words">{{ formatRupiah(goal.currentBalance) }}</span>
                 </div>
                 <div class="min-w-0 text-right">
-                  <span class="block text-xs text-stone-500 dark:text-[#98A79D]">Target</span>
-                  <span class="block text-sm font-bold text-[#18221B] dark:text-[#F0F4F1] tabular-nums break-words">{{ formatRupiah(getGoalTargetPrice(goal)) }}</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">Target</span>
+                  <span class="block text-sm font-bold text-[#0B192C] dark:text-[#F8FAFC] tabular-nums break-words">{{ formatRupiah(getGoalTargetPrice(goal)) }}</span>
                 </div>
               </div>
 
               <div
-                class="relative w-full bg-stone-100 dark:bg-[#0E1410] rounded-full h-2.5 overflow-hidden border border-stone-200/50 dark:border-[#243329]"
+                class="relative w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden"
                 role="progressbar"
                 :aria-label="`Progres target ${goal.name}`"
                 :aria-valuenow="getGoalProgress(goal)"
@@ -372,12 +371,12 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
                 aria-valuemax="100"
               >
                 <div
-                  class="bg-[#B8DF38] dark:bg-[#B8DF38] h-full rounded-full transition-all duration-500"
+                  class="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-500"
                   :style="{ width: `${getGoalProgress(goal)}%` }"
                 ></div>
               </div>
 
-              <div class="text-xs font-semibold text-stone-600 dark:text-[#98A79D] tabular-nums">
+              <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 tabular-nums">
                 <template v-if="isGoalFunded(goal)">
                   {{ BigInt(getGoalExcess(goal)) > 0n ? `Lebih ${formatRupiah(getGoalExcess(goal))} dari target` : 'Target sudah tercapai' }}
                 </template>
@@ -387,20 +386,20 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
               </div>
             </div>
 
-            <!-- Callout saat Dana Cukup (UX-13) -->
+            <!-- Callout saat Dana Cukup -->
             <div
               v-if="isGoalFunded(goal)"
-              class="p-3.5 rounded-xl bg-gradient-to-br from-emerald-50 via-lime-50/50 to-transparent dark:from-emerald-950/40 dark:via-[#132E21]/50 dark:to-transparent border border-emerald-200/90 dark:border-emerald-800/60 space-y-2.5"
+              class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 space-y-2.5"
             >
               <div class="flex items-start gap-2.5">
-                <div class="w-6 h-6 rounded-lg bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <ShoppingBag class="w-3.5 h-3.5" :stroke-width="2" />
                 </div>
                 <div class="space-y-0.5 min-w-0">
-                  <h5 class="text-xs font-bold text-[#183D2B] dark:text-[#F0F4F1]">
+                  <h5 class="text-xs font-bold text-emerald-950 dark:text-emerald-200">
                     Target sudah tercapai
                   </h5>
-                  <p class="text-[11px] text-stone-600 dark:text-[#98A79D] leading-relaxed">
+                  <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                     Anda bisa mewujudkannya sekarang atau menyimpan dana sampai siap digunakan.
                   </p>
                 </div>
@@ -409,9 +408,9 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
               <button
                 type="button"
                 @click="emit('openCompleteModal', goal)"
-                class="tactile-btn px-3.5 py-2 text-xs font-bold rounded-xl text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38] hover:bg-[#a6cd2b] cursor-pointer shadow-xs inline-flex items-center gap-1.5 active:scale-[0.98] transition-all"
+                class="tactile-btn px-3.5 py-2 text-xs font-bold rounded-xl text-white bg-emerald-700 hover:bg-emerald-800 cursor-pointer shadow-xs inline-flex items-center gap-1.5 active:scale-[0.98] transition-all"
               >
-                <ShoppingBag class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#0E1410]" />
+                <ShoppingBag class="w-3.5 h-3.5 text-white" />
                 <span>Wujudkan Impian</span>
               </button>
             </div>
@@ -422,158 +421,158 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
               :aria-expanded="isGoalExpanded(goal.id)"
               :aria-controls="`goal-details-${goal.id}`"
               :aria-label="`${isGoalExpanded(goal.id) ? 'Sembunyikan' : 'Lihat'} detail dan tindakan untuk ${goal.name}`"
-              class="tactile-btn min-h-[40px] w-full flex items-center justify-between gap-2 border-t border-stone-100 dark:border-[#243329] pt-3 text-xs font-semibold text-[#183D2B] dark:text-[#B8DF38] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38]"
+              class="tactile-btn min-h-[38px] w-full flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <span>{{ isGoalExpanded(goal.id) ? 'Sembunyikan detail' : 'Lihat detail & tindakan' }}</span>
-              <ChevronDown class="w-4 h-4 transition-transform" :class="{ 'rotate-180': isGoalExpanded(goal.id) }" aria-hidden="true" />
+              <ChevronDown class="w-4 h-4 transition-transform text-slate-400" :class="{ 'rotate-180': isGoalExpanded(goal.id) }" aria-hidden="true" />
             </button>
 
             <div :id="`goal-details-${goal.id}`" v-show="isGoalExpanded(goal.id)" class="space-y-3.5">
-            <!-- Ringkasan kebutuhan bulanan; asumsi lengkap ada di Dasar hitung -->
-            <div
-              v-if="getForecast(goal.id)?.topUpSuggestion && !isGoalFunded(goal)"
-              class="p-3.5 rounded-xl flex flex-col gap-3 transition-colors"
-              :class="getForecast(goal.id)?.isUnachievable
-                ? 'bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/50'
-                : 'bg-emerald-50/70 dark:bg-[#132E21]/50 border border-emerald-200/70 dark:border-[#243329]'"
-            >
-              <div class="min-w-0 space-y-1">
-                <p class="text-[11px] font-semibold text-stone-600 dark:text-[#98A79D]">
-                  {{ getForecast(goal.id)?.isUnachievable ? 'Agar tabungan mengejar kenaikan harga' : getForecast(goal.id)?.hasUserTargetMonths ? `Agar tercapai dalam ${getForecast(goal.id)!.targetMonths} bulan` : 'Agar target lebih cepat tercapai' }}
-                </p>
-                <p
-                  class="text-base font-extrabold leading-snug tabular-nums break-words"
-                  :class="getForecast(goal.id)?.isUnachievable
-                    ? 'text-amber-950 dark:text-amber-200'
-                    : 'text-[#183D2B] dark:text-[#B8DF38]'"
-                >
-                  <template v-if="getForecast(goal.id)?.hasUserTargetMonths && !getForecast(goal.id)?.isUnachievable">
-                    Perlu sekitar {{ formatRupiah(getForecast(goal.id)!.requiredMonthlySavings || '0') }}/bulan
-                  </template>
-                  <template v-else>
-                    Tambahan sekitar {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan
-                  </template>
-                </p>
-              </div>
-
-              <button
-                type="button"
-                @click="emit('openSimulatorWithTopUp', {
-                  goal,
-                  recommendedMonthly: getForecast(goal.id)?.hasUserTargetMonths
-                    ? (getForecast(goal.id)!.requiredMonthlySavings || getForecast(goal.id)!.estimatedMonthlySavings)
-                    : (BigInt(getForecast(goal.id)!.estimatedMonthlySavings) + BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings)).toString()
-                })"
-                class="tactile-btn self-start min-h-[40px] px-3.5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-xs whitespace-nowrap active:scale-[0.98] transition-all"
+              <!-- Ringkasan kebutuhan bulanan -->
+              <div
+                v-if="getForecast(goal.id)?.topUpSuggestion && !isGoalFunded(goal)"
+                class="p-3.5 rounded-xl flex flex-col gap-3 transition-colors"
                 :class="getForecast(goal.id)?.isUnachievable
-                  ? 'text-white bg-amber-700 hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-500'
-                  : 'text-[#183D2B] bg-[#B8DF38] hover:bg-[#a6cd2b]'"
-                title="Uji skenario tabungan ini di simulator"
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50'
+                  : 'bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-900/50'"
               >
-                Uji di Simulator
-              </button>
-            </div>
-
-            <details v-if="getForecast(goal.id)" class="group border-t border-stone-100 dark:border-[#243329] pt-3">
-              <summary class="flex items-center justify-between gap-2 text-[11px] font-semibold text-[#183D2B] dark:text-[#B8DF38] cursor-pointer list-none rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#183D2B] dark:focus-visible:outline-[#B8DF38]">
-                <span>Ini proyeksi, bukan tabungan otomatis</span>
-                <span class="inline-flex items-center gap-1 shrink-0">Dasar hitung <ChevronDown class="w-3.5 h-3.5 transition-transform group-open:rotate-180" aria-hidden="true" /></span>
-              </summary>
-              <div class="mt-3 space-y-2 text-[11px] leading-relaxed text-stone-600 dark:text-[#98A79D]">
-                <p>Sudah terkumpul: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(goal.currentBalance) }}</strong>. Angka ini berasal dari uang yang benar-benar disisihkan.</p>
-                <p>Rencana dari pembagian anggaran: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan</strong>. Ini bukan setoran otomatis.</p>
-                <p v-if="getForecast(goal.id)!.isUnachievable && getForecast(goal.id)!.topUpSuggestion">Dengan rencana saat ini, kenaikan harga dapat lebih cepat daripada tabungan. Perkiraan tambahan yang diperlukan: {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan.</p>
-                <p v-else-if="getForecast(goal.id)!.hasUserTargetMonths && getForecast(goal.id)!.topUpSuggestion && BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings || '0') > 0n">Agar mencapai target dalam {{ getForecast(goal.id)!.targetMonths }} bulan, perkiraan tambahan dari rencana saat ini sekitar {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan. <template v-if="getForecast(goal.id)!.estimatedMonthsWithCurrentSavings">Jika rutin menyisihkan sesuai rencana saat ini, perkiraan tercapai sekitar {{ getForecast(goal.id)!.estimatedMonthsWithCurrentSavings }} bulan.</template></p>
-                <p v-else-if="getForecast(goal.id)!.topUpSuggestion && !getForecast(goal.id)!.hasUserTargetMonths">Tambahan {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan diperkirakan mempercepat target {{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bulan ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }}).</p>
-                <p>Pemasukan acuan: <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }}/bulan</strong>. {{ incomeBasisDescription(getForecast(goal.id)!) }}</p>
-                <p>Potensi untuk target ini: {{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }} × {{ formatRatio(getForecast(goal.id)!.savingsRatioBps) }} porsi tabungan × 40% porsi impian × {{ formatRatio(getForecast(goal.id)!.shareRatioBps) }} bagian target = <strong class="text-[#18221B] dark:text-[#F0F4F1]">{{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan</strong>.</p>
-                <p v-if="goal.referenceDate">Harga acuan dicatat pada {{ formatDate(goal.referenceDate) }}.</p>
-                <p v-if="BigInt(getForecast(goal.id)!.targetPrice || '0') > 0n">Harga acuan {{ formatRupiah(getForecast(goal.id)!.targetPrice) }} diasumsikan naik {{ formatRatio(getForecast(goal.id)!.inflationRateBps) }} per tahun.</p>
-                <p v-else>Harga target belum diisi, sehingga perkiraan waktu tercapai belum dapat dihitung.</p>
-                <p v-if="getForecast(goal.id)!.targetMonths !== null && BigInt(getForecast(goal.id)!.projectedPrice || '0') > 0n">Perkiraan harga pada waktu proyeksi: {{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}.</p>
-                <p>Proyeksi menganggap jumlah yang disisihkan setiap bulan dan laju kenaikan harga tetap sesuai asumsi. Hasil bisa berubah. Untuk menambah jumlah yang terkumpul, pilih “Sisihkan ke Tabungan” di Ringkasan; uang tidak tersisih otomatis.</p>
-              </div>
-            </details>
-
-            <!-- Action buttons inside card -->
-            <div class="pt-3 border-t border-stone-100 dark:border-[#243329] flex items-center justify-between text-xs">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <button
-                  v-if="isGoalFunded(goal)"
-                  type="button"
-                  @click="emit('openCompleteModal', goal)"
-                  class="tactile-btn px-2.5 py-1.5 rounded-lg text-[#183D2B] dark:text-[#0E1410] bg-[#B8DF38] hover:bg-[#a6cd2b] font-bold inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
-                  title="Wujudkan impian ini"
-                >
-                  <ShoppingBag class="w-3.5 h-3.5" />
-                  <span>Wujudkan</span>
-                </button>
-
-                <button
-                  v-if="!getForecast(goal.id)?.topUpSuggestion || isGoalFunded(goal)"
-                  type="button"
-                  @click="emit('openSimulatorWithGoal', goal)"
-                  class="tactile-btn px-2.5 py-1.5 rounded-lg text-[#183D2B] dark:text-[#B8DF38] hover:bg-emerald-50 dark:hover:bg-[#132E21] font-bold inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98] transition"
-                >
-                  <Calculator class="w-3.5 h-3.5 text-[#183D2B] dark:text-[#B8DF38]" :stroke-width="2" />
-                  <span>Simulasi</span>
-                </button>
+                <div class="min-w-0 space-y-1">
+                  <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                    {{ getForecast(goal.id)?.isUnachievable ? 'Agar tabungan mengejar kenaikan harga' : getForecast(goal.id)?.hasUserTargetMonths ? `Agar tercapai dalam ${getForecast(goal.id)!.targetMonths} bulan` : 'Agar target lebih cepat tercapai' }}
+                  </p>
+                  <p
+                    class="text-base font-extrabold leading-snug tabular-nums break-words"
+                    :class="getForecast(goal.id)?.isUnachievable
+                      ? 'text-amber-950 dark:text-amber-200'
+                      : 'text-[#0B192C] dark:text-[#F8FAFC]'"
+                  >
+                    <template v-if="getForecast(goal.id)?.hasUserTargetMonths && !getForecast(goal.id)?.isUnachievable">
+                      Perlu sekitar {{ formatRupiah(getForecast(goal.id)!.requiredMonthlySavings || '0') }}/bulan
+                    </template>
+                    <template v-else>
+                      Tambahan sekitar {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan
+                    </template>
+                  </p>
+                </div>
 
                 <button
                   type="button"
-                  @click="emit('openEditGoalModal', goal)"
-                  class="tactile-btn px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-[#98A79D] hover:text-[#183D2B] dark:hover:text-[#B8DF38] hover:bg-stone-100 dark:hover:bg-[#0E1410] font-semibold inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
-                  title="Ubah nama, harga, atau target waktu"
+                  @click="emit('openSimulatorWithTopUp', {
+                    goal,
+                    recommendedMonthly: getForecast(goal.id)?.hasUserTargetMonths
+                      ? (getForecast(goal.id)!.requiredMonthlySavings || getForecast(goal.id)!.estimatedMonthlySavings)
+                      : (BigInt(getForecast(goal.id)!.estimatedMonthlySavings) + BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings)).toString()
+                  })"
+                  class="tactile-btn self-start min-h-[38px] px-3.5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-xs whitespace-nowrap active:scale-[0.98] transition-all"
+                  :class="getForecast(goal.id)?.isUnachievable
+                    ? 'text-white bg-amber-700 hover:bg-amber-800'
+                    : 'text-white bg-[#0B192C] hover:bg-[#172B45] dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100'"
+                  title="Uji skenario tabungan ini di simulator"
                 >
-                  <Pencil class="w-3 h-3 text-stone-500 dark:text-[#98A79D]" :stroke-width="1.75" />
-                  <span>Ubah</span>
+                  Uji di Simulator
                 </button>
               </div>
 
-              <button
-                type="button"
-                @click="emit('openReleaseModal', goal.id)"
-                class="tactile-btn px-2.5 py-1.5 rounded-lg text-stone-500 dark:text-[#98A79D] hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 font-medium inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
-              >
-                <Unlock class="w-3 h-3" :stroke-width="1.75" />
-                <span>Tarik Dana</span>
-              </button>
-            </div>
+              <details v-if="getForecast(goal.id)" class="group border-t border-slate-100 dark:border-slate-800 pt-3">
+                <summary class="flex items-center justify-between gap-2 text-[11px] font-semibold text-blue-600 dark:text-blue-400 cursor-pointer list-none rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                  <span>Ini proyeksi, bukan tabungan otomatis</span>
+                  <span class="inline-flex items-center gap-1 shrink-0">Dasar hitung <ChevronDown class="w-3.5 h-3.5 transition-transform group-open:rotate-180" aria-hidden="true" /></span>
+                </summary>
+                <div class="mt-3 space-y-2 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+                  <p>Sudah terkumpul: <strong class="text-[#0B192C] dark:text-[#F8FAFC]">{{ formatRupiah(goal.currentBalance) }}</strong>. Angka ini berasal dari uang yang benar-benar disisihkan.</p>
+                  <p>Rencana dari pembagian anggaran: <strong class="text-[#0B192C] dark:text-[#F8FAFC]">{{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan</strong>. Ini bukan setoran otomatis.</p>
+                  <p v-if="getForecast(goal.id)!.isUnachievable && getForecast(goal.id)!.topUpSuggestion">Dengan rencana saat ini, kenaikan harga dapat lebih cepat daripada tabungan. Perkiraan tambahan yang diperlukan: {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan.</p>
+                  <p v-else-if="getForecast(goal.id)!.hasUserTargetMonths && getForecast(goal.id)!.topUpSuggestion && BigInt(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings || '0') > 0n">Agar mencapai target dalam {{ getForecast(goal.id)!.targetMonths }} bulan, perkiraan tambahan dari rencana saat ini sekitar {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan. <template v-if="getForecast(goal.id)!.estimatedMonthsWithCurrentSavings">Jika rutin menyisihkan sesuai rencana saat ini, perkiraan tercapai sekitar {{ getForecast(goal.id)!.estimatedMonthsWithCurrentSavings }} bulan.</template></p>
+                  <p v-else-if="getForecast(goal.id)!.topUpSuggestion && !getForecast(goal.id)!.hasUserTargetMonths">Tambahan {{ formatRupiah(getForecast(goal.id)!.topUpSuggestion!.extraMonthlySavings) }}/bulan diperkirakan mempercepat target {{ getForecast(goal.id)!.topUpSuggestion!.monthsSaved }} bulan ({{ getForecast(goal.id)!.topUpSuggestion!.newTargetDateFormatted }}).</p>
+                  <p>Pemasukan acuan: <strong class="text-[#0B192C] dark:text-[#F8FAFC]">{{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }}/bulan</strong>. {{ incomeBasisDescription(getForecast(goal.id)!) }}</p>
+                  <p>Potensi untuk target ini: {{ formatRupiah(getForecast(goal.id)!.averageMonthlyIncome) }} × {{ formatRatio(getForecast(goal.id)!.savingsRatioBps) }} porsi tabungan × 40% porsi impian × {{ formatRatio(getForecast(goal.id)!.shareRatioBps) }} bagian target = <strong class="text-[#0B192C] dark:text-[#F8FAFC]">{{ formatRupiah(getForecast(goal.id)!.estimatedMonthlySavings) }}/bulan</strong>.</p>
+                  <p v-if="goal.referenceDate">Harga acuan dicatat pada {{ formatDate(goal.referenceDate) }}.</p>
+                  <p v-if="BigInt(getForecast(goal.id)!.targetPrice || '0') > 0n">Harga acuan {{ formatRupiah(getForecast(goal.id)!.targetPrice) }} diasumsikan naik {{ formatRatio(getForecast(goal.id)!.inflationRateBps) }} per tahun.</p>
+                  <p v-else>Harga target belum diisi, sehingga perkiraan waktu tercapai belum dapat dihitung.</p>
+                  <p v-if="getForecast(goal.id)!.targetMonths !== null && BigInt(getForecast(goal.id)!.projectedPrice || '0') > 0n">Perkiraan harga pada waktu proyeksi: {{ formatRupiah(getForecast(goal.id)!.projectedPrice) }}.</p>
+                  <p>Proyeksi menganggap jumlah yang disisihkan setiap bulan dan laju kenaikan harga tetap sesuai asumsi. Hasil bisa berubah. Untuk menambah jumlah yang terkumpul, pilih "Sisihkan ke Tabungan" di Ringkasan; uang tidak tersisih otomatis.</p>
+                </div>
+              </details>
+
+              <!-- Action buttons inside card -->
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    v-if="isGoalFunded(goal)"
+                    type="button"
+                    @click="emit('openCompleteModal', goal)"
+                    class="tactile-btn px-2.5 py-1.5 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 font-bold inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
+                    title="Wujudkan impian ini"
+                  >
+                    <ShoppingBag class="w-3.5 h-3.5" />
+                    <span>Wujudkan</span>
+                  </button>
+
+                  <button
+                    v-if="!getForecast(goal.id)?.topUpSuggestion || isGoalFunded(goal)"
+                    type="button"
+                    @click="emit('openSimulatorWithGoal', goal)"
+                    class="tactile-btn px-2.5 py-1.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 font-bold inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98] transition"
+                  >
+                    <Calculator class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" :stroke-width="2" />
+                    <span>Simulasi</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    @click="emit('openEditGoalModal', goal)"
+                    class="tactile-btn px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
+                    title="Ubah nama, harga, atau target waktu"
+                  >
+                    <Pencil class="w-3 h-3 text-slate-400" :stroke-width="1.75" />
+                    <span>Ubah</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  @click="emit('openReleaseModal', goal.id)"
+                  class="tactile-btn px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 font-medium inline-flex items-center gap-1 cursor-pointer active:scale-[0.98] transition"
+                >
+                  <Unlock class="w-3 h-3" :stroke-width="1.75" />
+                  <span>Tarik Dana</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Seksi Target Selesai / Terwujud (UX-13) -->
+        <!-- Seksi Target Selesai / Terwujud -->
         <details
           v-if="completedPurchaseGoals.length > 0"
-          class="group border border-stone-200/80 dark:border-[#243329] rounded-2xl p-4 bg-stone-50/50 dark:bg-[#0E1410]/50 transition-colors"
+          class="group border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50/50 dark:bg-[#070B14]/50 transition-colors"
         >
           <summary class="flex items-center justify-between cursor-pointer list-none select-none">
             <div class="flex items-center gap-2">
-              <CheckCircle2 class="w-4 h-4 text-emerald-600 dark:text-[#B8DF38]" />
-              <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+              <CheckCircle2 class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span class="text-xs font-bold text-[#0B192C] dark:text-[#F8FAFC]">
                 Target Impian yang Sudah Terwujud ({{ completedPurchaseGoals.length }})
               </span>
             </div>
-            <span class="text-xs text-stone-500 dark:text-[#98A79D] inline-flex items-center gap-1">
+            <span class="text-xs text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
               Lihat Riwayat <ChevronDown class="w-4 h-4 transition-transform group-open:rotate-180" />
             </span>
           </summary>
 
-          <div class="mt-3.5 space-y-3 pt-3 border-t border-stone-200/60 dark:border-[#243329]">
+          <div class="mt-3.5 space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <div
               v-for="goal in completedPurchaseGoals"
               :key="goal.id"
-              class="p-4 rounded-xl border border-stone-200/80 dark:border-[#243329] bg-white dark:bg-[#16201A] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0D1524] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
             >
               <div>
                 <div class="flex items-center gap-2">
-                  <h4 class="text-sm font-bold text-[#18221B] dark:text-[#F0F4F1]">{{ goal.name }}</h4>
-                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-[#B8DF38]">
+                  <h4 class="text-sm font-bold text-[#0B192C] dark:text-[#F8FAFC]">{{ goal.name }}</h4>
+                  <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
                     Selesai
                   </span>
                 </div>
-                <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-0.5">
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   Target: {{ formatRupiah(getGoalTargetPrice(goal)) }} • Terwujud pada {{ goal.completedAt ? formatDate(goal.completedAt) : 'Sebelumnya' }}
                 </p>
               </div>
@@ -582,7 +581,7 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
                 <button
                   type="button"
                   @click="emit('reopenGoal', goal)"
-                  class="tactile-btn px-3 py-1.5 text-xs font-semibold text-stone-600 dark:text-[#98A79D] hover:text-[#183D2B] dark:hover:text-[#B8DF38] bg-stone-100 dark:bg-[#0E1410] hover:bg-stone-200 dark:hover:bg-[#243329] rounded-lg cursor-pointer transition"
+                  class="tactile-btn px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg cursor-pointer transition"
                   title="Buka kembali target ini jika salah menandai selesai"
                 >
                   Buka Kembali
@@ -592,7 +591,7 @@ const incomeBasisDescription = (forecast: GoalForecast): string => {
           </div>
         </details>
 
-        <!-- Tabungan Belum Ditentukan (jika ada saldo) -->
+        <!-- Tabungan Belum Ditentukan -->
         <div
           v-if="unassignedGoal && BigInt(unassignedGoal.currentBalance || 0) > 0n"
           class="p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 rounded-xl text-xs flex items-center justify-between gap-2"

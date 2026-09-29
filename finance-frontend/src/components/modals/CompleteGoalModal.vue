@@ -177,26 +177,26 @@ const handleExecuteComplete = async () => {
     @click.self="emit('close')"
   >
     <div
-      class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[88vh] w-full max-w-lg mx-auto flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter"
+      class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[88vh] w-full max-w-lg mx-auto flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden animate-modal-enter"
     >
       <!-- Header (shrink-0) -->
       <div
-        class="px-5 sm:px-6 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]"
+        class="px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#0D1524]"
       >
         <div class="flex items-center gap-2.5">
           <div
-            class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-[#B8DF38] flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/40"
+            class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-900/40"
           >
             <ShoppingBag class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
             <h3
               id="complete-goal-modal-title"
-              class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight"
+              class="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight"
             >
               Wujudkan & Selesaikan Impian
             </h3>
-            <span class="text-[11px] text-emerald-800 dark:text-[#B8DF38] font-bold">
+            <span class="text-[11px] text-blue-600 dark:text-blue-400 font-bold">
               {{ goal.name }} • Saldo: {{ formatRupiah(goal.currentBalance) }}
             </span>
           </div>
@@ -205,7 +205,7 @@ const handleExecuteComplete = async () => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
@@ -213,16 +213,16 @@ const handleExecuteComplete = async () => {
       </div>
 
       <!-- Mode Selector Tabs -->
-      <div class="px-5 sm:px-6 pt-3 pb-1 border-b border-stone-100 dark:border-[#243329] bg-stone-50/50 dark:bg-[#0E1410]/50 shrink-0">
-        <div class="grid grid-cols-2 p-1 bg-stone-200/60 dark:bg-[#16201A] rounded-xl text-xs font-bold">
+      <div class="px-5 sm:px-6 pt-3 pb-1 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#070B14]/50 shrink-0">
+        <div class="grid grid-cols-2 p-1 bg-slate-200/60 dark:bg-[#070B14] rounded-xl text-xs font-bold">
           <button
             type="button"
             @click="mode = 'SPEND'"
             class="py-2 px-3 rounded-lg transition-all text-center cursor-pointer"
             :class="
               mode === 'SPEND'
-                ? 'bg-white dark:bg-[#0E1410] text-[#183D2B] dark:text-[#B8DF38] shadow-xs'
-                : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#111C30] text-slate-900 dark:text-slate-100 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             "
           >
             Beli & Catat Pengeluaran
@@ -233,8 +233,8 @@ const handleExecuteComplete = async () => {
             class="py-2 px-3 rounded-lg transition-all text-center cursor-pointer"
             :class="
               mode === 'MARK_ONLY'
-                ? 'bg-white dark:bg-[#0E1410] text-[#183D2B] dark:text-[#B8DF38] shadow-xs'
-                : 'text-stone-600 dark:text-[#98A79D] hover:text-stone-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#111C30] text-slate-900 dark:text-slate-100 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             "
           >
             Selesai Tanpa Belanja
@@ -246,12 +246,12 @@ const handleExecuteComplete = async () => {
       <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <!-- MODE 1: SPEND -->
         <template v-if="mode === 'SPEND'">
-          <div class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/30 rounded-xl text-xs space-y-1">
-            <div class="flex items-center gap-1.5 font-bold text-[#183D2B] dark:text-[#B8DF38]">
+          <div class="p-3.5 bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/30 rounded-xl text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-blue-700 dark:text-blue-300">
               <CheckCircle2 class="w-4 h-4 shrink-0" />
               <span>Gunakan Dana Tabungan yang Terkumpul</span>
             </div>
-            <p class="text-[11px] text-stone-600 dark:text-[#98A79D] leading-relaxed">
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
               Catat pembelian aktual menggunakan uang dari tabungan ini. Saldo rekening pembayaran akan berkurang, dan target akan ditandai selesai.
             </p>
           </div>
@@ -259,10 +259,10 @@ const handleExecuteComplete = async () => {
           <!-- Nominal Pembelian -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label for="spend-goal-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+              <label for="spend-goal-amount" class="block text-xs font-bold text-slate-900 dark:text-slate-100">
                 Nominal Pembelian Aktual (Rp)
               </label>
-              <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 Tersedia: {{ formatRupiah(goal.currentBalance) }}
               </span>
             </div>
@@ -273,11 +273,11 @@ const handleExecuteComplete = async () => {
               type="text"
               inputmode="numeric"
               placeholder="0"
-              class="w-full px-3.5 py-2.5 border rounded-xl text-base font-bold tabular-nums text-[#18221B] dark:text-[#F0F4F1] bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2"
+              class="w-full px-3.5 py-2.5 border rounded-xl text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] focus:outline-none focus:ring-2"
               :class="
                 fieldErrors.amount
                   ? 'border-rose-400 focus:ring-rose-200'
-                  : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20'
+                  : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500'
               "
             />
             <p v-if="fieldErrors.amount" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
@@ -292,7 +292,7 @@ const handleExecuteComplete = async () => {
               <Info class="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
               <div class="space-y-0.5">
                 <span class="font-bold">Ada sisa dana tabungan sebesar {{ formatRupiah(excessAmountBig) }}</span>
-                <p class="text-[11px] text-stone-600 dark:text-[#98A79D]">
+                <p class="text-[11px] text-slate-600 dark:text-slate-400">
                   Sisa dana ini akan otomatis dikembalikan ke <strong>Uang Siap Pakai</strong> tanpa dipindahkan diam-diam.
                 </p>
               </div>
@@ -301,14 +301,14 @@ const handleExecuteComplete = async () => {
 
           <!-- Kategori Pengeluaran -->
           <div>
-            <label for="spend-category" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+            <label for="spend-category" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
               Kategori Pengeluaran
             </label>
             <select
               id="spend-category"
               v-model="categoryId"
-              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-              :class="fieldErrors.category ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              :class="fieldErrors.category ? 'border-rose-400' : 'border-slate-200 dark:border-slate-800'"
             >
               <option :value="null" disabled>-- Pilih Kategori --</option>
               <option v-for="cat in expenseCategories" :key="cat.id" :value="cat.id">
@@ -322,14 +322,14 @@ const handleExecuteComplete = async () => {
 
           <!-- Rekening / Dompet Pembayaran -->
           <div v-if="activeWallets.length > 0">
-            <label for="spend-wallet" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+            <label for="spend-wallet" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
               Dibayar lewat Rekening / Dompet mana?
             </label>
             <select
               id="spend-wallet"
               v-model="walletAccountId"
-              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-              :class="fieldErrors.wallet ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              :class="fieldErrors.wallet ? 'border-rose-400' : 'border-slate-200 dark:border-slate-800'"
             >
               <option :value="null" disabled>-- Pilih Rekening / Dompet --</option>
               <option v-for="w in activeWallets" :key="w.id" :value="w.id">
@@ -342,25 +342,25 @@ const handleExecuteComplete = async () => {
           </div>
 
           <!-- Rincian Dampak Finansial Transparan -->
-          <div class="p-3.5 bg-stone-50 dark:bg-[#0E1410] border border-stone-200/80 dark:border-[#243329] rounded-xl text-xs space-y-2">
-            <span class="font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider block text-[10px]">
+          <div class="p-3.5 bg-slate-50 dark:bg-[#070B14] border border-slate-200/80 dark:border-slate-800/80 rounded-xl text-xs space-y-2">
+            <span class="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block text-[10px]">
               Dampak Setelah Transaksi Disimpan:
             </span>
-            <div class="space-y-1.5 text-xs text-[#18221B] dark:text-[#F0F4F1]">
+            <div class="space-y-1.5 text-xs text-slate-900 dark:text-slate-100">
               <div class="flex items-center gap-2">
-                <Wallet class="w-3.5 h-3.5 text-stone-500 shrink-0" />
+                <Wallet class="w-3.5 h-3.5 text-slate-500 shrink-0" />
                 <span>
                   Saldo dompet <strong>{{ selectedWallet?.name || 'terpilih' }}</strong> berkurang {{ formatRupiah(cleanSpendAmount || '0') }}.
                 </span>
               </div>
               <div class="flex items-center gap-2">
-                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <CheckCircle2 class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>
                   Target <strong>{{ goal.name }}</strong> dinyatakan <strong>Selesai</strong> dan tidak lagi menerima setoran tabungan.
                 </span>
               </div>
               <div class="flex items-center gap-2">
-                <ArrowRight class="w-3.5 h-3.5 text-stone-500 shrink-0" />
+                <ArrowRight class="w-3.5 h-3.5 text-slate-500 shrink-0" />
                 <span v-if="excessAmountBig > 0n">
                   Uang Siap Pakai <strong>bertambah {{ formatRupiah(excessAmountBig) }}</strong> dari sisa tabungan.
                 </span>
@@ -379,24 +379,24 @@ const handleExecuteComplete = async () => {
               <Info class="w-4 h-4 shrink-0" />
               <span>Selesaikan Target Tanpa Mencatat Pengeluaran</span>
             </div>
-            <p class="text-[11px] text-stone-600 dark:text-[#98A79D] leading-relaxed">
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
               Pilih ini jika impian tercapai melalui cara lain (misalnya hadiah, bonus kantor, atau rencana dibatalkan).
             </p>
           </div>
 
-          <div class="p-3.5 bg-stone-50 dark:bg-[#0E1410] border border-stone-200/80 dark:border-[#243329] rounded-xl text-xs space-y-2">
-            <span class="font-bold text-stone-700 dark:text-[#98A79D] uppercase tracking-wider block text-[10px]">
+          <div class="p-3.5 bg-slate-50 dark:bg-[#070B14] border border-slate-200/80 dark:border-slate-800/80 rounded-xl text-xs space-y-2">
+            <span class="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block text-[10px]">
               Dampak Setelah Dikonfirmasi:
             </span>
-            <div class="space-y-1.5 text-xs text-[#18221B] dark:text-[#F0F4F1]">
+            <div class="space-y-1.5 text-xs text-slate-900 dark:text-slate-100">
               <div class="flex items-center gap-2">
-                <ArrowRight class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <ArrowRight class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>
                   Seluruh saldo tabungan tersimpan sebesar <strong>{{ formatRupiah(goal.currentBalance) }}</strong> akan otomatis dilepas kembali ke <strong>Uang Siap Pakai</strong>.
                 </span>
               </div>
               <div class="flex items-center gap-2">
-                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <CheckCircle2 class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>
                   Target <strong>{{ goal.name }}</strong> dipindahkan ke riwayat <strong>Target Selesai</strong> dan tidak lagi menerima porsi setoran.
                 </span>
@@ -408,19 +408,19 @@ const handleExecuteComplete = async () => {
         <!-- Catatan dan Tanggal -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <div>
-            <label for="complete-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+            <label for="complete-date" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
               Tanggal
             </label>
             <input
               id="complete-date"
               v-model="date"
               type="date"
-              class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 cursor-pointer"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
             />
           </div>
 
           <div>
-            <label for="complete-note" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+            <label for="complete-note" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
               Catatan (Opsional)
             </label>
             <input
@@ -428,7 +428,7 @@ const handleExecuteComplete = async () => {
               v-model="note"
               type="text"
               placeholder="Keterangan..."
-              class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20"
+              class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -436,12 +436,12 @@ const handleExecuteComplete = async () => {
 
       <!-- Action Buttons (shrink-0) -->
       <div
-        class="flex items-center justify-end gap-2.5 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#0E1410]/70 shrink-0"
+        class="flex items-center justify-end gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] shrink-0"
       >
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329]"
+          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-800"
         >
           Batal
         </button>
@@ -449,7 +449,7 @@ const handleExecuteComplete = async () => {
           type="button"
           @click="handleExecuteComplete"
           :disabled="submitting"
-          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white dark:text-[#0E1410] bg-[#183D2B] dark:bg-[#B8DF38] hover:bg-[#24553d] dark:hover:bg-[#a3c82e] rounded-xl shadow-xs disabled:opacity-50 cursor-pointer transition"
+          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#1E293B] dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl shadow-xs disabled:opacity-50 cursor-pointer transition"
         >
           <span v-if="submitting">Memproses...</span>
           <span v-else-if="mode === 'SPEND'">Beli & Selesaikan Target</span>

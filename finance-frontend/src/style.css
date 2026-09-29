@@ -4,19 +4,28 @@
 
 @theme {
   --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --color-brand-green: #183D2B;
-  --color-brand-green-dark: #0D2218;
-  --color-brand-green-light: #24553D;
-  --color-brand-lime: #B8DF38;
-  --color-brand-lime-hover: #A3C82E;
-  --color-brand-lime-subtle: #EBF4CC;
-  --color-brand-bg: #F3F5EF;
+  --color-brand-navy: #0B192C;
+  --color-brand-navy-dark: #070B14;
+  --color-brand-navy-card: #0D1524;
+  --color-brand-navy-light: #1E2F4A;
+  --color-brand-accent: #2563EB;
+  --color-brand-accent-hover: #1D4ED8;
+  --color-brand-accent-subtle: #DBEAFE;
+  --color-brand-bg: #F8FAFC;
   --color-brand-card: #FFFFFF;
-  --color-brand-text: #18221B;
-  --color-brand-muted: #5E6961;
-  --color-brand-border: #E2E8E2;
+  --color-brand-text: #0F172A;
+  --color-brand-muted: #64748B;
+  --color-brand-border: #E2E8F0;
   --color-brand-blue: #2563EB;
   --color-brand-peach: #EA580C;
+
+  /* Legacy aliases mapped to clean palette */
+  --color-brand-green: #0B192C;
+  --color-brand-green-dark: #070B14;
+  --color-brand-green-light: #1E2F4A;
+  --color-brand-lime: #10B981;
+  --color-brand-lime-hover: #059669;
+  --color-brand-lime-subtle: #D1FAE5;
 }
 
 :root {
@@ -26,11 +35,11 @@
 
 html.dark {
   color-scheme: dark;
-  --color-brand-bg: #0E1410;
-  --color-brand-card: #16201A;
-  --color-brand-text: #F0F4F1;
-  --color-brand-muted: #98A79D;
-  --color-brand-border: #243329;
+  --color-brand-bg: #070B14;
+  --color-brand-card: #0D1524;
+  --color-brand-text: #F8FAFC;
+  --color-brand-muted: #94A3B8;
+  --color-brand-border: #1E293B;
 }
 
 body {
@@ -44,8 +53,19 @@ body {
 }
 
 html.dark body {
-  background-color: #0E1410;
-  color: #F0F4F1;
+  background-color: #070B14;
+  color: #F8FAFC;
+}
+
+/* Subtle Technical Grid Background */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(226, 232, 240, 0.6) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(226, 232, 240, 0.6) 1px, transparent 1px);
+}
+html.dark .bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(30, 41, 59, 0.35) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(30, 41, 59, 0.35) 1px, transparent 1px);
 }
 
 /* Number display optimization for financial figures */
@@ -64,70 +84,70 @@ html.dark body {
 
 /* Glassmorphism approximations per taste-skills */
 .glass-dock {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 html.dark .glass-dock {
-  background: rgba(22, 32, 26, 0.90);
+  background: rgba(13, 21, 36, 0.92);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-color: #243329;
+  border-color: #1E293B;
 }
 
 .glass-modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(12, 18, 14, 0.72);
+  background: rgba(7, 11, 20, 0.72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
 html.dark .glass-modal-backdrop {
-  background: rgba(6, 10, 8, 0.88);
+  background: rgba(4, 7, 13, 0.88);
 }
 
 /* Subtle card styling with crisp layered edge */
 .fintech-card {
   background: #FFFFFF;
-  border: 1px solid rgba(24, 61, 43, 0.07);
-  box-shadow: 0 4px 20px -4px rgba(24, 61, 43, 0.05);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 20px -2px rgba(11, 25, 44, 0.04);
 }
 
 html.dark .fintech-card {
-  background: #16201A;
-  border: 1px solid #243329;
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+  background: #0D1524;
+  border: 1px solid #1E293B;
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.5);
 }
 
 /* Global Form Controls & Inputs in Dark Mode */
 html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 html.dark select,
 html.dark textarea {
-  background-color: #0E1410 !important;
-  color: #F0F4F1 !important;
-  border-color: #243329 !important;
+  background-color: #070B14 !important;
+  color: #F8FAFC !important;
+  border-color: #1E293B !important;
 }
 
 html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"])::placeholder,
 html.dark textarea::placeholder {
-  color: #5E6961 !important;
+  color: #64748B !important;
 }
 
 html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
 html.dark select:focus,
 html.dark textarea:focus {
-  background-color: #0E1410 !important;
-  border-color: #B8DF38 !important;
+  background-color: #070B14 !important;
+  border-color: #38BDF8 !important;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(184, 223, 56, 0.25) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
 }
 
 html.dark option {
-  background-color: #16201A;
-  color: #F0F4F1;
+  background-color: #0D1524;
+  color: #F8FAFC;
 }
 
 html.dark input[type="date"]::-webkit-calendar-picker-indicator {
@@ -141,14 +161,14 @@ html.dark ::-webkit-scrollbar {
   height: 6px;
 }
 html.dark ::-webkit-scrollbar-track {
-  background: #0E1410;
+  background: #070B14;
 }
 html.dark ::-webkit-scrollbar-thumb {
-  background: #243329;
+  background: #1E293B;
   border-radius: 9999px;
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #344639;
+  background: #334155;
 }
 
 .fintech-card-interactive {
@@ -157,13 +177,13 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
 .fintech-card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -6px rgba(24, 61, 43, 0.09);
-  border-color: rgba(24, 61, 43, 0.15);
+  box-shadow: 0 12px 30px -6px rgba(11, 25, 44, 0.08);
+  border-color: rgba(11, 25, 44, 0.14);
 }
 
 html.dark .fintech-card-interactive:hover {
   box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
-  border-color: rgba(184, 223, 56, 0.3);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 /* Animations */

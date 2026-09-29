@@ -87,23 +87,23 @@ const handleUpdate = async () => {
     aria-labelledby="edit-trx-title"
     @click.self="emit('close')"
   >
-    <div class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-md mx-auto flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter">
+    <div class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-md mx-auto flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden animate-modal-enter">
       <!-- Modal Header (shrink-0) -->
-      <div class="px-5 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]">
+      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#0D1524]">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-900/40">
             <Edit3 class="w-5 h-5" />
           </div>
           <div>
-            <h3 id="edit-trx-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">Koreksi Transaksi</h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Saldo diperbarui dan perubahan tercatat di riwayat</span>
+            <h3 id="edit-trx-title" class="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight">Koreksi Transaksi</h3>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Saldo diperbarui dan perubahan tercatat di riwayat</span>
           </div>
         </div>
 
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
@@ -112,20 +112,20 @@ const handleUpdate = async () => {
 
       <!-- Form Inputs (flex-1 overscroll-contain) -->
       <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
-        <p class="text-xs text-stone-500 dark:text-[#98A79D] leading-relaxed font-normal">
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
           Koreksi mengganti data transaksi ini, bukan menambah transaksi aktif baru. Saldo akan diperbarui sesuai perubahan nominal, dan riwayat koreksi tetap tersimpan.
         </p>
 
         <div>
-          <label for="edit-transaction-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal Baru (Rp)</label>
+          <label for="edit-transaction-amount" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Nominal Baru (Rp)</label>
           <input
             id="edit-transaction-amount"
             :value="editAmount"
             @input="handleAmountInput"
             type="text"
             inputmode="numeric"
-            class="w-full px-3.5 py-3 border rounded-xl text-base font-bold tabular-nums text-[#18221B] dark:text-[#F0F4F1] bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2"
-            :class="amountError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
+            class="w-full px-3.5 py-3 border rounded-xl text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] focus:outline-none focus:ring-2"
+            :class="amountError ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500'"
             autofocus
           />
           <p v-if="amountError" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
@@ -134,11 +134,11 @@ const handleUpdate = async () => {
         </div>
 
         <div>
-          <label for="edit-transaction-category" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Kategori</label>
+          <label for="edit-transaction-category" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Kategori</label>
           <select
             id="edit-transaction-category"
             v-model="editCategoryId"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+            class="w-full min-h-[44px] px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           >
             <option
               v-for="cat in categories.filter(c => c.type.toUpperCase() === transaction?.typeSnapshot && !c.isArchived)"
@@ -151,34 +151,34 @@ const handleUpdate = async () => {
         </div>
 
         <div>
-          <label for="edit-transaction-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
+          <label for="edit-transaction-date" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Tanggal Transaksi</label>
           <input
             id="edit-transaction-date"
             v-model="editDate"
             type="date"
             :max="todayDateString"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+            class="w-full min-h-[44px] px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           />
         </div>
 
         <div>
-          <label for="edit-transaction-reason" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Alasan Koreksi</label>
+          <label for="edit-transaction-reason" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Alasan Koreksi</label>
           <input
             id="edit-transaction-reason"
             v-model="editReason"
             type="text"
             placeholder="Contoh: Salah ketik nominal kasir"
-            class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>
 
       <!-- Action Buttons (shrink-0) -->
-      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#16201A] shrink-0">
+      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329]"
+          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-800"
         >
           Batal
         </button>
@@ -186,7 +186,7 @@ const handleUpdate = async () => {
           type="button"
           @click="handleUpdate"
           :disabled="submitting"
-          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
+          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#1E293B] dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
         >
           {{ submitting ? 'Menyimpan...' : 'Terapkan Koreksi' }}
         </button>

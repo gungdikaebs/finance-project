@@ -173,23 +173,23 @@ const handleTransfer = async () => {
     @click.self="emit('close')"
   >
     <div
-      class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col shadow-2xl border border-stone-200/80 dark:border-[#243329] w-full max-w-lg mx-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 w-full max-w-lg mx-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200"
     >
       <!-- Modal Header (shrink-0) -->
       <div
-        class="shrink-0 flex items-center justify-between p-5 border-b border-stone-100 dark:border-[#243329] bg-stone-50/50 dark:bg-[#16201A]"
+        class="shrink-0 flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0D1524]"
       >
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-xl bg-[#183D2B] text-[#B8DF38] flex items-center justify-center shadow-xs"
+            class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shadow-xs"
           >
             <ArrowRightLeft class="w-5 h-5" :stroke-width="2.2" />
           </div>
           <div>
-            <h3 id="transfer-wallet-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1]">
+            <h3 id="transfer-wallet-title" class="text-base font-extrabold text-slate-900 dark:text-slate-100">
               Pindah Dana Antar Dompet
             </h3>
-            <p class="text-xs text-stone-500 dark:text-[#98A79D] font-medium">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Transfer saldo antar rekening bank, dompet tunai, atau e-wallet
             </p>
           </div>
@@ -198,7 +198,7 @@ const handleTransfer = async () => {
           type="button"
           @click="emit('close')"
           aria-label="Tutup dialog pindah dana"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] tactile-btn transition-colors cursor-pointer"
+          class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 tactile-btn transition-colors cursor-pointer"
         >
           <X class="w-5 h-5" />
         </button>
@@ -207,24 +207,24 @@ const handleTransfer = async () => {
       <!-- Modal Body (overflow-y-auto) -->
       <div class="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
         <!-- Callout Penjelasan Finansial D-003 -->
-        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/40 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed flex items-start gap-2.5">
-          <Info class="w-4 h-4 shrink-0 mt-0.5 text-emerald-700 dark:text-emerald-400" :stroke-width="2" />
+        <div class="p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/40 text-xs text-blue-900 dark:text-blue-300 leading-relaxed flex items-start gap-2.5">
+          <Info class="w-4 h-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" :stroke-width="2" />
           <div>
             Pemindahan ini <strong>murni memindahkan saldo fisik</strong> antar rekening atau e-wallet. Tindakan ini <strong>TIDAK</strong> dihitung sebagai pengeluaran maupun pemasukan, serta <strong>Total Saldo Utama tetap utuh</strong>.
           </div>
         </div>
 
         <!-- Pemilihan Dompet Asal & Tujuan -->
-        <div class="space-y-3 p-4 rounded-2xl bg-stone-50/70 dark:bg-[#121A15] border border-stone-200/80 dark:border-[#243329]">
+        <div class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-[#070B14] border border-slate-200/90 dark:border-slate-800">
           <!-- Dompet Asal -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+              <label class="text-xs font-bold text-slate-900 dark:text-slate-100">
                 Dari Dompet (Sumber) <span class="text-rose-500">*</span>
               </label>
               <span
                 v-if="selectedSourceWallet"
-                class="text-xs font-bold text-[#183D2B] dark:text-[#B8DF38] tabular-nums"
+                class="text-xs font-bold text-blue-600 dark:text-blue-400 tabular-nums"
               >
                 Sisa: {{ formatRupiah(selectedSourceWallet.balance) }}
               </span>
@@ -232,7 +232,7 @@ const handleTransfer = async () => {
             <select
               aria-label="Dompet asal transfer"
               v-model="sourceWalletId"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-semibold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.source }"
             >
               <option :value="null" disabled>Pilih dompet asal pemindahan...</option>
@@ -255,7 +255,7 @@ const handleTransfer = async () => {
               type="button"
               @click="handleSwap"
               title="Tukar posisi asal dan tujuan"
-              class="w-8 h-8 rounded-full bg-white dark:bg-[#16201A] border border-stone-300 dark:border-[#243329] shadow-xs flex items-center justify-center text-stone-600 dark:text-[#98A79D] hover:text-[#183D2B] dark:hover:text-[#B8DF38] hover:border-[#183D2B] dark:hover:border-[#B8DF38] tactile-btn transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-full bg-white dark:bg-[#0D1524] border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500 dark:hover:border-blue-400 tactile-btn transition-colors cursor-pointer"
             >
               <ArrowRightLeft class="w-3.5 h-3.5 rotate-90 sm:rotate-0" />
             </button>
@@ -264,12 +264,12 @@ const handleTransfer = async () => {
           <!-- Dompet Tujuan -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
+              <label class="text-xs font-bold text-slate-900 dark:text-slate-100">
                 Ke Dompet (Tujuan) <span class="text-rose-500">*</span>
               </label>
               <span
                 v-if="selectedTargetWallet"
-                class="text-xs font-bold text-stone-600 dark:text-[#98A79D] tabular-nums"
+                class="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums"
               >
                 Saldo saat ini: {{ formatRupiah(selectedTargetWallet.balance) }}
               </span>
@@ -277,7 +277,7 @@ const handleTransfer = async () => {
             <select
               aria-label="Dompet tujuan transfer"
               v-model="targetWalletId"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-semibold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500"
               :class="{ 'border-rose-400 focus:ring-rose-200': fieldErrors.target }"
             >
               <option :value="null" disabled>Pilih dompet tujuan...</option>
@@ -297,11 +297,11 @@ const handleTransfer = async () => {
 
         <!-- Nominal Transfer -->
         <div>
-          <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
+          <label class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1.5">
             Nominal Pindah Dana (Rp) <span class="text-rose-500">*</span>
           </label>
           <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-extrabold text-sm text-stone-400 dark:text-[#98A79D]">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-extrabold text-sm text-slate-400 dark:text-slate-500">
               Rp
             </span>
             <input
@@ -310,7 +310,7 @@ const handleTransfer = async () => {
               :value="amount"
               @input="handleAmountInput"
               placeholder="0"
-              class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] bg-white dark:bg-[#0E1410] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] transition-all"
+              class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-base font-extrabold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] tabular-nums focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all"
               :class="{
                 'border-rose-400 focus:ring-rose-200': fieldErrors.amount || isSourceBalanceInsufficient,
               }"
@@ -328,19 +328,19 @@ const handleTransfer = async () => {
         <!-- Tanggal & Catatan -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
+            <label class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1.5">
               Tanggal Transfer
             </label>
             <input
               aria-label="Tanggal transfer"
               type="date"
               v-model="date"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-semibold bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1.5">
+            <label class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1.5">
               Catatan / Keterangan (Opsional)
             </label>
             <input
@@ -348,7 +348,7 @@ const handleTransfer = async () => {
               type="text"
               v-model="note"
               placeholder="misal: Top up GoPay jajan"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-[#243329] text-sm font-medium bg-white dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] placeholder:text-stone-400 dark:placeholder:text-[#5E6961] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-medium bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500"
             />
           </div>
         </div>
@@ -356,12 +356,12 @@ const handleTransfer = async () => {
 
       <!-- Modal Footer (shrink-0) -->
       <div
-        class="shrink-0 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#16201A] flex items-center justify-end gap-2.5"
+        class="shrink-0 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] flex items-center justify-end gap-2.5"
       >
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn px-4 py-2.5 rounded-xl text-xs font-bold text-stone-600 dark:text-[#98A79D] hover:bg-stone-200/70 dark:hover:bg-[#243329] border border-stone-200 dark:border-[#243329] transition-colors cursor-pointer"
+          class="tactile-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
         >
           Batal
         </button>
@@ -370,9 +370,9 @@ const handleTransfer = async () => {
           type="button"
           :disabled="isSubmitting || isSourceBalanceInsufficient || !amount || amount === '0'"
           @click="handleTransfer"
-          class="tactile-btn inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#183D2B] dark:bg-[#B8DF38] text-white dark:text-[#0E1410] hover:bg-[#122e20] dark:hover:bg-[#a3c82e] shadow-sm transition-all cursor-pointer disabled:opacity-50"
+          class="tactile-btn inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#0B192C] hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white shadow-sm transition-all cursor-pointer disabled:opacity-50"
         >
-          <Check class="w-4 h-4 text-[#B8DF38] dark:text-[#0E1410]" :stroke-width="2.5" />
+          <Check class="w-4 h-4 text-white" :stroke-width="2.5" />
           <span>{{ isSubmitting ? 'Memproses...' : 'Proses Pindah Dana' }}</span>
         </button>
       </div>

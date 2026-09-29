@@ -173,23 +173,23 @@ const handleSave = async () => {
     aria-labelledby="trx-modal-title"
     @click.self="emit('close')"
   >
-    <div class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-md mx-auto flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter">
+    <div class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-md mx-auto flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden animate-modal-enter">
       <!-- Modal Header (shrink-0) -->
-      <div class="px-5 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]">
+      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#0D1524]">
         <div class="flex items-center gap-2.5">
           <div
             class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-            :class="type === 'income' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-400'"
+            :class="type === 'income' ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/40' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40'"
           >
             <ArrowDownLeft v-if="type === 'income'" class="w-5 h-5" :stroke-width="2.5" />
             <ArrowUpRight v-else class="w-5 h-5" :stroke-width="2.5" />
           </div>
           <div>
-            <h3 id="trx-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
+            <h3 id="trx-modal-title" class="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
               {{ type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran' }}
             </h3>
             <span
-              :class="type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'"
+              :class="type === 'income' ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'"
               class="text-[11px] font-bold"
             >
               {{ type === 'income' ? 'Arus Uang Masuk' : 'Arus Uang Keluar' }}
@@ -200,7 +200,7 @@ const handleSave = async () => {
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
@@ -210,7 +210,7 @@ const handleSave = async () => {
       <!-- Form Inputs (flex-1 overscroll-contain) -->
       <div class="p-5 overflow-y-auto flex-1 overscroll-contain space-y-4">
         <div>
-          <label for="transaction-amount" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Nominal (Rp)</label>
+          <label for="transaction-amount" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Nominal (Rp)</label>
           <input
             id="transaction-amount"
             :value="amount"
@@ -218,8 +218,8 @@ const handleSave = async () => {
             type="text"
             inputmode="numeric"
             placeholder="0"
-            class="w-full px-3.5 py-3 border rounded-xl text-base font-bold tabular-nums text-[#18221B] dark:text-[#F0F4F1] bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] focus:outline-none focus:ring-2"
-            :class="fieldErrors.amount ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
+            class="w-full px-3.5 py-3 border rounded-xl text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] focus:outline-none focus:ring-2"
+            :class="fieldErrors.amount ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500'"
             autofocus
           />
           <p v-if="fieldErrors.amount" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">
@@ -229,12 +229,12 @@ const handleSave = async () => {
 
         <!-- Expense: Pilih Kategori -->
         <div v-if="type === 'expense'">
-          <label for="expense-category" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Pengeluaran untuk apa?</label>
+          <label for="expense-category" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Pengeluaran untuk apa?</label>
           <select
             id="expense-category"
             v-model="categoryId"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 cursor-pointer"
-            :class="fieldErrors.category ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
+            class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 cursor-pointer"
+            :class="fieldErrors.category ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500'"
           >
             <option :value="null" disabled>Pilih kategori</option>
             <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
@@ -251,12 +251,12 @@ const handleSave = async () => {
 
         <!-- Income: Sumber Dana / Pemasukan -->
         <div v-if="type === 'income'">
-          <label for="transaction-income-source" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Sumber Pemasukan</label>
+          <label for="transaction-income-source" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Sumber Pemasukan</label>
           <select
             id="transaction-income-source"
             v-model="incomeSourceId"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 cursor-pointer"
-            :class="fieldErrors.incomeSource ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-stone-200 dark:border-[#243329] focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38]'"
+            class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 cursor-pointer"
+            :class="fieldErrors.incomeSource ? 'border-rose-400 focus:ring-rose-200 focus:border-rose-500' : 'border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500'"
           >
             <option v-for="src in incomeSources.filter(s => !s.isArchived)" :key="src.id" :value="src.id">
               {{ src.name }}
@@ -273,18 +273,18 @@ const handleSave = async () => {
         <!-- Rekening fisik: tampilkan pilihan hanya bila ada lebih dari satu. -->
         <div v-if="activeWallets.length > 0">
           <template v-if="type === 'expense' && activeWallets.length === 1">
-            <p class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Dibayar lewat</p>
-            <p class="text-xs text-stone-600 dark:text-[#98A79D] mt-1">{{ selectedWallet?.name }}. Saldo rekening/dompet ini akan berkurang.</p>
+            <p class="text-xs font-bold text-slate-900 dark:text-slate-100">Dibayar lewat</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">{{ selectedWallet?.name }}. Saldo rekening/dompet ini akan berkurang.</p>
           </template>
           <template v-else>
-            <label for="transaction-wallet" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">
+            <label for="transaction-wallet" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
               {{ type === 'income' ? 'Masuk ke rekening/dompet mana?' : 'Dibayar lewat rekening/dompet mana?' }}
             </label>
             <select
               id="transaction-wallet"
               v-model="walletAccountId"
-              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-              :class="fieldErrors.wallet ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              :class="fieldErrors.wallet ? 'border-rose-400' : 'border-slate-200 dark:border-slate-800'"
               @change="fieldErrors.wallet = undefined"
             >
               <option v-if="type === 'expense'" :value="null" disabled>Pilih rekening/dompet</option>
@@ -293,33 +293,33 @@ const handleSave = async () => {
               </option>
             </select>
             <p v-if="fieldErrors.wallet" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold">{{ fieldErrors.wallet }}</p>
-            <p class="text-[11px] text-stone-500 dark:text-[#98A79D] mt-1">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
               {{ type === 'income' ? 'Saldo rekening/dompet ini akan bertambah.' : 'Saldo rekening/dompet ini akan berkurang.' }}
             </p>
           </template>
         </div>
 
         <!-- Pengeluaran biasa memakai uang yang belum disisihkan. Dana tabungan adalah pilihan lanjutan. -->
-        <div v-if="type === 'expense' && fundedSavingsGoals.length > 0" class="border-t border-stone-200 dark:border-[#243329] pt-4">
+        <div v-if="type === 'expense' && fundedSavingsGoals.length > 0" class="border-t border-slate-200 dark:border-slate-800 pt-4">
           <label class="flex items-start gap-3 cursor-pointer">
             <input
               v-model="useSavingsForExpense"
               type="checkbox"
-              class="w-4 h-4 mt-0.5 accent-[#183D2B] dark:accent-[#B8DF38] shrink-0"
+              class="w-4 h-4 mt-0.5 accent-blue-600 shrink-0 rounded"
               @change="sourceGoalId = null; fieldErrors.sourceGoal = undefined"
             />
             <span>
-              <span class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">Gunakan dana yang sudah disisihkan</span>
-              <span class="block text-[11px] text-stone-500 dark:text-[#98A79D] mt-1">Aktifkan hanya jika pengeluaran ini memakai dana tabungan atau dana darurat.</span>
+              <span class="block text-xs font-bold text-slate-900 dark:text-slate-100">Gunakan dana yang sudah disisihkan</span>
+              <span class="block text-[11px] text-slate-500 dark:text-slate-400 mt-1">Aktifkan hanya jika pengeluaran ini memakai dana tabungan atau dana darurat.</span>
             </span>
           </label>
           <div v-if="useSavingsForExpense" class="mt-3 pl-7">
-            <label for="expense-savings-goal" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Dana mana yang digunakan?</label>
+            <label for="expense-savings-goal" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Dana mana yang digunakan?</label>
             <select
               id="expense-savings-goal"
               v-model="sourceGoalId"
-              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
-              :class="fieldErrors.sourceGoal ? 'border-rose-400' : 'border-stone-200 dark:border-[#243329]'"
+              class="w-full min-h-[44px] px-3.5 py-2.5 border rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              :class="fieldErrors.sourceGoal ? 'border-rose-400' : 'border-slate-200 dark:border-slate-800'"
               @change="fieldErrors.sourceGoal = undefined"
             >
               <option :value="null" disabled>Pilih tabungan</option>
@@ -331,42 +331,42 @@ const handleSave = async () => {
           </div>
         </div>
 
-        <p v-if="type === 'expense'" class="text-[11px] leading-relaxed text-stone-600 dark:text-[#98A79D] bg-stone-50 dark:bg-[#0E1410] rounded-xl px-3 py-2.5">
+        <p v-if="type === 'expense'" class="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#070B14] border border-slate-200/70 dark:border-slate-800/80 rounded-xl px-3 py-2.5">
           <template v-if="useSavingsForExpense && selectedGoal">Setelah dicatat, saldo rekening/dompet dan dana {{ selectedGoal.name }} berkurang. Uang yang bisa dipakai tetap.</template>
           <template v-else-if="useSavingsForExpense">Pilih dana tabungan terlebih dahulu untuk melihat dampaknya.</template>
           <template v-else>Setelah dicatat, saldo rekening/dompet dan uang yang bisa dipakai berkurang.</template>
         </p>
 
         <div>
-          <label for="transaction-date" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Tanggal Transaksi</label>
+          <label for="transaction-date" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Tanggal Transaksi</label>
           <input
             id="transaction-date"
             v-model="date"
             type="date"
             :max="todayDateString"
-            class="w-full min-h-[44px] px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs font-semibold bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer"
+            class="w-full min-h-[44px] px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           />
-          <span class="text-[10px] text-stone-500 dark:text-[#98A79D] mt-1 block">Tanggal masa depan tidak diizinkan.</span>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">Tanggal masa depan tidak diizinkan.</span>
         </div>
 
         <div>
-          <label for="transaction-note" class="block text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] mb-1">Catatan Tambahan (Opsional)</label>
+          <label for="transaction-note" class="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">Catatan Tambahan (Opsional)</label>
           <input
             id="transaction-note"
             v-model="note"
             type="text"
             placeholder="Keterangan singkat..."
-            class="w-full px-3.5 py-2.5 border border-stone-200 dark:border-[#243329] rounded-xl text-xs bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20"
+            class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>
 
       <!-- Action Buttons (shrink-0) -->
-      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#16201A] shrink-0">
+      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 dark:text-[#98A79D] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329]"
+          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-800"
         >
           Batal
         </button>
@@ -374,7 +374,7 @@ const handleSave = async () => {
           type="button"
           @click="handleSave"
           :disabled="submitting"
-          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white dark:text-[#0E1410] bg-[#183D2B] dark:bg-[#B8DF38] hover:bg-[#24553d] dark:hover:bg-[#A3C82E] rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
+          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#1E293B] dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
         >
           {{ submitting ? 'Menyimpan...' : 'Simpan Transaksi' }}
         </button>

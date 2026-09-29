@@ -114,25 +114,25 @@ const handleSave = async () => {
     aria-labelledby="budget-modal-title"
     @click.self="emit('close')"
   >
-    <div class="bg-white dark:bg-[#16201A] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-lg mx-auto flex flex-col shadow-2xl border border-stone-200/90 dark:border-[#243329] overflow-hidden animate-modal-enter">
+    <div class="bg-white dark:bg-[#0D1524] rounded-t-3xl sm:rounded-2xl max-h-[92dvh] sm:max-h-[85vh] w-full max-w-lg mx-auto flex flex-col shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden animate-modal-enter">
       <!-- Header (shrink-0) -->
-      <div class="px-5 sm:px-6 py-4 border-b border-stone-100 dark:border-[#243329] flex items-center justify-between shrink-0 bg-white dark:bg-[#16201A]">
+      <div class="px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#0D1524]">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-[#243329] text-[#183D2B] dark:text-[#B8DF38] flex items-center justify-center shrink-0 border border-emerald-100/50 dark:border-[#344639]">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-900/40">
             <SlidersHorizontal class="w-5 h-5" :stroke-width="2" />
           </div>
           <div>
-            <h3 id="budget-modal-title" class="text-base font-extrabold text-[#18221B] dark:text-[#F0F4F1] leading-tight">
+            <h3 id="budget-modal-title" class="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
               Kebijakan Anggaran ({{ currentMonth }}/{{ currentYear }})
             </h3>
-            <span class="text-[11px] text-stone-500 dark:text-[#98A79D] font-medium">Atur porsi kebutuhan, tabungan, dan keinginan</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Atur porsi kebutuhan, tabungan, dan keinginan</span>
           </div>
         </div>
 
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-[#F0F4F1] hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer"
+          class="tactile-btn min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer"
           aria-label="Tutup dialog"
         >
           <X class="w-5 h-5" />
@@ -141,144 +141,143 @@ const handleSave = async () => {
 
       <!-- Form Inputs (flex-1 overscroll-contain) -->
       <div class="p-5 sm:p-6 overflow-y-auto flex-1 overscroll-contain space-y-4">
-        <p class="text-xs text-stone-500 dark:text-[#98A79D] leading-relaxed font-normal">
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
           Atur rasio alokasi pemasukan untuk Kebutuhan, Tabungan, dan Keinginan. Total porsi harus tepat 100%.
         </p>
 
-      <!-- Rasio Umum -->
-      <div class="space-y-3 bg-stone-50/70 dark:bg-[#0E1410] p-4 rounded-xl border border-stone-200/80 dark:border-[#243329]">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-stone-700 dark:text-[#F0F4F1] uppercase tracking-wider">Rasio Umum</span>
-          <span
-            class="text-xs font-bold px-2 py-0.5 rounded-full tabular-nums"
-            :class="totalPercent === 100 ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'"
-          >
-            Total: {{ totalPercent }}%
-          </span>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2.5">
-          <div>
-            <label for="budget-needs" class="block text-[11px] font-bold text-blue-900 dark:text-blue-300 mb-1">Kebutuhan (%)</label>
-            <input
-              id="budget-needs"
-              v-model.number="needsPercent"
-              type="number"
-              min="0"
-              max="100"
-              class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-sm font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
-            />
-          </div>
-          <div>
-            <label for="budget-savings" class="block text-[11px] font-bold text-emerald-900 dark:text-emerald-300 mb-1">Tabungan (%)</label>
-            <input
-              id="budget-savings"
-              v-model.number="savingsPercent"
-              type="number"
-              min="0"
-              max="100"
-              class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-sm font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
-            />
-          </div>
-          <div>
-            <label for="budget-wants" class="block text-[11px] font-bold text-purple-900 dark:text-purple-300 mb-1">Keinginan (%)</label>
-            <input
-              id="budget-wants"
-              v-model.number="wantsPercent"
-              type="number"
-              min="0"
-              max="100"
-              class="w-full px-3 py-2 border border-stone-200 dark:border-[#243329] rounded-xl text-sm font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 focus:border-[#183D2B] dark:focus:border-[#B8DF38] tabular-nums"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Aturan Khusus per Sumber Pemasukan -->
-      <div class="space-y-3 pt-1">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1] uppercase tracking-wider">Aturan Khusus per Sumber Pemasukan</span>
-        </div>
-
-        <div v-if="overrides.length > 0" class="space-y-2">
-          <div
-            v-for="(ov, idx) in overrides"
-            :key="ov.incomeSourceId"
-            class="p-3.5 bg-stone-50/70 dark:bg-[#0E1410] border border-stone-200/80 dark:border-[#243329] rounded-xl space-y-2"
-          >
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-[#18221B] dark:text-[#F0F4F1]">
-                {{ incomeSources.find(s => s.id === ov.incomeSourceId)?.name || 'Sumber ID ' + ov.incomeSourceId }}
-              </span>
-              <button
-                type="button"
-                @click="handleRemoveOverride(idx)"
-                class="tactile-btn text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold inline-flex items-center gap-1 cursor-pointer"
-              >
-                <Trash2 class="w-3 h-3" />
-                <span>Hapus</span>
-              </button>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div>
-                <label :for="`budget-needs-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Kebutuhan (%)</label>
-                <input :id="`budget-needs-${ov.incomeSourceId}`" v-model.number="ov.needs" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
-              </div>
-              <div>
-                <label :for="`budget-savings-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Tabungan (%)</label>
-                <input :id="`budget-savings-${ov.incomeSourceId}`" v-model.number="ov.savings" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
-              </div>
-              <div>
-                <label :for="`budget-wants-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-stone-500 dark:text-[#98A79D] mb-0.5">Keinginan (%)</label>
-                <input :id="`budget-wants-${ov.incomeSourceId}`" v-model.number="ov.wants" type="number" class="w-full px-2.5 py-1.5 border border-stone-200 dark:border-[#243329] rounded-lg text-xs font-bold bg-white dark:bg-[#121A15] text-[#18221B] dark:text-[#F0F4F1] tabular-nums" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tambah Override Dropdown -->
-        <div class="flex items-center gap-2">
-          <select
-            aria-label="Tambah aturan khusus untuk sumber pemasukan"
-            v-model="selectedOverrideSourceId"
-            class="flex-1 text-xs border border-stone-200 dark:border-[#243329] rounded-xl px-3 py-2 bg-stone-50/70 dark:bg-[#0E1410] focus:bg-white dark:focus:bg-[#0E1410] text-[#18221B] dark:text-[#F0F4F1] focus:outline-none focus:ring-2 focus:ring-[#183D2B]/20 dark:focus:ring-[#B8DF38]/20 cursor-pointer font-medium"
-          >
-            <option :value="null">-- Tambah Aturan Khusus untuk Sumber Pemasukan --</option>
-            <option
-              v-for="src in incomeSources.filter(s => !s.isArchived && !overrides.some(o => o.incomeSourceId === s.id))"
-              :key="src.id"
-              :value="src.id"
+        <!-- Rasio Umum -->
+        <div class="space-y-3 bg-slate-50/70 dark:bg-[#070B14] p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Rasio Umum</span>
+            <span
+              class="text-xs font-bold px-2 py-0.5 rounded-full tabular-nums"
+              :class="totalPercent === 100 ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'"
             >
-              {{ src.name }}
-            </option>
-          </select>
-          <button
-            type="button"
-            @click="handleAddOverride"
-            class="tactile-btn px-3 py-2 text-xs bg-stone-100 dark:bg-[#243329] hover:bg-stone-200 dark:hover:bg-[#2e4034] text-[#18221B] dark:text-[#F0F4F1] font-bold rounded-xl border border-stone-200 dark:border-[#344639] cursor-pointer inline-flex items-center gap-1"
-          >
-            <Plus class="w-3.5 h-3.5" />
-            <span>Tambah</span>
-          </button>
+              Total: {{ totalPercent }}%
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label for="budget-needs" class="block text-[11px] font-bold text-blue-600 dark:text-blue-400 mb-1">Kebutuhan (%)</label>
+              <input
+                id="budget-needs"
+                v-model.number="needsPercent"
+                type="number"
+                min="0"
+                max="100"
+                class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 tabular-nums"
+              />
+            </div>
+            <div>
+              <label for="budget-savings" class="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">Tabungan (%)</label>
+              <input
+                id="budget-savings"
+                v-model.number="savingsPercent"
+                type="number"
+                min="0"
+                max="100"
+                class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 tabular-nums"
+              />
+            </div>
+            <div>
+              <label for="budget-wants" class="block text-[11px] font-bold text-purple-600 dark:text-purple-400 mb-1">Keinginan (%)</label>
+              <input
+                id="budget-wants"
+                v-model.number="wantsPercent"
+                type="number"
+                min="0"
+                max="100"
+                class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 tabular-nums"
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Opsi Terapkan ke Bulan Berjalan -->
-      <div class="pt-2 border-t border-stone-100 dark:border-[#243329] flex items-center gap-2">
-        <input type="checkbox" id="chkApplyCurrent" v-model="applyToCurrent" class="rounded text-[#183D2B] dark:text-[#B8DF38] focus:ring-[#183D2B] dark:focus:ring-[#B8DF38] cursor-pointer bg-stone-50 dark:bg-[#0E1410] border-stone-300 dark:border-[#243329]" />
-        <label for="chkApplyCurrent" class="text-xs text-stone-700 dark:text-[#98A79D] font-medium cursor-pointer">
-          Terapkan & hitung ulang transaksi pemasukan bulan ini ({{ currentMonth }}/{{ currentYear }})
-        </label>
-      </div>
+        <!-- Aturan Khusus per Sumber Pemasukan -->
+        <div class="space-y-3 pt-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Aturan Khusus per Sumber Pemasukan</span>
+          </div>
 
+          <div v-if="overrides.length > 0" class="space-y-2">
+            <div
+              v-for="(ov, idx) in overrides"
+              :key="ov.incomeSourceId"
+              class="p-3.5 bg-slate-50/70 dark:bg-[#070B14] border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-2"
+            >
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {{ incomeSources.find(s => s.id === ov.incomeSourceId)?.name || 'Sumber ID ' + ov.incomeSourceId }}
+                </span>
+                <button
+                  type="button"
+                  @click="handleRemoveOverride(idx)"
+                  class="tactile-btn text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Trash2 class="w-3 h-3" />
+                  <span>Hapus</span>
+                </button>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label :for="`budget-needs-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Kebutuhan (%)</label>
+                  <input :id="`budget-needs-${ov.incomeSourceId}`" v-model.number="ov.needs" type="number" class="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 tabular-nums" />
+                </div>
+                <div>
+                  <label :for="`budget-savings-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Tabungan (%)</label>
+                  <input :id="`budget-savings-${ov.incomeSourceId}`" v-model.number="ov.savings" type="number" class="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 tabular-nums" />
+                </div>
+                <div>
+                  <label :for="`budget-wants-${ov.incomeSourceId}`" class="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">Keinginan (%)</label>
+                  <input :id="`budget-wants-${ov.incomeSourceId}`" v-model.number="ov.wants" type="number" class="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold bg-white dark:bg-[#0D1524] text-slate-900 dark:text-slate-100 tabular-nums" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tambah Override Dropdown -->
+          <div class="flex items-center gap-2">
+            <select
+              aria-label="Tambah aturan khusus untuk sumber pemasukan"
+              v-model="selectedOverrideSourceId"
+              class="flex-1 text-xs border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 bg-slate-50 dark:bg-[#070B14] focus:bg-white dark:focus:bg-[#070B14] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer font-medium"
+            >
+              <option :value="null">-- Tambah Aturan Khusus untuk Sumber Pemasukan --</option>
+              <option
+                v-for="src in incomeSources.filter(s => !s.isArchived && !overrides.some(o => o.incomeSourceId === s.id))"
+                :key="src.id"
+                :value="src.id"
+              >
+                {{ src.name }}
+              </option>
+            </select>
+            <button
+              type="button"
+              @click="handleAddOverride"
+              class="tactile-btn px-3 py-2 text-xs bg-slate-100 dark:bg-[#111C30] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-900 dark:text-slate-100 font-bold rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer inline-flex items-center gap-1"
+            >
+              <Plus class="w-3.5 h-3.5" />
+              <span>Tambah</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Opsi Terapkan ke Bulan Berjalan -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+          <input type="checkbox" id="chkApplyCurrent" v-model="applyToCurrent" class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer bg-slate-50 dark:bg-[#070B14] border-slate-300 dark:border-slate-700" />
+          <label for="chkApplyCurrent" class="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
+            Terapkan & hitung ulang transaksi pemasukan bulan ini ({{ currentMonth }}/{{ currentYear }})
+          </label>
+        </div>
       </div>
 
       <!-- Action Buttons (shrink-0) -->
-      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-stone-100 dark:border-[#243329] bg-stone-50/80 dark:bg-[#0E1410]/70 shrink-0">
+      <div class="flex items-center justify-end gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0D1524] shrink-0">
         <button
           type="button"
           @click="emit('close')"
-          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-[#243329] rounded-xl cursor-pointer border border-stone-200 dark:border-[#243329]"
+          class="tactile-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-800"
         >
           Batal
         </button>
@@ -286,7 +285,7 @@ const handleSave = async () => {
           type="button"
           @click="handleSave"
           :disabled="submitting || totalPercent !== 100"
-          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white dark:text-[#0E1410] bg-[#183D2B] dark:bg-[#B8DF38] hover:bg-[#24553d] dark:hover:bg-[#a3c82e] rounded-xl shadow-sm disabled:opacity-50 cursor-pointer transition"
+          class="tactile-btn min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#1E293B] dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl shadow-sm disabled:opacity-50 cursor-pointer transition"
         >
           {{ submitting ? 'Menyimpan...' : 'Simpan Kebijakan' }}
         </button>
