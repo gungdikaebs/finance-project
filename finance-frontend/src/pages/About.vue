@@ -32,7 +32,7 @@ onUnmounted(() => {
           </p>
           <RouterLink
             to="/"
-            class="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#0B192C] underline decoration-slate-300 underline-offset-8 transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-current dark:text-white dark:decoration-slate-700 dark:hover:text-blue-400"
+            class="nalara-secondary-action mt-8 inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold"
           >
             Lihat aplikasinya <ArrowRight class="h-4 w-4" aria-hidden="true" />
           </RouterLink>
@@ -41,14 +41,14 @@ onUnmounted(() => {
           <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-[#070B14] shadow-xl">
             <img
               src="/nalara-about-editorial.jpg"
-              alt="Meja kerja dengan buku catatan perencanaan keuangan yang tenang dan teratur"
+              alt="Ilustrasi meja kerja dengan buku catatan perencanaan keuangan"
               width="1536"
               height="1024"
               class="h-[320px] w-full object-cover sm:h-[440px]"
             />
           </div>
           <figcaption class="mt-3 text-xs text-slate-500 dark:text-slate-400">
-            Pencatatan keuangan yang tenang, terstruktur, dan terarah.
+            Ilustrasi suasana menyusun rencana keuangan pribadi.
           </figcaption>
         </figure>
       </div>
@@ -113,7 +113,7 @@ onUnmounted(() => {
         </div>
         <RouterLink
           :to="startLink"
-          class="tactile-btn inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0B192C] px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-[#172B45] hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#0B192C] dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100 dark:focus-visible:outline-white"
+          class="nalara-primary-action inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold shadow-xs hover:-translate-y-0.5"
         >
           {{ startLabel }} <ArrowRight class="h-4 w-4" aria-hidden="true" />
         </RouterLink>

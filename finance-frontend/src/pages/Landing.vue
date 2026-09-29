@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import {
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
-  TrendingUp,
   Wallet,
   X as XIcon,
 } from 'lucide-vue-next';
@@ -22,9 +21,12 @@ import { formatRupiah } from '../utils/format';
 const auth = useAuthStore();
 const startLink = computed(() => (auth.token ? '/dashboard' : '/login?mode=register'));
 const startLabel = computed(() => (auth.token ? 'Buka Dashboard' : 'Mulai Sekarang'));
-
-// Hero Card Interactive Tab
-const activeHeroTab = ref<'summary' | 'activity'>('summary');
+const exampleBalanceTotal = 18450000;
+const exampleUnplannedAmount = 4250000;
+const examplePlannedAmount = 14200000;
+const exampleUnplannedShare = computed(() =>
+  (exampleUnplannedAmount / exampleBalanceTotal) * 100
+);
 
 // Interactive Simulation State
 const monthlyIncome = ref(7500000);
@@ -62,6 +64,48 @@ const projectedDate = computed(() => {
   return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 });
 
+const simulationResultUpdated = ref(false);
+let simulationFeedbackTimer: number | undefined;
+
+watch([monthlyIncome, selectedGoalKey], () => {
+  simulationResultUpdated.value = true;
+  window.clearTimeout(simulationFeedbackTimer);
+  simulationFeedbackTimer = window.setTimeout(() => {
+    simulationResultUpdated.value = false;
+  }, 360);
+});
+
+const comparisonRows = [
+  {
+    feature: 'Penyisihan dana mental dalam 1 rekening fisik',
+    nalara: 'Otomatis & Terkunci',
+    spreadsheet: 'Rumus manual rawan rusak',
+    bank: 'Harus buka rekening baru',
+    bankUnavailable: false,
+  },
+  {
+    feature: 'Pembagian rasio 50/30/20 real-time',
+    nalara: 'Langsung dihitung',
+    spreadsheet: 'Butuh setup tabel rumit',
+    bank: 'Tidak ada',
+    bankUnavailable: true,
+  },
+  {
+    feature: 'Proyeksi target impian berbasis waktu',
+    nalara: 'Estimasi bulan akurat',
+    spreadsheet: 'Perlu rumus manual',
+    bank: 'Tidak ada',
+    bankUnavailable: true,
+  },
+  {
+    feature: 'Bebas iklan, penawaran pinjol, dan pelacak data',
+    nalara: '100% Bersih & Privat',
+    spreadsheet: 'Tergantung penyedia cloud',
+    bank: 'Penuh banner promosi & paylater',
+    bankUnavailable: false,
+  },
+];
+
 // FAQ State
 const faqs = [
   {
@@ -86,6 +130,35 @@ const openFaqIndex = ref<number | null>(0);
 const toggleFaq = (index: number) => {
   openFaqIndex.value = openFaqIndex.value === index ? null : index;
 };
+
+let landingRevealObserver: IntersectionObserver | null = null;
+
+onMounted(() => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion || !('IntersectionObserver' in window)) return;
+
+  const revealItems = document.querySelectorAll<HTMLElement>('[data-landing-reveal]');
+  if (revealItems.length === 0) return;
+
+  landingRevealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.remove('landing-reveal-pending');
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.2 });
+
+  revealItems.forEach((item) => {
+    item.classList.add('landing-reveal-pending');
+    landingRevealObserver?.observe(item);
+  });
+});
+
+onUnmounted(() => {
+  landingRevealObserver?.disconnect();
+  window.clearTimeout(simulationFeedbackTimer);
+});
 </script>
 
 <template>
@@ -96,7 +169,7 @@ const toggleFaq = (index: number) => {
 
       <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-10">
         <!-- Hero Left Column: Max 4 text elements per stack discipline -->
-        <div class="relative z-10 max-w-xl">
+        <div class="landing-hero-copy relative z-10 max-w-xl">
           <!-- Text element 1: Eyebrow (1 of max 2 eyebrows across page) -->
           <p class="mb-4 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
             Keuangan Pribadi Lebih Jelas
@@ -113,14 +186,14 @@ const toggleFaq = (index: number) => {
           <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <RouterLink
               :to="startLink"
-              class="tactile-btn inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#0B192C] px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-[#172B45] hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#0B192C] dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100 dark:focus-visible:outline-white"
+              class="nalara-primary-action inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 py-3 text-sm font-bold shadow-xs hover:-translate-y-0.5"
             >
               {{ startLabel }}
               <ArrowRight class="h-4 w-4" aria-hidden="true" />
             </RouterLink>
             <RouterLink
               to="/#simulasi"
-              class="tactile-btn inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#0B192C] dark:border-slate-700 dark:bg-[#0D1524] dark:text-slate-200 dark:hover:bg-[#141F33] dark:focus-visible:outline-[#38BDF8]"
+              class="nalara-secondary-action inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 py-3 text-sm font-bold"
             >
               Coba Simulasi Anggaran
               <ChevronRight class="h-4 w-4" aria-hidden="true" />
@@ -128,115 +201,70 @@ const toggleFaq = (index: number) => {
           </div>
         </div>
 
-        <!-- Hero Right Column: Tactile Live Fintech Showcase Card (Zero AI-slop green glow) -->
-        <div class="relative mx-auto w-full max-w-md lg:max-w-none">
-          <!-- Card Container -->
-          <div class="relative rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-900/5 transition-all dark:border-slate-800 dark:bg-[#0D1524] dark:shadow-black/50">
-            <!-- Card Header: Profile & Live Status -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-bold text-sm shadow-xs dark:bg-blue-600 dark:text-white">
-                  NL
-                </div>
-                <div>
-                  <h3 class="text-sm font-bold text-[#0B192C] dark:text-[#F8FAFC]">Ringkasan Portofolio</h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Bulan Berjalan</p>
-                </div>
+        <!-- Hero Right Column: explanatory money-allocation graphic -->
+        <div class="landing-hero-visual relative mx-auto w-full max-w-md lg:max-w-none">
+          <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/5 dark:border-slate-800 dark:bg-[#0D1524] dark:shadow-black/50 sm:p-8">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Contoh pembagian</p>
+                <h2 class="mt-2 text-lg font-bold tracking-tight text-[#0B192C] dark:text-[#F8FAFC] sm:text-xl">Satu pemasukan, tiga kebutuhan</h2>
               </div>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                Tersinkron
-              </span>
+              <Wallet class="mt-1 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             </div>
 
-            <!-- Card Body: Balance Display -->
-            <div class="py-5">
-              <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Saldo Utama Aktif</p>
-              <div class="mt-1 flex items-baseline justify-between gap-4">
-                <p class="text-3xl font-extrabold tabular-nums tracking-tight text-[#0B192C] dark:text-[#F8FAFC] sm:text-4xl">
-                  Rp 18.450.000
-                </p>
-                <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                  <TrendingUp class="w-3.5 h-3.5" /> +12.4%
-                </span>
-              </div>
-
-              <!-- Interactive Tabs for Card View -->
-              <div class="mt-4 flex rounded-lg bg-slate-100 p-1 dark:bg-slate-800/60" role="tablist">
-                <button
-                  type="button"
-                  class="flex-1 rounded-md py-1.5 text-xs font-semibold transition-all cursor-pointer"
-                  :class="activeHeroTab === 'summary' ? 'bg-white text-[#0B192C] shadow-2xs dark:bg-[#070B14] dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
-                  @click="activeHeroTab = 'summary'"
-                >
-                  Alokasi 50/30/20
-                </button>
-                <button
-                  type="button"
-                  class="flex-1 rounded-md py-1.5 text-xs font-semibold transition-all cursor-pointer"
-                  :class="activeHeroTab === 'activity' ? 'bg-white text-[#0B192C] shadow-2xs dark:bg-[#070B14] dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
-                  @click="activeHeroTab = 'activity'"
-                >
-                  Transaksi Terbaru
-                </button>
-              </div>
-
-              <!-- Tab View 1: 50 / 30 / 20 Rule Visualized -->
-              <div v-if="activeHeroTab === 'summary'" class="mt-4 space-y-2">
-                <div class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  <span>Penyisihan Anggaran</span>
-                  <span class="tabular-nums">50% · 30% · 20%</span>
-                </div>
-                <div class="h-2.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex gap-1 p-0.5">
-                  <div class="h-full rounded-full bg-[#0B192C] dark:bg-blue-500 w-[50%]" title="Kebutuhan 50%"></div>
-                  <div class="h-full rounded-full bg-blue-600 dark:bg-blue-400 w-[30%]" title="Tabungan 30%"></div>
-                  <div class="h-full rounded-full bg-slate-400 dark:bg-slate-600 w-[20%]" title="Keinginan 20%"></div>
-                </div>
-                <div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                  <span>Kebutuhan: Rp 9,2 jt</span>
-                  <span>Tabungan: Rp 5,5 jt</span>
-                  <span>Keinginan: Rp 3,7 jt</span>
-                </div>
-              </div>
-
-              <!-- Tab View 2: Recent Activity List -->
-              <div v-else class="mt-4 space-y-2">
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-xs">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 flex items-center justify-center font-bold">
-                      ↓
-                    </div>
-                    <div>
-                      <p class="font-bold text-[#0B192C] dark:text-[#F8FAFC]">Pemasukan Gaji</p>
-                      <p class="text-[10px] text-slate-500 dark:text-slate-400">Rekening Utama</p>
-                    </div>
-                  </div>
-                  <span class="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">+Rp 7.500.000</span>
-                </div>
-
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-xs">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 flex items-center justify-center font-bold">
-                      ↑
-                    </div>
-                    <div>
-                      <p class="font-bold text-[#0B192C] dark:text-[#F8FAFC]">Penyisihan Dana Darurat</p>
-                      <p class="text-[10px] text-slate-500 dark:text-slate-400">Target 6 Bulan</p>
-                    </div>
-                  </div>
-                  <span class="font-extrabold text-slate-700 dark:text-slate-300 tabular-nums">Rp 1.350.000</span>
-                </div>
-              </div>
+            <div class="mt-8">
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Contoh pemasukan bulanan</p>
+              <p class="mt-1 text-3xl font-extrabold tabular-nums tracking-tight text-[#0B192C] dark:text-[#F8FAFC] sm:text-4xl">
+                {{ formatRupiah(monthlyIncome) }}
+              </p>
             </div>
 
-            <!-- Floating Card Strip: Target Impian Progress -->
-            <div class="mt-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
-              <div class="flex items-center gap-2">
-                <Sparkles class="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span class="font-bold text-[#0B192C] dark:text-[#F8FAFC]">Target Laptop Kerja</span>
-              </div>
-              <span class="font-extrabold tabular-nums text-blue-600 dark:text-blue-400">75% Tercapai</span>
+            <div
+              class="mt-6 flex h-3.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
+              role="img"
+              :aria-label="`Contoh pembagian: kebutuhan ${formatRupiah(needsAmount)}, tabungan dan tujuan ${formatRupiah(savingsAmount)}, keinginan ${formatRupiah(wantsAmount)}`"
+            >
+              <span class="h-full bg-[#0B192C] dark:bg-blue-500" style="width: 50%"></span>
+              <span class="h-full bg-blue-600 dark:bg-blue-400" style="width: 30%"></span>
+              <span class="h-full bg-slate-300 dark:bg-slate-600" style="width: 20%"></span>
             </div>
+
+            <dl class="mt-6 space-y-4">
+              <div class="flex items-center justify-between gap-4">
+                <dt class="flex min-w-0 items-center gap-3">
+                  <Wallet class="h-4 w-4 shrink-0 text-[#0B192C] dark:text-blue-300" aria-hidden="true" />
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Kebutuhan pokok</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">50% dari pemasukan</span>
+                  </span>
+                </dt>
+                <dd class="shrink-0 text-sm font-bold tabular-nums text-[#0B192C] dark:text-slate-100">{{ formatRupiah(needsAmount) }}</dd>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <dt class="flex min-w-0 items-center gap-3">
+                  <ShieldCheck class="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Tabungan dan tujuan</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">30% dari pemasukan</span>
+                  </span>
+                </dt>
+                <dd class="shrink-0 text-sm font-bold tabular-nums text-[#0B192C] dark:text-slate-100">{{ formatRupiah(savingsAmount) }}</dd>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <dt class="flex min-w-0 items-center gap-3">
+                  <Sparkles class="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Keinginan</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">20% dari pemasukan</span>
+                  </span>
+                </dt>
+                <dd class="shrink-0 text-sm font-bold tabular-nums text-[#0B192C] dark:text-slate-100">{{ formatRupiah(wantsAmount) }}</dd>
+              </div>
+            </dl>
+
+            <RouterLink to="/#simulasi" class="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:text-blue-300 dark:hover:text-blue-200">
+              Sesuaikan di simulasi anggaran <ChevronRight class="h-4 w-4" aria-hidden="true" />
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -271,22 +299,44 @@ const toggleFaq = (index: number) => {
               </p>
             </div>
 
-            <!-- Interactive Micro Preview: Saldo vs Dana Tujuan -->
-            <div class="mt-8 grid grid-cols-2 gap-3 sm:gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
-              <div>
-                <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Uang Belum Disisihkan</p>
-                <p class="mt-1 text-base sm:text-lg font-extrabold tabular-nums text-[#0B192C] dark:text-[#F8FAFC]">
-                  Rp 4.250.000
+            <!-- Example graphic: one bank balance, two planned uses -->
+            <div class="mt-8 rounded-xl border border-slate-200/80 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40 sm:p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Ilustrasi saldo</p>
+                  <p class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">Saldo di satu rekening</p>
+                </div>
+                <p class="shrink-0 text-sm font-extrabold tabular-nums text-[#0B192C] dark:text-[#F8FAFC] sm:text-base">
+                  {{ formatRupiah(exampleBalanceTotal) }}
                 </p>
-                <p class="text-[10px] text-slate-400 mt-0.5">Bebas dialokasikan</p>
               </div>
-              <div class="border-l border-slate-200 dark:border-slate-700 pl-3 sm:pl-4">
-                <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Dana Tujuan</p>
-                <p class="mt-1 text-base sm:text-lg font-extrabold tabular-nums text-blue-600 dark:text-blue-400">
-                  Rp 14.200.000
-                </p>
-                <p class="text-[10px] text-slate-400 mt-0.5">Terkunci untuk target</p>
+
+              <div
+                class="mt-4 flex h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+                role="img"
+                :aria-label="`Ilustrasi saldo rekening ${formatRupiah(exampleBalanceTotal)}: ${formatRupiah(exampleUnplannedAmount)} belum direncanakan dan ${formatRupiah(examplePlannedAmount)} sudah direncanakan`"
+              >
+                <span class="h-full bg-slate-400 dark:bg-slate-500" :style="{ width: `${exampleUnplannedShare}%` }"></span>
+                <span class="h-full flex-1 bg-blue-600 dark:bg-blue-400"></span>
               </div>
+
+              <div class="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Belum direncanakan</p>
+                  <p class="mt-1 text-sm font-extrabold tabular-nums text-[#0B192C] dark:text-[#F8FAFC]">
+                    {{ formatRupiah(exampleUnplannedAmount) }}
+                  </p>
+                </div>
+                <div class="border-l border-slate-200 pl-4 dark:border-slate-700">
+                  <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Sudah punya tujuan</p>
+                  <p class="mt-1 text-sm font-extrabold tabular-nums text-blue-700 dark:text-blue-300">
+                    {{ formatRupiah(examplePlannedAmount) }}
+                  </p>
+                </div>
+              </div>
+              <p class="mt-4 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                Uangnya tetap di rekening yang sama. Nalara mencatat rencana penggunaannya.
+              </p>
             </div>
           </div>
 
@@ -323,8 +373,8 @@ const toggleFaq = (index: number) => {
 
           <!-- Bento Cell 3: Target Impian Projection (Span 3) -->
           <div class="md:col-span-3 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 transition-all dark:border-slate-800 dark:bg-[#0D1524]">
-            <div class="grid items-center gap-6 md:grid-cols-3">
-              <div class="md:col-span-2">
+            <div class="grid items-center gap-8 lg:grid-cols-[1.05fr_.95fr]">
+              <div>
                 <div class="w-12 h-12 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-bold mb-4 shadow-xs dark:bg-blue-600">
                   <Layers class="w-6 h-6" />
                 </div>
@@ -334,16 +384,32 @@ const toggleFaq = (index: number) => {
                 <p class="mt-2 max-w-[60ch] text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-400">
                   Tentukan target barang atau dana pengaman, lalu Nalara menghitung estimasi bulan tercapai berdasarkan kemampuan tabungan bulanan aktual Anda.
                 </p>
+                <div class="mt-6 flex">
+                  <RouterLink
+                    to="/#simulasi"
+                    class="tactile-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B192C] hover:bg-slate-100 transition shadow-2xs dark:bg-slate-800/80 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                  >
+                    Coba Kalkulator Target
+                    <ArrowRight class="w-3.5 h-3.5" />
+                  </RouterLink>
+                </div>
               </div>
-              <div class="flex md:justify-end">
-                <RouterLink
-                  to="/#simulasi"
-                  class="tactile-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B192C] hover:bg-slate-100 transition shadow-2xs dark:bg-slate-800/80 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
-                >
-                  Coba Kalkulator Target
-                  <ArrowRight class="w-3.5 h-3.5" />
-                </RouterLink>
-              </div>
+              <figure
+                data-landing-reveal
+                class="landing-reveal overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-900"
+              >
+                <img
+                  src="/nalara-goal-flow.jpg"
+                  alt="Ilustrasi tiga aliran rencana keuangan menuju kebutuhan, tabungan, dan tujuan pribadi"
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
+                  class="aspect-[3/2] w-full object-cover"
+                />
+                <figcaption class="border-t border-slate-200 px-4 py-3 text-xs leading-relaxed text-slate-600 dark:border-slate-700 dark:text-slate-300">
+                  Ilustrasi aliran pemasukan menuju kebutuhan, tabungan, dan tujuan pribadi.
+                </figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -383,6 +449,7 @@ const toggleFaq = (index: number) => {
             step="500000"
             class="landing-range mt-6 w-full cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none"
             aria-label="Geser perkiraan pemasukan bulanan"
+            :aria-valuetext="formatRupiah(monthlyIncome)"
           />
           <div class="mt-2 flex justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>Rp 3 juta</span>
@@ -395,50 +462,65 @@ const toggleFaq = (index: number) => {
               v-for="amount in incomePresets"
               :key="amount"
               type="button"
-              class="min-h-10 rounded-xl border px-3.5 text-xs font-bold transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B192C] dark:focus-visible:outline-[#38BDF8] cursor-pointer"
+              class="min-h-10 rounded-xl border px-3.5 text-xs font-bold transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer"
               :class="monthlyIncome === amount
-                ? 'border-[#0B192C] bg-[#0B192C] text-white dark:border-white dark:bg-white dark:text-[#0B192C] shadow-xs'
+                ? 'border-blue-600 bg-blue-600 text-white shadow-xs dark:border-blue-500 dark:bg-blue-600'
                 : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 dark:border-slate-700 dark:bg-[#070B14] dark:text-slate-300'"
+              :aria-pressed="monthlyIncome === amount"
               @click="monthlyIncome = amount"
             >
               {{ formatRupiah(amount) }}
             </button>
           </div>
 
-          <!-- 3-Column Split Breakdown Cards -->
-          <div class="mt-10 grid gap-4 border-t border-slate-200 pt-8 dark:border-slate-800 sm:grid-cols-3">
-            <div class="p-4 rounded-xl bg-white dark:bg-[#070B14] border border-slate-200/90 dark:border-slate-800">
-              <p class="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center justify-between">
-                <span>Kebutuhan Pokok</span>
-                <span class="text-xs font-normal">50%</span>
-              </p>
-              <p class="mt-2 text-2xl font-extrabold tabular-nums text-[#0B192C] dark:text-[#F8FAFC]">
-                {{ formatRupiah(needsAmount) }}
-              </p>
-              <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Makan, sewa, tagihan listrik, transportasi.</p>
+          <!-- Example allocation graphic and readable breakdown -->
+          <div class="mt-10 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div class="flex items-center justify-between gap-4">
+              <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200">Contoh pembagian</h3>
+              <span class="text-xs font-semibold tabular-nums text-slate-500 dark:text-slate-400">50 / 30 / 20</span>
+            </div>
+            <div
+              class="mt-4 flex h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+              role="img"
+              :aria-label="`Contoh pembagian dari ${formatRupiah(monthlyIncome)}: kebutuhan ${formatRupiah(needsAmount)}, tabungan dan target ${formatRupiah(savingsAmount)}, keinginan ${formatRupiah(wantsAmount)}`"
+            >
+              <span class="h-full bg-[#0B192C] dark:bg-slate-300" style="width: 50%"></span>
+              <span class="h-full bg-blue-600 dark:bg-blue-400" style="width: 30%"></span>
+              <span class="h-full bg-slate-400 dark:bg-slate-500" style="width: 20%"></span>
             </div>
 
-            <div class="p-4 rounded-xl bg-white dark:bg-[#070B14] border border-slate-200/90 dark:border-slate-800">
-              <p class="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center justify-between">
-                <span>Tabungan & Target</span>
-                <span class="text-xs font-normal">30%</span>
-              </p>
-              <p class="mt-2 text-2xl font-extrabold tabular-nums text-blue-600 dark:text-blue-400">
-                {{ formatRupiah(savingsAmount) }}
-              </p>
-              <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Disisihkan untuk dana pengaman dan impian.</p>
-            </div>
-
-            <div class="p-4 rounded-xl bg-white dark:bg-[#070B14] border border-slate-200/90 dark:border-slate-800">
-              <p class="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center justify-between">
-                <span>Keinginan Pribadi</span>
-                <span class="text-xs font-normal">20%</span>
-              </p>
-              <p class="mt-2 text-2xl font-extrabold tabular-nums text-[#0B192C] dark:text-[#F8FAFC]">
-                {{ formatRupiah(wantsAmount) }}
-              </p>
-              <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Kopi, makan di luar, belanja santai mingguan.</p>
-            </div>
+            <dl class="mt-5 divide-y divide-slate-200 dark:divide-slate-800">
+              <div class="flex items-center justify-between gap-4 py-3">
+                <dt>
+                  <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Kebutuhan pokok</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">Kebutuhan dan tagihan</span>
+                </dt>
+                <dd class="shrink-0 text-right">
+                  <span class="block text-sm font-bold tabular-nums text-[#0B192C] dark:text-slate-100">{{ formatRupiah(needsAmount) }}</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">50%</span>
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3">
+                <dt>
+                  <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Tabungan dan target</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">Dana pengaman dan rencana</span>
+                </dt>
+                <dd class="shrink-0 text-right">
+                  <span class="block text-sm font-bold tabular-nums text-blue-700 dark:text-blue-300">{{ formatRupiah(savingsAmount) }}</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">30%</span>
+                </dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 py-3">
+                <dt>
+                  <span class="block text-sm font-semibold text-slate-800 dark:text-slate-200">Keinginan pribadi</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">Belanja dan rekreasi</span>
+                </dt>
+                <dd class="shrink-0 text-right">
+                  <span class="block text-sm font-bold tabular-nums text-[#0B192C] dark:text-slate-100">{{ formatRupiah(wantsAmount) }}</span>
+                  <span class="block text-xs text-slate-500 dark:text-slate-400">20%</span>
+                </dd>
+              </div>
+            </dl>
           </div>
 
           <!-- Target Impian Projection Subsection -->
@@ -458,9 +540,9 @@ const toggleFaq = (index: number) => {
                 v-for="goal in goals"
                 :key="goal.key"
                 type="button"
-                class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B192C] dark:focus-visible:outline-[#38BDF8] cursor-pointer"
+                class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer"
                 :class="selectedGoalKey === goal.key
-                  ? 'border-[#0B192C] bg-blue-50 text-[#0B192C] dark:border-blue-400 dark:bg-blue-950/50 dark:text-blue-200 shadow-xs'
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-xs dark:border-blue-500 dark:bg-blue-600'
                   : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 dark:border-slate-700 dark:bg-[#070B14] dark:text-slate-300'"
                 :aria-pressed="selectedGoalKey === goal.key"
                 @click="selectedGoalKey = goal.key"
@@ -473,6 +555,7 @@ const toggleFaq = (index: number) => {
             <!-- Result Calculation Callout -->
             <div
               class="mt-7 flex flex-col gap-4 rounded-xl bg-white p-5 border border-slate-200 sm:flex-row sm:items-end sm:justify-between sm:p-6 dark:bg-[#070B14] dark:border-slate-800"
+              :class="{ 'simulation-result-updated': simulationResultUpdated }"
               aria-live="polite"
             >
               <div>
@@ -510,9 +593,33 @@ const toggleFaq = (index: number) => {
           Lihat perbedaan pendekatan Nalara dibanding mencatat manual di spreadsheet atau mengandalkan aplikasi bank standar.
         </p>
 
-        <!-- Comparison Table Container -->
-        <div class="mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#0D1524]">
-          <table class="w-full text-left text-sm">
+        <!-- Mobile comparison: stacked by feature to avoid horizontal scrolling -->
+        <div class="mt-8 space-y-6 md:hidden">
+          <article v-for="row in comparisonRows" :key="row.feature" class="border-t border-slate-200 pt-5 dark:border-slate-800">
+            <h3 class="text-sm font-bold leading-relaxed text-slate-900 dark:text-slate-100">{{ row.feature }}</h3>
+            <div class="mt-3 border-l-2 border-blue-600 pl-3 dark:border-blue-400">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">Nalara</p>
+              <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{{ row.nalara }}</p>
+            </div>
+            <dl class="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <dt class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Spreadsheet</dt>
+                <dd class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">{{ row.spreadsheet }}</dd>
+              </div>
+              <div>
+                <dt class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Aplikasi bank biasa</dt>
+                <dd class="mt-1 flex items-start gap-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  <XIcon v-if="row.bankUnavailable" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                  <span>{{ row.bank }}</span>
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <!-- Desktop comparison table -->
+        <div class="mt-10 hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#0D1524] md:block">
+          <table class="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-xs font-bold text-slate-700 dark:text-slate-300">
                 <th class="p-4 sm:p-5 w-1/3">Fitur & Pendekatan</th>
@@ -524,49 +631,18 @@ const toggleFaq = (index: number) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-              <tr>
-                <td class="p-4 sm:p-5 font-semibold text-slate-800 dark:text-slate-200">
-                  Penyisihan dana mental dalam 1 rekening fisik
+              <tr v-for="row in comparisonRows" :key="row.feature">
+                <td class="p-4 sm:p-5 font-semibold text-slate-800 dark:text-slate-200">{{ row.feature }}</td>
+                <td class="bg-blue-50/30 p-4 font-bold text-emerald-600 dark:bg-blue-950/10 dark:text-emerald-400 sm:p-5">
+                  <div class="flex items-center gap-1.5"><Check class="h-4 w-4 shrink-0" aria-hidden="true" /> {{ row.nalara }}</div>
                 </td>
-                <td class="p-4 sm:p-5 bg-blue-50/30 dark:bg-blue-950/10 font-bold text-emerald-600 dark:text-emerald-400">
-                  <div class="flex items-center gap-1.5"><Check class="w-4 h-4" /> Otomatis & Terkunci</div>
+                <td class="p-4 text-slate-500 sm:p-5">{{ row.spreadsheet }}</td>
+                <td class="p-4 text-slate-500 sm:p-5">
+                  <div class="flex items-center gap-1.5" :class="row.bankUnavailable ? 'text-slate-400' : ''">
+                    <XIcon v-if="row.bankUnavailable" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {{ row.bank }}
+                  </div>
                 </td>
-                <td class="p-4 sm:p-5 text-slate-500">Rumus manual rawan rusak</td>
-                <td class="p-4 sm:p-5 text-slate-500">Harus buka rekening baru</td>
-              </tr>
-              <tr>
-                <td class="p-4 sm:p-5 font-semibold text-slate-800 dark:text-slate-200">
-                  Pembagian rasio 50/30/20 real-time
-                </td>
-                <td class="p-4 sm:p-5 bg-blue-50/30 dark:bg-blue-950/10 font-bold text-emerald-600 dark:text-emerald-400">
-                  <div class="flex items-center gap-1.5"><Check class="w-4 h-4" /> Langsung dihitung</div>
-                </td>
-                <td class="p-4 sm:p-5 text-slate-500">Butuh setup tabel rumit</td>
-                <td class="p-4 sm:p-5 text-slate-500">
-                  <div class="flex items-center gap-1.5 text-slate-400"><XIcon class="w-4 h-4" /> Tidak ada</div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-4 sm:p-5 font-semibold text-slate-800 dark:text-slate-200">
-                  Proyeksi target impian berbasis waktu
-                </td>
-                <td class="p-4 sm:p-5 bg-blue-50/30 dark:bg-blue-950/10 font-bold text-emerald-600 dark:text-emerald-400">
-                  <div class="flex items-center gap-1.5"><Check class="w-4 h-4" /> Estimasi bulan akurat</div>
-                </td>
-                <td class="p-4 sm:p-5 text-slate-500">Perlu rumus manual</td>
-                <td class="p-4 sm:p-5 text-slate-500">
-                  <div class="flex items-center gap-1.5 text-slate-400"><XIcon class="w-4 h-4" /> Tidak ada</div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-4 sm:p-5 font-semibold text-slate-800 dark:text-slate-200">
-                  Bebas iklan, penawaran pinjol, dan pelacak data
-                </td>
-                <td class="p-4 sm:p-5 bg-blue-50/30 dark:bg-blue-950/10 font-bold text-emerald-600 dark:text-emerald-400">
-                  <div class="flex items-center gap-1.5"><Check class="w-4 h-4" /> 100% Bersih & Privat</div>
-                </td>
-                <td class="p-4 sm:p-5 text-slate-600 dark:text-slate-300">Tergantung penyedia cloud</td>
-                <td class="p-4 sm:p-5 text-slate-500">Penuh banner promosi & paylater</td>
               </tr>
             </tbody>
           </table>
@@ -578,15 +654,13 @@ const toggleFaq = (index: number) => {
     <section class="border-t border-slate-200/80 bg-white py-16 dark:border-slate-800/80 dark:bg-[#070B14] sm:py-24">
       <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-10">
         <div class="max-w-xl">
-          <!-- Status Pill -->
-          <div class="mb-5 inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium text-slate-700 shadow-2xs dark:border-slate-800 dark:bg-[#0D1524] dark:text-slate-300">
-            <span class="relative flex h-2 w-2">
-              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-75"></span>
-              <span class="relative inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
+          <!-- Feature availability -->
+          <div class="mb-5 flex flex-wrap items-center gap-3">
+            <span class="inline-flex min-h-9 items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <Smartphone class="h-4 w-4" aria-hidden="true" />
+              Aplikasi mobile
             </span>
-            <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Coming Soon</span>
-            <span class="h-3 w-px bg-slate-200 dark:bg-slate-700"></span>
-            <span>Aplikasi Mobile</span>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Segera hadir</span>
           </div>
 
           <!-- Headline -->
@@ -600,11 +674,9 @@ const toggleFaq = (index: number) => {
           </p>
 
           <!-- Feature Highlights -->
-          <div class="mt-8 space-y-3">
-            <div class="flex items-center gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-[#0D1524] border border-slate-200/80 dark:border-slate-800 transition hover:border-slate-300 dark:hover:border-slate-700">
-              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 flex items-center justify-center shrink-0">
-                <Smartphone class="w-4 h-4" />
-              </div>
+          <div class="mt-8 grid gap-x-6 sm:grid-cols-2">
+            <div class="flex items-start gap-3 border-t border-slate-200 py-4 dark:border-slate-800">
+              <Smartphone class="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               <div>
                 <p class="text-xs font-bold text-[#0B192C] dark:text-[#F8FAFC]">
                   Akses instan dari layar utama ponsel dengan satu ketukan
@@ -615,10 +687,8 @@ const toggleFaq = (index: number) => {
               </div>
             </div>
 
-            <div class="flex items-center gap-3.5 p-3.5 rounded-xl bg-slate-50 dark:bg-[#0D1524] border border-slate-200/80 dark:border-slate-800 transition hover:border-slate-300 dark:hover:border-slate-700">
-              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 flex items-center justify-center shrink-0">
-                <ShieldCheck class="w-4 h-4" />
-              </div>
+            <div class="flex items-start gap-3 border-t border-slate-200 py-4 dark:border-slate-800">
+              <ShieldCheck class="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               <div>
                 <p class="text-xs font-bold text-[#0B192C] dark:text-[#F8FAFC]">
                   Privasi terjaga tanpa iklan pihak ketiga
@@ -644,36 +714,22 @@ const toggleFaq = (index: number) => {
 
         <!-- Right Side: Editorial Image Card -->
         <figure class="relative mx-auto w-full max-w-lg lg:mr-0">
-          <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-[#070B14] shadow-xl">
-            <!-- Top Floating Status Pill -->
-            <div class="absolute top-4 left-4 z-10 inline-flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md border border-white/15">
-              <span class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
-              <span>Pratinjau Antarmuka Mobile</span>
-            </div>
-
+          <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5 dark:border-slate-800 dark:bg-[#0D1524] dark:shadow-black/30">
             <img
               src="/nalara-landing-mobile.jpg"
-              alt="Seseorang membuka aplikasi keuangan Nalara di smartphone saat santai di kafe"
+              alt="Ilustrasi seseorang melihat aplikasi keuangan di ponsel saat berada di kafe"
               width="1536"
               height="1024"
               loading="lazy"
               class="h-[320px] w-full object-cover sm:h-[390px]"
             />
-
-            <!-- Bottom Floating Device Support Strip -->
-            <div class="absolute bottom-4 inset-x-4 z-10 flex items-center justify-between rounded-xl bg-black/60 px-4 py-2.5 backdrop-blur-md border border-white/10 text-white text-xs">
-              <div class="flex items-center gap-2 font-medium">
-                <Smartphone class="h-4 w-4 text-blue-400" />
-                <span>Mendukung iOS, Android & Desktop</span>
-              </div>
-              <span class="rounded-md bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white uppercase">
-                PWA
-              </span>
+            <div class="flex items-center gap-3 border-t border-slate-200 px-5 py-4 dark:border-slate-800">
+              <Smartphone class="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+              <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                Ilustrasi mencatat dan memantau keuangan lewat ponsel.
+              </p>
             </div>
           </div>
-          <figcaption class="mt-3 text-xs text-slate-500 dark:text-slate-400">
-            Akses catatan keuangan langsung dari smartphone Anda kapan saja dan di mana saja.
-          </figcaption>
         </figure>
       </div>
     </section>
@@ -699,6 +755,8 @@ const toggleFaq = (index: number) => {
             <button
               type="button"
               class="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-[#0B192C] dark:text-[#F8FAFC] cursor-pointer"
+              :aria-expanded="openFaqIndex === index"
+              :aria-controls="`landing-faq-answer-${index}`"
               @click="toggleFaq(index)"
             >
               <span>{{ faq.q }}</span>
@@ -708,10 +766,15 @@ const toggleFaq = (index: number) => {
               />
             </button>
             <div
-              v-show="openFaqIndex === index"
-              class="px-5 pb-5 pt-0 text-sm leading-relaxed text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/60"
+              :id="`landing-faq-answer-${index}`"
+              class="grid overflow-hidden transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"
+              :class="openFaqIndex === index ? 'grid-rows-[1fr] border-t border-slate-100 dark:border-slate-800/60' : 'grid-rows-[0fr]'"
+              :aria-hidden="openFaqIndex !== index"
+              :inert="openFaqIndex !== index"
             >
-              <p class="pt-3">{{ faq.a }}</p>
+              <div class="min-h-0 overflow-hidden">
+                <p class="px-5 pb-5 pt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{{ faq.a }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -732,7 +795,7 @@ const toggleFaq = (index: number) => {
           </div>
           <RouterLink
             :to="startLink"
-            class="tactile-btn inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[#0B192C] transition hover:bg-slate-100 hover:-translate-y-0.5 active:scale-[0.98] shadow-xs"
+            class="nalara-primary-action inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold shadow-xs hover:-translate-y-0.5"
           >
             {{ startLabel }}
             <ArrowRight class="h-4 w-4" aria-hidden="true" />
@@ -744,11 +807,67 @@ const toggleFaq = (index: number) => {
 </template>
 
 <style scoped>
-.landing-range {
-  accent-color: #0b192c;
+.landing-hero-copy,
+.landing-hero-visual {
+  animation: landingHeroEnter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-:global(html.dark) .landing-range {
-  accent-color: #38bdf8;
+.landing-hero-visual {
+  animation-delay: 90ms;
+}
+
+.landing-reveal {
+  transition:
+    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing-reveal-pending {
+  opacity: 0;
+  transform: translateY(14px) scale(0.99);
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.simulation-result-updated {
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-accent) 16%, transparent);
+}
+
+#target-impian [aria-live] {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+@keyframes landingHeroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-range {
+  accent-color: #2563eb;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-copy,
+  .landing-hero-visual,
+  .landing-reveal,
+  #target-impian [aria-live] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
 }
 </style>

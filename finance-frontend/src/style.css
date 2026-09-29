@@ -82,6 +82,59 @@ html.dark .bg-grid-pattern {
   transform: scale(0.975) translateY(1px);
 }
 
+/* Shared primary action for public-facing navigation and conversion points. */
+.nalara-primary-action {
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  transition:
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.nalara-primary-action:hover:not(:disabled) {
+  background-color: var(--color-brand-accent-hover);
+}
+
+.nalara-primary-action:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.nalara-primary-action:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 3px;
+}
+
+.nalara-primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Quiet secondary action for public pages; visually distinct from the primary CTA. */
+.nalara-secondary-action {
+  border: 1px solid var(--color-brand-border);
+  background-color: var(--color-brand-card);
+  color: var(--color-brand-text);
+  transition:
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.nalara-secondary-action:hover {
+  border-color: var(--color-brand-accent);
+  background-color: var(--color-brand-bg);
+}
+
+.nalara-secondary-action:active {
+  transform: scale(0.98);
+}
+
+.nalara-secondary-action:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 3px;
+}
+
 /* Glassmorphism approximations per taste-skills */
 .glass-dock {
   background: rgba(255, 255, 255, 0.94);
@@ -205,6 +258,8 @@ html.dark .fintech-card-interactive:hover {
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .tactile-btn,
+  .nalara-primary-action,
+  .nalara-secondary-action,
   .fintech-card-interactive,
   .animate-modal-enter {
     transition: none !important;
@@ -223,4 +278,3 @@ html.dark .fintech-card-interactive:hover {
 .bottom-safe {
   bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
 }
-

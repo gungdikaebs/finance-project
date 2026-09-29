@@ -175,7 +175,7 @@ async function handleSubmit() {
               <input id="link-password" v-model="linkPassword" type="password" autocomplete="current-password" required class="auth-input" />
             </div>
             <p v-if="errorMessage" role="alert" class="auth-error">{{ errorMessage }}</p>
-            <button type="submit" :disabled="loading" class="auth-primary w-full">
+            <button type="submit" :disabled="loading" class="nalara-primary-action auth-primary w-full">
               {{ loading ? 'Menghubungkan...' : 'Hubungkan dan masuk' }}
             </button>
           </form>
@@ -290,7 +290,7 @@ async function handleSubmit() {
               </div>
             </div>
 
-            <button type="submit" :disabled="loading" class="auth-primary w-full mt-2 inline-flex items-center justify-center gap-2 cursor-pointer">
+            <button type="submit" :disabled="loading" class="nalara-primary-action auth-primary w-full mt-2 inline-flex items-center justify-center gap-2 cursor-pointer">
               {{ loading ? 'Memproses...' : isRegister ? 'Daftar dengan email' : 'Masuk dengan email' }}
               <ArrowRight v-if="!loading" class="w-4 h-4" />
             </button>
@@ -330,26 +330,9 @@ async function handleSubmit() {
 .auth-primary {
   min-height: 3rem;
   border-radius: 0.75rem;
-  background: #0b192c;
-  color: #ffffff;
   padding: 0.7rem 1rem;
   font-weight: 700;
   font-size: 0.875rem;
-  transition: transform 0.15s ease, background-color 0.15s ease;
-}
-.auth-primary:hover:not(:disabled) {
-  background: #172b45;
-}
-.auth-primary:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.auth-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.auth-primary:focus-visible {
-  outline: 3px solid #38bdf8;
-  outline-offset: 3px;
 }
 
 .auth-mode {
@@ -395,14 +378,6 @@ async function handleSubmit() {
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
-:global(html.dark .auth-primary) {
-  background: #ffffff;
-  color: #0b192c;
-}
-:global(html.dark .auth-primary:hover:not(:disabled)) {
-  background: #f1f5f9;
-}
-
 :global(html.dark .auth-mode) {
   color: #94a3b8;
 }
@@ -424,7 +399,7 @@ async function handleSubmit() {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-primary {
+  .nalara-primary-action {
     transition: none;
   }
 }

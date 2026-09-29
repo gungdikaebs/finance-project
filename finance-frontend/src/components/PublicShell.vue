@@ -59,7 +59,7 @@ const closeMenu = () => {
           </RouterLink>
           <RouterLink
             :to="startLink"
-            class="hidden min-h-10 items-center gap-2 whitespace-nowrap rounded-xl bg-[#0B192C] px-4 py-2 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#172B45] hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B192C] dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100 dark:focus-visible:outline-white sm:inline-flex"
+            class="nalara-primary-action hidden min-h-10 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold shadow-xs hover:-translate-y-0.5 sm:inline-flex"
           >
             {{ startLabel }} <ArrowRight class="h-4 w-4" aria-hidden="true" />
           </RouterLink>
@@ -98,7 +98,7 @@ const closeMenu = () => {
             </RouterLink>
             <RouterLink
               :to="startLink"
-              class="flex min-h-11 items-center justify-center rounded-xl bg-[#0B192C] px-3 text-center font-bold text-white transition hover:bg-[#172B45] dark:bg-white dark:text-[#0B192C] dark:hover:bg-slate-100"
+              class="nalara-primary-action flex min-h-11 items-center justify-center rounded-xl px-3 text-center font-bold"
               :class="auth.token ? 'col-span-2' : ''"
               @click="closeMenu"
             >
